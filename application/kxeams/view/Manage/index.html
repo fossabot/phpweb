@@ -1,0 +1,81 @@
+{extend name="Layout/layout" /}{block name="leftmenu"}{include
+file="C/leftmenu_manage" /}{/block}{block name="main"}
+<div class="htmltitle">
+	<h2>物资总览</h2>
+</div>
+<hr>
+<div>
+	<p>
+		若有异常数据，可以在此进行删除<span><a class="btn btn-link"
+			onclick="deleteSelectedItem()">删除选择的项目</a></span>
+	</p>
+</div>
+<div id="gridbox" style="width: 780px; height: 450px;"></div>
+<hr>
+<script>
+	var myGrid = new dhtmlXGridObject('gridbox');
+	myGrid.setImagePath("__ROOT__/static/codebase/imgs/");
+	
+	var myGrid__Header = "{$Header}";
+	var myGrid__Widths = "{$Widths}";
+	var myGrid__ColSorting = "{$ColSorting}";
+	var myGrid__ColTypes = "{$ColTypes}";
+	myGrid.setHeader(myGrid__Header);
+	myGrid.attachHeader(",#select_filter,#text_filter");
+	myGrid.enableAutoWidth(true);
+	myGrid.setInitWidths(myGrid__Widths);
+	myGrid.setColSorting(myGrid__ColSorting);
+	//myGrid.setColTypes(myGrid__ColTypes);
+	myGrid.setDateFormat("%Y-%m-%d %H:%i:%s");
+	myGrid.setSkin("dhx_skyblue");
+	myGrid.setCSVDelimiter(',');
+	myGrid.init();
+	
+	//myGrid.enableCSVAutoID(false);
+	//myGrid.makeSearch("mysearchFilter",1);
+	//myGrid.enableSmartRendering(true);
+	var jsonstr= {$dd};
+	myGrid.parse(jsonstr,"json");
+	$("td").attr("align","center");
+	//myGrid.load("__ROOT__/index/tt","json");
+	function deleteSelectedItem(){
+		var RowId = myGrid.getSelectedRowId();
+		//var RowIndex = myGrid.getRowIndex(myGrid.getSelectedRowId());
+		dhtmlx.confirm({title:"确认删除",text:"删除后所有相关的领用信息也一并删除，且无法撤销，请谨慎操作",ok:"确认",cancel:"取消",callback:function(result){
+			if(result){
+				dhtmlx.message({text:"已删除。"});
+				myGrid.deleteRow(RowId);
+			}
+		}});
+		/*$.post("index.html",{del_id:RowId},function(data){
+			var dhxWins = new dhtmlXWindows();
+			dhxWins.attachViewportTo("winVP");
+			dhxWins.createWindow({
+				id : "a",
+				left : 20,
+				top : 30,
+				width : 250,
+				height : 250,
+				text : "确认删除相关信息",
+				center : true,
+				onClose : function() {
+					alert("I'm closed");
+				}
+			});
+			var dhxDataView = dhxWins.window("a").attachDataView({
+				container: "data_container",
+				type: {
+					template: "名称：#name#<br>型号：#type#<br>生产厂家：#maker#<br>",
+					height: 100,
+				},
+				select: true
+			});
+			var dd = [ ];
+			dd[0] = data;
+			console.log(dd);
+			dhxDataView.parse(dd,"json");
+		});*/
+	}
+</script>
+<div id="data_container" style="display: none;"></div>
+{/block}

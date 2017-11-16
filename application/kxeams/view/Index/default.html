@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html>
+<head>
+{include file="c/common" /}
+<title>EAMS-首页</title> {js href="__STATIC__/md5-min.js"}
+<style>
+body {
+	overflow: hidden;
+}
+
+ul li {
+	list-style: none;
+}
+
+.titlee {
+	MARGIN: 20px 0px 0px 20px;
+	FONT-FAMILY: "微软雅黑", "宋体", sans-serif;
+	FLOAT: left;
+	COLOR: #088bff;
+	FONT-SIZE: 26px;
+	FONT-WEIGHT: normal;
+}
+
+.title-bg {
+	POSITION: relative;
+	MARGIN: 0px auto;
+	WIDTH: 1000px;
+	HEIGHT: 85px;
+}
+
+.link-center-con {
+	POSITION: relative;
+	MARGIN: 0px auto;
+	WIDTH: 1000px;
+	BACKGROUND: url(__STATIC__/imgs/frontpage_macbook.png) no-repeat;
+	HEIGHT: 430px;
+}
+
+.renzheng { /*请在登陆后使用*/
+	FONT-FAMILY: "微软雅黑", "宋体", sans-serif;
+	font-size: 18px;
+	text-indent: 30px;
+	color: #088bff;
+	text-align: left;
+	height: 50px;
+	font-weight: bold;
+}
+
+#tab1 {
+	/*BACKGROUND: url(index_files/login_box.png) no-repeat;*/
+	background-color: rgba(255, 255, 255, 0.5);
+	border: #093 1px solid;
+	border: rgba(0, 154, 48, 0.5) 1px solid;
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#c8ffffff,
+		endColorstr=#7fffffff); /*0.3:4c-----0.5:7f------0.8:c8*/
+	POSITION: absolute;
+	TOP: 54px;
+	RIGHT: 100px;
+	WIDTH: 320px;
+	HEIGHT: 300px;
+}
+
+#tab1 th {
+	text-indent: 10px;
+}
+
+#time {
+	POSITION: absolute;
+	TOP: 85px;
+	RIGHT: 120px;
+	color: #000;
+	FONT-FAMILY: "宋体";
+}
+
+.logininnput {
+	PADDING-LEFT: 10px;
+	WIDTH: 220px;
+	HEIGHT: 37px;
+	LINE-HEIGHT: 37px;
+	/*COLOR: lime;*/
+	font-size: 18px;
+	/*background-color: transparent;*/
+}
+
+.forget-pwd {
+	float: right;
+	padding: 0px 10px;
+	font-size: 12px;
+	color: #333;
+	FONT-FAMILY: "微软雅黑", "宋体", sans-serif;
+}
+
+.remberpwd {
+	float: left;
+	text-indent: 50px;
+	color: #000;
+	font-size: 12px;
+	/*visibility: hidden;*/
+}
+
+#tips {
+	text-align: center;
+	color: red;
+	font-size: 12px;
+}
+
+.login-btn { /*重置按钮*/
+	border: none;
+	WIDTH: 122px;
+	height: 34px;
+	FONT-FAMILY: "微软雅黑", "宋体", sans-serif;
+	/*COLOR: #3388ff;*/
+	color: #000;
+	background-color: #fff; /*白色*/
+	FONT-SIZE: 18px;
+}
+
+.login-btnhover { /*提交按钮*/
+	border: none;
+	WIDTH: 122px;
+	FONT-FAMILY: "微软雅黑", "宋体", sans-serif;
+	HEIGHT: 34px;
+	color: #fff;
+	/*COLOR: #3388ff;*/
+	background-color: #3388ff;
+	FONT-SIZE: 18px;
+}
+
+.outbg input {
+	border: 1px #ccc solid;
+}
+
+A {
+	TEXT-DECORATION: none;
+}
+
+A:hover {
+	TEXT-DECORATION: underline;
+}
+</style>
+
+</head>
+<body>
+
+	<div>
+		<div align="center">
+			<div class="title-bg clearfix">
+				<div class="titlee">
+					<h2>
+						维材管理系统<small>-客响中心</small>
+					</h2>
+				</div>
+			</div>
+			<div class="link-center-con">
+
+				<form method="post" action="login" id="form1">
+					<table align="center" cellspacing="5" cellpadding="1" id="tab1"
+						border="0">
+						<tr>
+							<td colspan="2" class="renzheng">请在登陆后使用</td>
+						</tr>
+
+						<tr class="input">
+							<th>账号：</th>
+							<td><input type="text" name="txtUser" id="txtUser"
+								class="logininnput" maxlength=20></td>
+						</tr>
+						<tr style="width: 320px;">
+							<td></td>
+							<td><a class="forget-pwd"
+								onmousemove="c$.mmove(this,'忘记密码请联系管理员.')"
+								onmouseout="c$.mout();" href="javascript:void(0)" tabindex="-1">忘记密码</a>
+							</td>
+						</tr>
+						<tr class="input">
+							<th>密码：</th>
+							<td><input type="password" name="txtPwd" id="txtPwd"
+								class="logininnput" style="ime-mode: disabled" maxlength=32
+								onmousemove="c$.mmove(this,'用户名通常为姓名的拼音，登录后可修改密码。')"
+								onmouseout="c$.mout();"></td>
+						</tr>
+						<tr>
+							<td colspan="2"><span class='remberpwd'><input
+									id="remberpwd" type="checkbox">记住密码</span></td>
+						</tr>
+						<tr>
+							<td colspan="2"><div id="tips">&nbsp;</div></td>
+						</tr>
+						<tr>
+							<td colspan="2" align="center"><span class="outbg"> <input
+									value="重置" type="reset" class=login-btn
+									onmouseover="this.className='login-btnhover'"
+									onmouseout="this.className='login-btn'"
+									onmousedown="this.className='login-btn'">
+							</span>&nbsp;&nbsp; <span class="outbg"> <input id="submitt"
+									type="submit" value="登录" class="login-btnhover"
+									onmouseover="this.className='login-btn'"
+									onmouseout="this.className='login-btnhover'"
+									onmousedown="this.className='login-btnhover'">
+							</span></td>
+						</tr>
+
+					</table>
+					<span id="time"></span>
+
+					<div id="ifwritepwd"></div>
+
+				</form>
+
+			</div>
+			<div
+				style="font-size: 12px; font-family: Arial; margin-top: 50px; width: 480px;">
+				<p style="padding-right: 15px; color: #857fde">
+					系统版本：<a class="" href="">{$version}</a>
+				</p>
+				<span>版权所有&nbsp;&copy;&nbsp;2016-<span id="thisyear"></span>&nbsp;Xianda
+				</span>
+			</div>
+		</div>
+
+
+	</div>
+</body>
+
+
+<script>
+	var today = 0;
+	var h = 0;
+	var m = 0;
+	var flag = 0;
+	function startTime() {
+		today = new Date();
+		h = today.getHours();
+		m = today.getMinutes();
+		var s = today.getSeconds();
+		h = checkTime(h);
+		m = checkTime(m);
+		s = checkTime(s);
+		document.getElementById("time").innerHTML = h + ":" + m + ":" + s;
+		if (flag == 0) {
+			wstatus();
+			flag++;
+		}
+		t = setTimeout('startTime()', 500);
+	}/* " " + */
+	function checkTime(i) {
+		if (i < 10) {
+			i = "0" + i;
+		}
+		return i;
+	}
+	function wstatus() {
+		window.status = "您的本机时间为： " + today.toLocaleDateString() + " " + h
+				+ ":" + m;
+		w = setTimeout('wstatus()', 30000);
+	}
+	//***随鼠标动提示框
+	var c$ = {};
+	var w$ = function(s) {
+		document.write(s);
+	};
+	var o$ = function(id) {
+		return document.getElementById(id);
+	};
+	w$("<div id=\"tlts\" style=\"position:absolute;color:#0000ff;background-color:#FFFFE6;font-size: 12px;padding: 3px; border: 1px solid #FFCC99;display:none\"></div>");
+
+	c$.mmove = function(o, s) {
+		// alert(typeof(s));
+		var evt = event || window.event;
+		if (s == "" || typeof (s) == "undefined") {
+			o$("tlts").innerHTML = o.innerHTML;
+		} else {
+			o$("tlts").innerHTML = s;
+		}
+		var x = evt.clientX - o$("tlts").offsetWidth / 2;
+		var y = evt.clientY + 20;
+		o$("tlts").style.left = x + "px";
+		o$("tlts").style.top = y + "px";
+		o$("tlts").style.display = "";
+	};
+	c$.mout = function() {
+		o$("tlts").style.display = "none";
+	};
+	//***随鼠标动提示框
+	function setCookies(c_name, value, expiresdays) {
+		var exdate = new Date();
+		exdate.setDate(exdate.getDate() + expiresdays);
+		document.cookie = c_name + "=" + escape(value) + ";expires="
+				+ exdate.toGMTString();
+	}
+	function getCookies(c_name) {
+		if (document.cookie.length > 0) {
+			c_start = document.cookie.indexOf(c_name + "=");
+			if (c_start != -1) {
+				c_start = c_start + c_name.length + 1;
+				c_end = document.cookie.indexOf(";", c_start);
+				if (c_end == -1)
+					c_end = document.cookie.length;
+				return unescape(document.cookie.substring(c_start, c_end));
+			}
+		}
+		return "";
+	}
+	$(function($) {
+		$("#thisyear").text(new Date().getFullYear());//获取版权处今年年份
+
+		startTime();
+
+		$("#form1").submit(function() {
+			if ($("#txtUser").val() == "") {
+				$("#tips").text("亲，你为什么不填写用户名呢？");
+				return false;
+			} else if ($("#txtPwd").val() == "") {
+				$("#tips").text("密码不能为空！");
+				return false;
+			} else {
+
+				setCookies("tlexcelname", $("#txtUser").val(), 30);
+				if ($("#remberpwd").is(":checked")) {
+					setCookies("tlexcelpwd", $("#txtPwd").val(), 30);
+					setCookies("tlexcelifcookiepwd", "yes", 30);
+				} else { //清除pwd的cookie
+					setCookies("tlexcelpwd", "", -1);
+					setCookies("tlexcelifcookiepwd", "", -1);
+				}
+				var arg = hex_md5($("#txtPwd").val());
+				$("#txtPwd").val(arg);
+				$("#tips").text("正在为您登陆，请稍后。");
+				return true;
+			}
+		});
+
+		$("#txtUser").val(getCookies("tlexcelname"));
+		if (getCookies("tlexcelifcookiepwd") == "yes") {
+			$("#remberpwd").attr("checked", "checked");
+			$("#txtPwd").val(getCookies("tlexcelpwd"));
+		}
+
+	});
+</script>
+</html>

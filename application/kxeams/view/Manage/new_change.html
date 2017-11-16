@@ -1,0 +1,385 @@
+{extend name="Layout/layout" /} {block name="leftmenu"}{include
+file="C/leftmenu_manage" /}{/block}{block name="main"}
+<style>
+#myForm {
+	position: absolute;
+	top: 70px;
+	bottom: 0;
+	left: 20px;
+	width: 300px;
+	/*border: 1px solid red;*/
+}
+#btn-add {
+	position: absolute;
+	top: 70px;
+	left: 340px;
+}
+#ItemObj {
+	position: absolute;
+	top: 104px;
+	bottom: 5px;
+	left: 340px;
+	right: 5px;
+	/*width: 800px;*/
+	border: 1px solid blue;
+}
+.newinBtn button{
+	margin: 20px 30px;
+}
+</style>
+<div class="htmltitle">
+	<h2>备品备件入库</h2>
+</div>
+<div id="myForm"></div>
+<div id="btn-add">
+	<button id="newwrBtn" class="btn btn-primary btn-sm" onclick="initWr()">填写维材信息</button>
+	<button id="newinBtn" class="btn btn-primary btn-sm" onclick="initIn()">导入维材信息</button>
+	<button id="newinBtn" class="btn btn-default btn-sm" onclick="javascript:mygrid.deleteSelectedRows();">删除选中行</button>
+</div>
+<div id=ItemObj></div>
+<script>
+	var mygrid = new dhtmlXGridObject('ItemObj');
+	mygrid.enableMultiselect(true);
+	mygrid.enableBlockSelection();
+	mygrid.enableLightMouseNavigation(true);
+	mygrid.setImagePath("__STATIC__/codebase/imgs/");
+	var mygrid__Header = "{$headers}";
+	var mygrid__Widths = "{$diswidth}";
+	var mygrid__ColSorting = "{$sortattr}";
+	var mygrid__ColTypes = "{$edattr}";
+	var mygrid__ColNames = "{$fields}";
+	var mygrid__DefaultVal = "{$defaultval}";
+	mygrid.setColValidators("{$validation}");
+	mygrid.setHeader(mygrid__Header);
+	//mygrid.attachHeader("#connector_text_filter,#text_search,#connector_select_filter");
+	//mygrid.enableAutoWidth(true,300,100);
+	mygrid.setInitWidths(mygrid__Widths);
+	mygrid.setColSorting(mygrid__ColSorting);
+	mygrid.setColTypes(mygrid__ColTypes);
+	mygrid.setDateFormat("%Y-%m-%d %H:%i:%s");
+	mygrid.setSkin("dhx_skyblue");
+	mygrid.init();
+	mygrid.setCSVDelimiter('\t');
+	mygrid.attachEvent("onValidationError", function(id,index,value,rule){
+	    dhtmlx.alert({type:"alert-error",title:"错误提示",text:"<div style='text-align: left; color: blue;'>位置：第<span style='color: red;'>"+id+"</span>行；单元格为：<span style='color: red;'>"+mygrid__Header.split(",")[index]+"</span><br>"+"内容：<span style='color: red;'>"+value+"</span><br>"+"错误原因：<span style='color: red;'>"+rule+"</span><br>"+"请修改后重试。</div>"});
+	    return false;
+	});
+	var	formStructure = [
+		{type:"fieldset",label:"维材入库单",inputWidth:"auto",list:[
+			{type:"settings",labelWidth:80,inputWidth:170},
+			{type:"block",inputWidth:"auto",blockOffset:0,offsetTop:0,list:[
+				{"type":"input","name":"form_type","label":"表单分类",value:"新入库",readonly:true},
+				{"type":"input","name":"username","label":"建单人",value:"{$Think.session.user['name']}",readonly:true},
+				{"type":"input","name":"usertel","label":"建单人电话",value:"{$Think.session.user['tel']}"},
+				{"type":"input","name":"dept","label":"所属单位",value:"{$Think.session.user['dept']}",note:{text:"若不正确请在个人设置里修改"},readonly:true},
+				{"type":"hidden","name":"to_dept","label":"存放分属单位/部门/中心"},
+				{"type":"select","name":"to_store","label":"存放地点",required: true},
+				//{"type":"input","name":"owner","label":"管理人",value:"{$Think.session.user['name']}",required: true},
+				{"type":"hidden","name":"progress","label":"审批状态",value:"-"},
+				{"type":"input","name":"mremarks","label":"备注",rows:3,note:{text:"选填"}},
+			]},
+			{type:"block",inputWidth:"250",blockOffset:"80",offsetTop:20,list:[
+				{"type":"button","name":"f_submit","value":"提交"},
+			]}
+		]}
+	];
+	var addStructure = [
+		{type:"block",inputWidth:"auto",blockOffset:"10",offsetTop:0,list:[
+			{type:"settings",labelWidth:60,inputWidth:170},
+			{type:"block",inputWidth:"auto",blockOffset:"-",list:[
+				{type: "hidden", name:"ifhas", value:"0"},
+				{type: "hidden", name:"idd", value:"1"},
+				{"type":"combo","name":"name","label":"名称",required:true,note:{text:"支持模糊查询"}},
+				{"type":"combo","name":"type","label":"型号",required:true},
+				{"type":"combo","name":"maker","label":"制造厂商",validate:"NotEmpty"},
+				{"type":"input","name":"units","label":"计量单位",note:{text:"已存在条目此处会自动填写"}},
+				{"type":"input","name":"count","label":"数量",note:{text:"填写数量"},validate:"ValidInteger",required: true},
+				{"type":"input","name":"dusage","label":"用途", note: {text:"选填，尽量填写详细"},rows:2,maxLength:50},
+				{"type":"input","name":"dremarks","label":"备注",rows:3,note: {text:"选填"},maxLength:100},
+			]},
+			{type:"block",inputWidth:"auto",blockOffset:"50",list:[
+				{"type":"button","name":"next","value":"继续填写"},
+				{type:"newcolumn"},
+				{"type":"button","name":"close","value":"关闭"},
+			]},
+		]},
+		
+	];
+///////////////////////////////////////////////////
+	var myForm = new dhtmlXForm('myForm',formStructure);
+	// post获取 自定义的combo的 text和value值
+	$.post("get_combo_options.html",{
+		table:"store",field:{text:"sname",value:"sname"},distinct:1,where:{slevel:1,sdept: "{$Think.session.user.dept}"},order: "`order` desc,id"
+		},function(data){
+			myForm.reloadOptions("to_store",data);
+			//myForm.getCombo("to_store").addOption(data);
+	});
+	
+	myForm.attachEvent("onButtonClick", function(id){
+		if(id == "f_submit"){
+			if(!myForm.validate()){
+				dhtmlx.alert({ok:"我这就检查",text:"请检查填写信息是否完整。"});
+				return false;
+			}
+			mygrid.forEachRow(function(id){	// 手动验证 grid 的每一个单元格
+				mygrid.forEachCell(id,function(cellObj,ind){
+					mygrid.validateCell(id, ind);
+				});
+			});
+			mygrid.setCSVDelimiter(',');
+			var mygridDatas = mygrid.serializeToCSV();
+			if(mygridDatas.length == 0){
+				dhtmlx.alert({ok:"知道啦",text:"请在右侧填写维材的详细信息后再提交。"});
+				return false;
+			}else{
+				// 提交数据到服务器。服务端处理数据保存到数据库完成信息录入。
+				var upData = {
+						mygrid__Header : mygrid__Header,
+						mygrid__ColNames : mygrid__ColNames,
+						mygrid__Widths : mygrid__Widths,
+						mygrid__ColSorting : mygrid__ColSorting,
+						mygrid__ColTypes : mygrid__ColTypes,
+						table : myForm.getFormData(),
+						data : mygridDatas,
+						username : "{$Think.session.user['name']}",
+						usertel : "{$Think.session.user['tel']}",
+						//信息未完整
+				};
+				$.post("", {
+					data : upData
+				}, function(returnData) {
+					dhtmlx.confirm({
+						title : "录入成功",
+						type : "confirm-warning",
+						text : "是否跳到首页查看最新数据？",
+						callback : function(result) {
+							if(result)
+								location.href = returnData.url;
+						}
+					});
+				}).error(function(xhr,errorText,errorType){
+					dhtmlx.alert({text:"status: "+xhr.status 
+						+ "<br>statusText: " + xhr.statusText
+						+ "<br>errorType: " + errorType});
+				}).done(function(){
+					console.error("done.");
+				});
+				upData = null;
+			}
+			mygridDatas = null;
+		}
+	});
+	var myWins = new dhtmlXWindows();
+	myWins.attachViewportTo("winVP");	//窗口可在全屏内活动
+	var dhxForm;
+	function initWr(){
+		myWins.createWindow({
+			id : "newwr",
+			top : 70,
+			left : 520,
+			width : 300,
+			height : 500,
+			text : "维材录入",
+			//center : true,
+		});
+		dhxForm = myWins.window("newwr").attachForm(addStructure);
+		$.post("get_combo_options.html",{
+			table:"item",field:{text:"name",value:"units"},distinct:1
+			},function(data){
+				dhxForm.getCombo("name").addOption(data);
+		});
+		
+		dhxForm.getCombo("name").attachEvent("onClose", function (value, text){
+			
+			//if(name.substr(0,4) == "name"){
+				//var idd = name.substr(4, name.length); //保存当前的 id 值, 在 callback 函数中使用
+				setUnitsValue(dhxForm.getCombo("name").getSelectedValue());
+				dhxForm.getCombo("type").setComboText("");
+				dhxForm.getCombo("maker").setComboText("");
+				//dhxForm.getCombo("type").detachEvent("onChange");
+				dhxForm.getCombo("type").attachEvent("onChange", function (value, text){
+					dhxForm.getCombo("maker").setComboText("");
+					//dhxForm.getCombo("maker").detachEvent("onChange");
+					dhxForm.getCombo("maker").attachEvent("onChange", function (value, text){
+						
+						//setUnitsValue(idd,value);
+					});
+					getMakerOptions(text);
+				});
+				getTypeOptions(dhxForm.getCombo("name").getSelectedText());
+			//}		
+		});
+		var myPop = new dhtmlXPopup({ form: dhxForm, id: ["name","type","maker"]});
+		myPop.attachHTML('选择库内已有信息或填写新维材名称');
+		dhxForm.attachEvent("onFocus", function(id,value){
+			if (typeof(value) != "undefined") id=[id,value]; // for radiobutton
+			myPop.show(id);
+		});
+		dhxForm.attachEvent("onBlur", function(id,value){
+			myPop.hide();
+		});
+		dhxForm.enableLiveValidation(true);
+		var datastr = ""
+		var dataidd = 1;
+		dhxForm.attachEvent("onButtonClick", function(id){
+			if(id == "close"){
+				myWins.window("newwr").close();
+			}
+			if(id == "next"){
+				if(dhxForm.validate()){
+					//dhxForm.setItemValue("idd") = dhxForm.getItemValue("idd")+1;
+					headleData();	//处理表单数据
+					dataidd += 1;
+				}
+			}	
+		});
+		$("#newwrBtn").attr("onclick","javascript:dhtmlx.alert({text:'请在已弹出的窗口中录入'});");
+		myWins.window("newwr").attachEvent("onClose", function(win){
+			$("#newwrBtn").attr("onclick","initWr()");
+		    return true;
+		});
+		
+		/**
+		* 处理表单数据
+		* 
+		*/
+		function headleData(){	//处理表单数据
+			/*	dhxForm.getItemValue("name") 与 dhxForm.getFormData()['name']效果一样，
+				在获取 combo 时 为 option 里的value 值，
+				dhxForm.getCombo("name").getSelectedText() 得到的是表单所显示的内容。
+			*/
+			/*if(validateDhxForm())	//判断录入信息是否已存在
+				dhtmlx.message({text:"一样"});
+			else
+				dhtmlx.message({text:"不一样"});
+				dhxForm.setItemValue('ifhas',1);*/
+			datastr = mygrid.serializeToCSV().length == 0 ? "" : mygrid.serializeToCSV() + "\n";
+			mygrid.clearAll();
+			var namestr = dhxForm.getItemValue("name");
+			var makerstr = dhxForm.getItemValue("maker");
+			if(dhxForm.getCombo("name").getSelectedValue() != null)		//修正 name 字段 到grid
+				namestr = dhxForm.getCombo("name").getSelectedText();
+			if(dhxForm.getCombo("maker").getSelectedValue() != null)	//修正 maker 字段 到grid
+				makerstr = dhxForm.getCombo("maker").getSelectedText();
+			datastr += dataidd +"\t"
+					+ namestr+"\t"
+					+ dhxForm.getItemValue("type")+"\t"
+					+ makerstr+"\t"
+					+ dhxForm.getItemValue("units")+"\t"
+					+ dhxForm.getItemValue("count")+"\t"
+					+ dhxForm.getItemValue("dusage")+"\t"
+					+ dhxForm.getItemValue("dremarks")+"\n";
+			mygrid.parse(datastr,"csv");
+			myWins.window("newwr").close();
+			initWr();
+		}
+		function validateDhxForm(){	//判断录入信息是否已存在 		//未使用。
+			if(dhxForm.getCombo("name").getSelectedValue() != null)
+				if(dhxForm.getCombo("type").getSelectedValue() != null)
+					if(dhxForm.getCombo("maker").getSelectedValue() != null)
+						return true;
+			return false;
+		}
+	}/*	initWr() END */
+	
+	function initIn(){
+		myWins.createWindow({
+			id : "newin",
+			//top : 70,
+			//left : 520,
+			width : 800,
+			height : 500,
+			text : "维材批量导入",
+			center : true,
+		});
+		//myWins.window("newin").attachHTMLString($("#readMeObj").html());
+		var myToolbar = myWins.window("newin").attachToolbar({
+			items: [
+				{id: "templateDownload", type: "button", text: "模板下载"},
+				{id: "parse", type: "button", text: "粘贴"},
+				{id: "importdata", type: "button", text: "导入"},
+			]
+		});
+		myToolbar.attachEvent("onClick", function(id){
+		    try{
+		    	if(typeof eval(id)=="function")
+					eval(id+"()");
+			    else
+			    	dhtmlx.message({text:"function ["+id+"] is not defined."});
+		   }catch(e){
+			   dhtmlx.message({text:e});
+		   }
+		});
+		myWins.window("newin").attachHTMLString($("#newinObj").html());
+		function templateDownload(){
+			window.open($("#a_download").attr("href"));
+		}
+		function parse(){
+			dhtmlx.alert({text:"粘贴功能暂未开发。"});
+		}
+	}/*	initIn() END */
+	
+	//	 导入数据
+	function importdata(){
+		var data = $("textarea#newinTextarea")[1].value;
+		data = data.substr(data.indexOf('\n')+1);
+		mygrid.setCSVDelimiter('\t');
+		mygrid.parse(data,"csv");
+		myWins.window("newin").close();
+	}
+	
+	/**
+	 * 获取 combo 的 options 
+	 *
+	 * table: 表名  
+	 * field: 获取的 option 的 field (json格式)
+	 * where： 查询的条件限定 (json格式 )
+	 */
+	function getOptions(table,field,where){	
+		$.post("get_combo_options.html",{
+			table:table,field:field,distinct:1,where:where
+			},function(options){
+				//var options = data['options'];
+				dhxForm.getCombo(field['text']).clearAll();
+				dhxForm.getCombo(field['text']).addOption(options);
+				if (options.length > 1){
+					dhxForm.setNote(field['text'],{text:"有多个选项，请选择。"});
+				} else {
+					dhxForm.setNote(field['text'],{text:"唯一选项,没得选择。"});
+					//options[0]['selected'] = true;//设置默认选择第一个
+					dhxForm.getCombo(field['text']).selectOption(0,true,true);
+				}
+				$(".dhxform_note").width(170); // 修复 dhtmlxForm 里的 combo 设置 note width 为 0 的 bug  
+				// JQ ajax callback 函数是动态执行的, 使用的 idd 为所属 Form 的 id 而不是最后一个 Form 的 id .
+				option = null;
+		});
+	}
+	function getTypeOptions(name){
+		getOptions("item",{text:"type",value:"type"},{name:name});
+	}
+	function getMakerOptions(type){
+		getOptions("item",{text:"maker",value:"id"},{name:dhxForm.getCombo("name").getSelectedText(),type:type});
+		// 隐含 value 值 为 id
+	}
+	function setUnitsValue(value){
+		dhxForm.setItemValue("units",value);
+	}
+	$(function($){
+		$("#myForm input[name='owner']").select();
+	});
+</script>
+<div id="newinObj" style="display: none;">
+	<div style="padding: 10px;">
+		<p>1. <a id="a_download" target="_blank" href="__ROOT__/static/批量导入模板.xlsx" download="批量导入模板">下载模板</a>，根据excel模板填写表格，必填项不许为空。</p>
+		<p>2. 将填写的excel表全选，复制。粘贴至下方的区域（带标题）</p>
+		<p>3. 点击确认导入。检查导入是否成功。</p>
+	</div>
+	<div style="font-size: 12px; text-align: center;">
+		<textarea id="newinTextarea" rows="13" style="width: 100%;"></textarea>
+		<div class="newinBtn">
+			<button class="btn btn-success" onclick="javascript: importdata()">确定导入</button>
+			<button class="btn btn-primary" onclick="javascript: myWins.window('newin').close();">关闭</button>
+		</div>
+	</div>
+</div>
+{/block}

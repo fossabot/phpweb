@@ -1,0 +1,364 @@
+{extend name="common@Public/base" /}{block name="leftmenu"} {include
+file="c/leftmenu_checkME60_index" /} {/block} {block name="main"}
+{include file="common@c/ie8warning" /}
+<style>
+#layoutObj {
+	position: absolute;
+	top: 100px;
+	left: 0;
+	bottom: 0;
+	right: 0;
+}
+
+#checkScore {
+	padding: 20px 50px;
+}
+
+.table-hover tr {
+	cursor: pointer;
+}
+</style>
+<div class="htmltitle">
+	<h2>脚本检查</h2>
+</div>
+<div>
+	<p>输入脚本执行结果，自动检测配置项。<a class="btn btn-link" href="">重置页面</a></p>
+</div>
+<div class="layoutObj">
+	<div id="layoutObj"></div>
+</div>
+
+
+<div id="preInput" style="width: 99%; height: 99%;">
+	<textarea id="preText" spellcheck="false"
+		style="width: 100%; height: 100%;"></textarea>
+</div>
+
+<div id="checkScore" style="display: none;">
+	<h1 style="font-size: 88px;">
+		总计：<span id="totalScore" style="color: blue;"></span>分
+	</h1>
+	<p style="text-align: right; margin-top: 100px;">
+		<button class="btn btn-link btn-lg" onclick="showDetail()">查看详情</button>
+	</p>
+</div>
+<div id="log" style="width: 99%;"></div>
+<div id="tableView" style="display: none;">
+	<table
+		class="table table-striped table-hover table-bordered table-condensed">
+
+	</table>
+</div>
+{include file="c/standard" /}
+<script type="text/javascript">
+	function showDetail() {
+		dhxWins.createWindow({
+			id : "detail",
+			width : 800,
+			height : 500,
+			text : "<span style='color: red;'>详细信息</span>",
+			center : true,
+		});
+		//dhxWins.window("detail").appendObject("tableView");
+		dhxWins.window("detail").attachHTMLString($("#tableView").html());
+	}
+
+	var myLayout = new dhtmlXLayoutObject(
+			{
+				parent : "layoutObj",
+				pattern : "3L",
+				cells : [
+						{
+							id : "a",
+							text : "将脚本执行结果粘贴到此<a class=\"btn btn-sm btn-link\" onclick=\"run_check()\">检查</a><a class=\"btn btn-sm btn-link\" onclick=\"run_sample()\">查看示例</a>",
+							width : 300,
+						}, {
+							id : "b",
+							text : "检查结果",
+							height : "350",
+						}, {
+							id : "c",
+							text : "Logs",
+							height : "*",
+						}, ]
+			});
+	myLayout.cells("a").appendObject("preInput");
+
+	myLayout.cells("c").appendObject("log");
+</script>
+
+
+<script>
+	var key = {};
+	key['nat_session'] = "Current total sessions";
+	key["nat_statis"] = "current receive packet bit speed";
+	key["pool_used"] = "PoolLen";
+	key["cpu_memory"] = "CPU Usage";
+	key["port_flow"] = "inErrors";
+	key["port_status"] = "port_status";
+	key["bandwidth_balance"] = "LNTIL-PC";
+	key["nat_multiplex"] = "extended-port-range";
+	key["board_status"] = "Device status";
+
+	function port_flow(line_start, k) {
+	}
+	function port_status(line_start, k) {
+	}
+	function bandwidth_balance(line_start, k) {
+	}
+	function nat_multiplex(line_start, k) {
+	}
+	function board_status(line_start, k) {
+	}
+	var text, line, line_start, count, preResults, checkResult, totalScore;
+	function run_check() {
+		$("#log").html('');
+		$("#totalScore").html('');
+		$("#tableView table")
+				.html(
+						'<tbody><tr><th>不合规的检查项</th><th>扣分值</th><th>建议</th></tr></tbody>');
+		text = $("#preText").val(); // 	取出  preText
+		line = text.split("\n"); //	将 preText 按行分割
+		//nat_session(line);
+		//nat_statis(line);
+		line_start = {}; //	初始化 line_start
+		count = {}; //	初始化 count，用于针对每个key的匹配的计数（每个key有可能不止一行会匹配到）
+		preResults = {}; //	初始化 原始检查值，
+		checkResult = {}; //	初始化 检查结果，
+		totalScore = 0;
+		for ( var k in key) {
+			count[k] = 0; //	基于每一个 key 分别初始化计数
+			line_start[k] = []; //	定义line_start 为二维数组，第一维为key的值，第二维为计数
+			preResults[k] = []; //	定义原始检查值 preResults 为二维数组，第一维为key的值，第二维为计数
+			checkResult[k] = []; //	定义检查结果 checkResult 为二维数组，第一维为key的值，第二维为计数
+		}
+		for ( var i in line) { //遍历preText的每一行
+			for ( var j in key) { //在每一行中依次匹配每一个key
+				if (line[i].match(key[j])) {
+					line_start[j][count[j]] = i; //	记录的数据形如：line_start['net_session'][0]=i;
+					count[j]++;
+					break;
+				}
+			}
+			/*if (getJSONlength(line_start) >= 2 * getJSONlength(key)) {
+				break;
+			}*/
+		}
+		for ( var k in key) { //针对每一个 key
+			if (line_start[k]) { //	如果存在 line_start 的值
+				for ( var i in line_start[k]) { //	则针对每一个line_start
+					//console.log(k + "(line_start['" + k + "'][" + i + "],'" + k + "')");
+					var returnArray = eval(k + "(line_start['" + k + "'][" + i
+							+ "],'" + k + "')"); //	动态执行检查函数（函数名 与 key 的键值相同）
+				}
+			}
+			creCheckResult(k, checkResult[k]);
+		}
+		dhtmlx.message({
+			text : "检查结束。"
+		});
+		$("#totalScore").text(totalScore);
+		myLayout.cells("b").appendObject("checkScore");
+	}
+	function nat_session(line_start, k) {
+		var line_str = line[line_start];
+		var start = line_str.indexOf(":") + 1;
+		var stop = line_str.indexOf(".");
+		var num = line[line_start].substring(start, stop).replace(
+				/(^\s*)|(\s*$)/g, ""); //	去除空格
+		var level = 0;
+		if (num < 6000000) {
+			level = 1;
+		}
+		// 返回结果包含： name/key, value, preLine, logStr/level, arg*,
+		//	todo：1. addLog(name,value,logStr,arg)、2. getPreResults(preLine)、3. creCheckResult(key,score);
+		//	eg: addLog("NAT板会话数", line[line_start - 1], logStr);
+		preResults[k].push(getPreResults([ line_start - 1, line_start ]));//记录原始值
+		checkResult[k].push(level);//记录得分
+		addLog(standard[k]['name'], line[line_start - 1], level, true);//输出log
+	}
+	function nat_statis(line_start, k) {
+		var start = ":";
+		var stop = "\n"
+		var num = line[line_start].substring(start, stop).replace(
+				/(^\s*)|(\s*$)/g, "");
+		var level = 0;
+		if (num < 25000000000) {
+			level = 1;
+		}
+		preResults[k].push(getPreResults([ line_start - 2, line_start - 1,
+				line_start ]));
+		//checkResult[k].push(creCheckResult(k, calcScore(k, level)));
+		checkResult[k].push(level);
+		addLog(standard[k]['name'], line[line_start - 2], level, true);
+	}
+	function pool_used(line_start, k) {
+		var _line_start = parseInt(line_start) + 2;
+		var preLine = [ line_start, line_start + 1 ];
+		var level = [];
+		do {
+			var line_str = line[_line_start].replace(/(^\s*)|(\s*$)/g, "")
+					.replace(/\s+/g, ",");//先去除前后的空格，然后已若干空格替换成array
+			var line_array = line_str.split(",");
+			if (line_array[1] > 0) {
+				var domain = line_array[0];
+				var percent = cut_percent(line_array[3]);
+				if (percent < 70) {
+					level.push(1);
+				} else {
+					level.push(0);
+				}
+				addLog(standard[k]['name'], "domain：" + domain,
+						level[level.length - 1], true);
+			}
+			preLine.push(_line_start);
+		} while (line[_line_start++].search("-") < 0)
+		var log = '<div style="color: red;"><span style="color: blue;">【地址池利用率】</span>\t已略去 PoolLen 为 0 的 domain</div>';
+		$("#log").append(log);
+		checkResult[k] = checkResult[k].concat(level);
+		preResults[k].push(getPreResults(preLine));
+
+	}
+	function cpu_memory(line_start, k) {
+		var _line_start = parseInt(line_start) + 2;
+		var preLine = [ line_start, line_start + 1 ];
+		var level = [];
+		do {
+			var line_str = line[_line_start].replace(/(^\s*)|(\s*$)/g, "")
+					.replace(/\s+/g, ",");//先去除前后的空格，然后已若干空格替换成array
+			var line_array = line_str.split(",");
+			var cup_usage = cut_percent(line_array[2]);
+			var memory_usage = cut_percent(line_array[3]);
+			if (cup_usage < 70 && memory_usage < 70) {
+				level.push(1);
+			} else {
+				level.push(0);
+			}
+			addLog(standard[k]['name'], "Slot：" + line_array[1],
+					level[level.length - 1], true);
+			preLine.push(_line_start);
+		} while (line[_line_start++].search(/(<[^>]+>)|(\[[^\]]+\])/) < 0)//匹配<hostname>或者[hostname]
+		checkResult[k] = checkResult[k].concat(level);
+		preResults[k].push(getPreResults(preLine));
+	}
+	// 去除 str 的“%”
+	function cut_percent(str) {
+		return str.substr(0, str.indexOf("%"));
+	}
+
+	function getJSONlength(json) {
+		var len = 0;
+		for ( var i in json) {
+			len++;
+		}
+		return len;
+	}
+	//	直接输出 logStr 或者 根据level 输出默认值
+	function addLog(name, value, level, arg) {
+		var logStr = level;
+		if (arg != 'undefined') {
+			logStr = arg ? '合格' : '<span style="color: red;">不合格</span>';
+		}
+		var log = '<p><span style="color: blue;">【' + name
+				+ '】</span>\t检测到\t<span style="color: blue;">' + value
+				+ '</span>：\t' + logStr + '</p>';
+		$("#log").append(log);
+	}
+
+	//	根据行标，获取原始检查值 lines格式为 [1,2,3] 或者 "1,2,3,"
+	function getPreResults(lines) {
+		var line_array = [];
+		if (typeof (lines) == "string") {
+			line_array = lines.split(",");
+			//line_array.pop(); //	删除最后一个","导致的空值。
+		} else {
+			line_array = lines;
+		}
+		var res = '';
+		for ( var i in line_array) {
+			res += line[i] + '\n'
+		}
+		return res;
+	}
+	//	生成检查结果
+	function creCheckResult(key, level) {
+		var score = calcScore(key, level).toString();
+		var _score = '<span style="color: red;">' + standard[key]["score"]
+				+ '</span>';
+		var html = '';
+		if (score == "NaN") {
+			html = '<tr><td>'
+					+ standard[key]["name"]
+					+ '</td><td>'
+					+ _score
+					+ '</td><td style="color: #9900ff">请录入相关检查脚本执行结果后重试。</td></tr>';
+		} else {
+			var _advice = '';
+			var _meaning = standard[key]["meaning"];
+			if (score == 0) {
+				_advice = standard[key]["advice"];
+				html = '<tr><td>' + standard[key]["name"] + '</td><td>'
+						+ _score + '</td><td>' + _advice + '</td></tr>';
+
+			}
+		}
+		score = score.replace("NaN", 0);
+		totalScore += parseInt(score);
+		html = html.replace("undefined", "");
+		$("#tableView table tbody").append(html);
+	}
+	//计算得分
+	function calcScore(k, level) {
+		console.log("level:" + level);
+		if (level == '')
+			return "NaN";
+		var score = standard[k]["score"];
+		for ( var i in level) {
+			if (level[i] == 0) {
+				score = 0;
+				break;
+			}
+		}
+		return score;
+	}
+
+	//	获取当前 函数名 	//用法：在函数内部执行 getFnName(arguments.callee)
+	var getFnName = function(callee) {
+		var _callee = callee.toString().replace(/[\s\?]*/g, ""), comb = _callee.length >= 50 ? 50
+				: _callee.length;
+		_callee = _callee.substring(0, comb);
+		var name = _callee.match(/^function([^\(]+?)\(/);
+		if (name && name[1]) {
+			return name[1];
+		}
+		var caller = callee.caller, _caller = caller.toString().replace(
+				/[\s\?]*/g, "");
+		var last = _caller.indexOf(_callee), str = _caller.substring(last - 30,
+				last);
+		name = str.match(/var([^\=]+?)\=/);
+		if (name && name[1]) {
+			return name[1];
+		}
+		return "anonymous"
+	};
+
+	function run_sample() {
+		$("#demo").show();
+		$.get("__ROOT__/static/checkME60_demo/demo.txt", function(data) {
+			$("#preText").val(data);
+			run_check();
+			$("#demo").hide();
+		});
+	}
+</script>
+<div id="demo"
+	style="display: none; background-color: rgba(255, 255, 255, 0.8); position: absolute; top: 0; bottom: 0; left: 0; right: 0; z-index: 100;">
+	<div class="jumbotron">
+		<h1>加载例子ing...</h1>
+		<p>此过程比较慢，请稍等。</p>
+	</div>
+
+</div>
+
+
+{/block}

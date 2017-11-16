@@ -1,0 +1,65 @@
+{extend name="common@Public/base" /} {block name="leftmenu"} {include
+file="c/leftmenu_zx_apply_index" /} {/block}{block name="main"}
+<div class="htmltitle">
+	<h2>专线申请表填写</h2>
+</div>
+<p>
+	请根据<span><a href="" title='点击下载'>模板</a></span>样式，将数据（不带标题，可多行）直接粘贴至下面文本框，
+</p>
+<p>
+	然后点击
+	<button id="btn_submit" class="btn btn-primary">导入</button>
+</p>
+<div id="inp_area">
+	<textarea
+		style="width: 100%; height: 200px; font-size: 10px; font-family: Arial, sans-serif, '宋体'; color: #936;">粘贴到这里~</textarea>
+</div>
+<!-- <div id="griddiv" style="height: 100%;overflow: auto;"><div id="gridbox"></div></div>
+<div id="myForm" style="width: 450px;"></div> -->
+<script>
+	$(function() {
+		//
+	});
+	$("#inp_area textarea").on("focus", function() {
+		if ($("#inp_area textarea").val() == '粘贴到这里~') {
+			$("#inp_area textarea").val('');
+		}
+	}).on("blur", function() {
+		if ($("#inp_area textarea").val() == '') {
+			$("#inp_area textarea").val('粘贴到这里~');
+		}
+	});
+	
+	var data = [];
+	$("#btn_submit").on("click", function() {
+		var items = $("#inp_area textarea").val().split("\n");
+		zxInfoTitle = {$zxInfoTitle};
+		for (itemstr in items) {
+			//对于每一行数据
+			var item = itemstr.split("\t");
+			var json = [];
+			for (var i = 0; i < item.length; i++) {
+				//var unit = {ColNames[i]:item[i]};
+				//a.push(unit);
+			}
+		}
+		//StandardPost(location.href,encodeURI(data));
+
+	});
+	function StandardPost(url, args) {
+		var form = $("<form method='post'></form>");
+		form.attr({
+			"action" : url
+		});
+		for (arg in args) {
+			var input = $("<input type='hidden'>");
+			input.attr({
+				"name" : arg
+			});
+			input.val(args[arg]);
+			form.append(input);
+		}
+		form.submit();
+	}
+</script>
+{/block}

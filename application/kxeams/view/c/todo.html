@@ -1,0 +1,202 @@
+<div class="htmltitle">
+	<h2>领用审批</h2>
+	<div>
+		<p>点击待审批列表，查看明细，并进行审批操作。</p>
+	</div>
+</div>
+
+<div id="data_container"
+	style="position: absolute; left: 15px; top: 100px; buttom: 20px; width: 160px; border-right: 1px solid #666"></div>
+<div id="myForm"
+	style="position: absolute; left: 190px; top: 100px; buttom: 20px;">
+</div>
+
+<div id="accObj"
+	style="position: absolute; left: 470px; top: 100px; buttom: 20px; right: 10px;"></div>
+
+<div id="myForm_tip" style="display: none;">
+	<p style="color: blue; padding: 50px 50px;">点击左侧列表查看详细信息</p>
+</div>
+<script>
+	$("#data_container").css("height",
+			$(".main").height() - $(".htmltitle").height() - 30 - 10 + "px");
+	//h2的margin、底部预留10
+	var myList = new dhtmlXList(
+			{
+				container : "data_container",
+				type : {
+					template : "<b style='color:blue;'>#to_dept#</b><br/>#mcreate_time#<br/><span style='color:#9c49f5'>#username#</span>",
+					height : 70
+				},
+				select: true,
+			});
+	var dataList = {data:{$list}};	//此形式便于 myList.parse()使用
+	myList.parse(dataList,"json");
+	//myList.define("select",true);	//单选模式。（multiselect为多选）
+	$("#myForm").html($("#myForm_tip").html());
+	var myForm,evId;
+	// 绑定点击 list Item 事件
+	myList.attachEvent("onAfterSelect", function(id) {
+		dhtmlx.message({text:id});
+		var index = myList.indexById(id);
+		var formData = dataList['data'][index];
+		form_init(formData);	//初始化 领用申请单
+		$.post("",{main_id:id,req:"getDetail"},function(dData){
+			loadDetail(dData);	//加载 detail 内容
+		});
+	});
+
+/**
+ * 初始化 领用申请单
+ */
+function form_init(formData){
+	$("#myForm").html("");
+	var _form_type = formData['form_type'].substring(2);
+	var formStructure = [];
+	if( _form_type == "领用" ){
+		formStructure = [
+			{type:"fieldset",label:_form_type+"单(单号："+formData['id']+")",inputWidth:"auto",list:[
+	      		{type:"settings",labelWidth:70,inputWidth:140},
+	      		{type:"block",inputWidth:"auto",blockOffset:0,offsetTop:0,list:[
+					{"type":"input","name":"form_type","label":"表单分类",readonly:true},
+					{"type":"input","name":"username","label":"建单人",readonly:true},
+					{"type":"input","name":"usertel","label":"建单人电话",readonly:true},
+					{"type":"hidden","name":"from_dept","label":"向谁申请"},
+					//{"type":"input","name":"from_store","label":"发放地点",readonly:true},
+					{"type":"input","name":"owner","label":"使用人",readonly:true},
+					{"type":"input","name":"to_dept","label":"使用单位",readonly:true},
+					{"type":"input","name":"to_store","label":"存放地点",readonly:true},
+					{"type":"input","name":"mremarks","label":"备注",rows:3,readonly:true},
+					{"type":"hidden","name":"mlogs","label":"操作记录",readonly:true},
+				]},
+	      		{type:"label",label:"操作",labelWidth:100,name:"oLabel"},
+	      		{type:"block",inputWidth:"auto",blockOffset:0,offsetTop:0,list:[
+		      		{type:"settings",labelWidth:70,inputWidth:140},
+		      		//{"type":"select","name":"to_store","label":"存放地点"},
+		      		{"type":"select","name":"from_store","label":"领用地点"},
+		      	]},	
+		      	{type:"block",inputWidth:"auto",blockOffset:30,offsetTop:0,list:[
+					{"type":"button","name":"yes","value":"同意"},
+					{type:"newcolumn"},
+					{"type":"button","name":"no","value":"不同意"},
+				]},
+			]},
+		];
+	}else if( _form_type == "发放" ){
+		formStructure = [
+			{type:"fieldset",label:_form_type+"单(单号："+formData['id']+")",inputWidth:"auto",list:[
+	      		{type:"settings",labelWidth:70,inputWidth:140},
+	      		{type:"block",inputWidth:"auto",blockOffset:0,offsetTop:0,list:[
+					{"type":"input","name":"form_type","label":"表单分类",readonly:true},
+					{"type":"input","name":"username","label":"建单人",readonly:true},
+					{"type":"input","name":"usertel","label":"建单人电话",readonly:true},
+					{"type":"hidden","name":"from_dept","label":"向谁申请"},
+					//{"type":"input","name":"from_store","label":"发放地点",readonly:true},
+					{"type":"input","name":"owner","label":"使用人",readonly:true},
+					{"type":"input","name":"to_dept","label":"使用单位",readonly:true},
+					{"type":"input","name":"to_store","label":"存放地点",readonly:true},
+					{"type":"input","name":"mremarks","label":"备注",rows:3,readonly:true},
+					{"type":"hidden","name":"mlogs","label":"操作记录",readonly:true},
+				]},
+	      		{type:"label",label:"操作",labelWidth:100,name:"oLabel"},
+	      		{type:"block",inputWidth:"auto",blockOffset:0,offsetTop:0,list:[
+		      		{type:"settings",labelWidth:70,inputWidth:140},
+		      		{"type":"select","name":"to_store","label":"存放地点"},
+		      		//{"type":"select","name":"from_store","label":"领用地点"},
+		      	]},	
+		      	{type:"block",inputWidth:"auto",blockOffset:30,offsetTop:0,list:[
+					{"type":"button","name":"yes","value":"同意"},
+					{type:"newcolumn"},
+					{"type":"button","name":"no","value":"不同意"},
+				]},
+			]},
+		];
+	}
+	myForm = null;
+	myForm = new dhtmlXForm('myForm',formStructure);
+	myForm.loadStruct({data: formData});	//加载领用申请单数据
+	formStructure = null;
+	//	myForm.reloadOptions 函数执行冗余不会报错~
+	$.post("get_combo_options.html",{
+		table:"store",field:{text:"sname",value:"sname"},distinct:1,where:{sdept: myForm.getItemValue("from_dept")},order:"`order` desc,id"
+		},function(data){
+			myForm.reloadOptions("from_store",data);
+	});
+	$.post("get_combo_options.html",{
+		table:"store",field:{text:"sname",value:"sname"},distinct:1,where:{sdept: myForm.getItemValue("to_dept")},order:"`order` desc,id"
+		},function(data){
+			myForm.reloadOptions("to_store",data);
+	});
+	if( evId != null )
+		myForm.detachEvent("evId");
+	evId = myForm.attachEvent("onButtonClick", function(id){
+		var mainId = myList.getSelected();
+		if(id=="yes"||id=="no"){
+			// 点击 同意/不同意 的处理
+			$.post("?r=r",{
+				main_id: mainId,
+				req: id,
+				form_type: myForm.getItemValue("form_type"),
+				from_store: myForm.getItemValue("from_store"),
+			},function(dData){
+				myList.clearAll();
+				dataList={data:JSON.parse(dData)};
+				myList.parse(dataList,"json");
+				$("#myForm").html($("#myForm_tip").html());
+				$("#accObj").html("");
+			});
+		} else if(id){
+			alert(id+",Error!");
+		}
+	});
+}
+/**
+ * 加载deteil内容
+ */
+function loadDetail(dData){
+	$("#accObj").html("");
+	var myAcc = new dhtmlXAccordion({
+		parent: "accObj",
+		multi_mode: true,
+	});
+	var id = 0,idd;
+	var accForm = [];
+	for(var i=0;i<dData.length;i++){
+		addAcc(dData);
+	}
+	function addAcc(dData){
+		id ++;
+		myAcc.addItem("a"+id,"领用物品"+id,true,165);
+		var addStructure = [
+			{type:"block",inputWidth:"auto",blockOffset:"5",offsetTop:0,list:[
+				{type:"settings",labelWidth:50,inputWidth:140},
+				{type:"block",inputWidth:"auto",blockOffset:"-",list:[
+ 					{"type":"input","name":"name"+id,"label":"名称",readonly:true},
+ 					{"type":"input","name":"type"+id,"label":"型号",readonly:true},
+				]},
+ 				{type:"newcolumn"},
+ 				{type:"block",inputWidth:"auto",blockOffset:"-",list:[
+	 				{"type":"input","name":"units"+id,"label":"计量单位",readonly:true},
+						{"type":"input","name":"maker"+id,"label":"制造厂商",readonly:true},
+				]},
+				{type:"newcolumn"},
+				{type:"block",inputWidth:"auto",blockOffset:"-",list:[
+ 					{"type":"input","name":"count"+id,"label":"数量",readonly:true},
+					{"type":"input","name":"dusage"+id,"label":"用途",readonly:true},
+				]},
+			]},
+			{type:"block",inputWidth:"auto",blockOffset:"25",offsetTop:0,list:[
+				{type:"settings",labelWidth:50,inputWidth:450},
+				{"type":"input","name":"dremarks"+id,"label":"备注",rows:2,readonly:true},
+			]},
+		];
+		accForm[id] = myAcc.cells("a"+id).attachForm(addStructure);		
+		for(v in dData[id-1]){
+			// 处理dData (name/type等变为name1/type1等)
+			dData[id-1][v+id]=dData[id-1][v];
+		}
+		accForm[id].loadStruct({data: dData[id-1]});
+		dData=null;
+	}
+}
+</script>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="STYLESHEET" type="text/css"
+	href="__ROOT__/static/codebase/dhtmlx_skyblue.css">
+<script src="__ROOT__/static/codebase/dhtmlx.js"></script>
+<script src="__ROOT__/static/jquery.min.js"></script>
+<title>ttt~</title>
+<style>
+div#layoutObj {
+	position: relative;
+}
+</style>
+</head>
+<body>
+	<div id="gridbox"></div>
+</body>
+<script>
+data= {"total_count":50000, "pos":0, "data":[
+  { "col1": "A Time to Kill",
+    "col2": "John Grisham",
+    "col3": "100"
+  },
+  { "col1": "Blood and Smoke",
+    "col2": "Stephen King",
+    "col3": "1000"
+  },
+  { "col1": "The Rainmaker",
+    "col2": "John Grisham",
+    "col3": "-200"
+  }
+]};
+mygrid = new dhtmlXGridObject('gridbox');
+mygrid.setColumnIds("col1,col2,col3");
+mygrid.load(data,"js");
+</script>
+</html>

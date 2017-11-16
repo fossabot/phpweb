@@ -1,0 +1,155 @@
+{extend name="common@Public/base" /} {block name="leftmenu"} {include
+file="c/leftmenu_zx_apply_index" /} {/block}{block name="main"}
+<div class="htmltitle">
+	<h2>新开点流程录入信息生成</h2>
+</div>
+<div id="layoutObj" style="height: 520px;"></div>
+<div id="taiZhang" style="display: none;">
+	<div>
+		信息按一下顺序排列：复制后点击
+		<button class="btn btn-xs btn-primary" onclick="create_info(false)">生成</button>
+		<button class="btn btn-xs btn-primary" onclick="create_info(true)">rb生成</button>
+		。<a class="btn btn-sm btn-link" onclick="history.go(0)">重置页面</a>
+	</div>
+<pre>
+1.申请日期、专线类别、带宽、客户服务等级、业务保障等级、网元厂家、A端基站、传输Z端、9312名、VLAN、IP、产品标识、客户名称、客户联系人、客户电话、客户经理联系人、客户经理电话、客户地址
+2.申请时间,产品实例标识,专线类别,带宽,网元厂家,A端基站,客户名称,单位详细地址,客户需求说明(选填),VLAN,IP,联系人姓名(客户侧),联系电话(客户侧),联系人邮箱(客户侧)*,负责人姓名(移动侧)*,负责人电话(移动侧)*,负责人邮箱(移动侧)*,单位性质,备注
+</pre>
+	<textarea id="in_info" rows="7" style="width: 100%"></textarea>
+</div>
+<div id="_out" style="display: none;">
+	<pre>
+描述,IP地址*,所属区县,单位行政级别,使用状态*,所属上一级子网名*,单位所属行业分类,所属地市*,单位所属分类,网关物理位置,IP地址类型*,使用方式,经营许可证编号,网关IP地址,所属专业系统*,单位性质,所属网元类型,业务类型*,业务小类*,所属省份*,设备名称,单位名称/具体业务信息*,联系人姓名(客户侧),Loopbak地址,联系电话(客户侧),单位详细地址,分配使用时间,联系人邮箱(客户侧),负责人姓名(移动侧)*,负责人电话(移动侧)*,管理状态*,备注,机房,接入端口信息,负责部门(移动侧)*,负责人邮箱(移动侧)*,所属单位*,数据质量责任人
+</pre>
+	<textarea id="out_info" rows="7" style="width: 100%"></textarea>
+</div>
+<style>
+pre {
+	color: blue;
+	font-size: 11px;
+}
+
+textarea {
+	color: maroon;
+}
+
+</style>
+<script>
+	window.console = window.console
+			|| (function() {
+				var c = {};
+				c.log = c.warn = c.debug = c.info = c.error = c.time = c.dir = c.profile = c.clear = c.exception = c.trace = c.assert = function() {
+				};
+				return c;
+			})();
+	var myLayout = new dhtmlXLayoutObject({
+		parent : "layoutObj",
+		pattern : "2E",
+		cells : [ {
+			id : "a",
+			text : "输入台账信息",
+			height : 275,
+		}, {
+			id : "b",
+			text : "录如信息生成",
+			height : "245",
+		} ]
+	});
+	myLayout.cells("a").attachObject("taiZhang");
+	myLayout.cells("b").attachObject("_out");
+	function create_info(flag) {
+		var str_o = $("#taiZhang textarea").val();
+		if (!str_o) {
+			dhtmlx.alert({title: ".",text:"录入信息为空哦。"});
+			return false;
+		}
+		dhtmlx.message(str_o);
+		var arr_o = str_o.split('\t');
+		var ip = arr_o[10];
+		var segment = ip.substr(0, ip.lastIndexOf(".") + 1) + "0/24";
+		var gateway = ip.substr(0, ip.lastIndexOf(".") + 1) + "1";
+		if (flag) {	//	新数据（IP为108段及以后）生成
+			arr_new[0] = "";
+			arr_new[1] = ip;
+			arr_new[2] = "";
+			arr_new[3] = "";
+			arr_new[4] = "占用";
+			arr_new[5] = segment;
+			arr_new[6] = "";
+			arr_new[7] = "其他";
+			arr_new[8] = "铁岭";
+			arr_new[9] = "";
+			arr_new[10] = "互联地址";
+			arr_new[11] = "";
+			arr_new[12] = "";
+			arr_new[13] = "CMNET";
+			arr_new[14] = gateway;
+			arr_new[15] = "企业";
+			arr_new[16] = "";
+			arr_new[17] = "集客专线";
+			arr_new[18] = "互联网专线";
+			arr_new[19] = "辽宁";
+			arr_new[20] = "LNTIL-MA-CMNET-BAS02-YZME60X";
+			arr_new[21] = arr_o[6];
+			arr_new[22] = "";
+			arr_new[23] = arr_o[11];
+			arr_new[24] = arr_o[12];
+			arr_new[25] = arr_o[7];
+			arr_new[26] = arr_o[0];
+			arr_new[27] = "卜玉"//arr_o[14];	
+			arr_new[28] = arr_o[13];
+			arr_new[29] = "18841050815"//arr_o[15];
+			arr_new[30] = "";
+			arr_new[31] = "已启用";
+			arr_new[32] = "";
+			arr_new[33] = "";
+			arr_new[34] = "客户响应中心";
+			arr_new[35] = "buyu.tl@ln.chinamobile.com"//arr_o[16];
+			arr_new[36] = "铁岭";
+			arr_new[37] = "";	
+		} else {	//	旧数据（ip为108段之前）生成
+			arr_new[0] = "";
+			arr_new[1] = ip;
+			arr_new[2] = "";
+			arr_new[3] = "";
+			arr_new[4] = "占用";
+			arr_new[5] = segment;
+			arr_new[6] = "";
+			arr_new[7] = "其他";
+			arr_new[8] = "铁岭";
+			arr_new[9] = "";
+			arr_new[10] = "互联地址";
+			arr_new[11] = "";
+			arr_new[12] = "";
+			arr_new[13] = "CMNET";
+			arr_new[14] = gateway;
+			arr_new[15] = "企业";
+			arr_new[16] = "";
+			arr_new[17] = "集客专线";
+			arr_new[18] = "互联网专线";
+			arr_new[19] = "辽宁";
+			arr_new[20] = "LNTIL-MA-CMNET-BAS02-YZME60X";
+			arr_new[21] = arr_o[12];
+			arr_new[22] = "";
+			arr_new[23] = arr_o[13];
+			arr_new[24] = arr_o[14];
+			arr_new[25] = arr_o[17];
+			arr_new[26] = arr_o[0];
+			arr_new[27] = "卜玉"//arr_o[15];	
+			arr_new[28] = "";
+			arr_new[29] = "18841050815"//arr_o[16];
+			arr_new[30] = "";
+			arr_new[31] = "已启用";
+			arr_new[32] = "";
+			arr_new[33] = "";
+			arr_new[34] = "客户响应中心";
+			arr_new[35] = "buyu.tl@ln.chinamobile.com"//arr_o[16]+"@139.com";
+			arr_new[36] = "铁岭";
+			arr_new[37] = "";
+		}
+		$("#out_info").val(arr_new.join('\t'));
+	}
+	var arr_new = [];
+	
+</script>
+{/block}

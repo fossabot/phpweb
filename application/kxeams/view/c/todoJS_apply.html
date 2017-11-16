@@ -1,0 +1,35 @@
+	var	formStructure = [
+		{type:"fieldset",label:formData['form_type']+"单(单号："+formData['id']+")",inputWidth:"auto",list:[
+      		{type:"settings",labelWidth:70,inputWidth:140},
+      		{type:"block",inputWidth:"auto",blockOffset:0,offsetTop:0,list:[
+				{"type":"input","name":"form_type","label":"表单分类",readonly:true},
+				{"type":"input","name":"username","label":"建单人",readonly:true},
+				{"type":"input","name":"usertel","label":"建单人电话",readonly:true},
+				{"type":"hidden","name":"from_dept","label":"向谁申请"},
+				{"type":"input","name":"to_store","label":"存放地点",readonly:true},
+				{"type":"input","name":"owner","label":"使用人",readonly:true},
+				{"type":"input","name":"to_dept","label":"使用单位",readonly:true},
+				{"type":"input","name":"mremarks","label":"备注",rows:3,readonly:true},
+				{"type":"hidden","name":"mlogs","label":"操作记录",readonly:true},
+			]},
+      		{type:"label",label:"操作",labelWidth:100,name:"oLabel"},
+      		{type:"block",inputWidth:"auto",blockOffset:0,offsetTop:0,list:[
+	      		{type:"settings",labelWidth:70,inputWidth:140},
+	      		{"type":"select","name":"from_store","label":"存放地点"},
+	      	]},	
+	      	{type:"block",inputWidth:"auto",blockOffset:30,offsetTop:0,list:[
+				{"type":"button","name":"yes","value":"同意"},
+				{type:"newcolumn"},
+				{"type":"button","name":"no","value":"不同意"},
+			]},
+		]},
+	];
+	myForm = null;
+	myForm = new dhtmlXForm('myForm',formStructure);
+	myForm.loadStruct({data: formData});	//加载领用申请单数据
+	formStructure = null;
+	$.post("get_combo_options.html",{
+		table:"store",field:{text:"sname",value:"sname"},distinct:1,where:{sdept: myForm.getItemValue("from_dept")},order:"`order` desc,id"
+		},function(data){
+			myForm.reloadOptions("from_store",data);
+	});

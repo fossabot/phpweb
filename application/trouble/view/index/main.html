@@ -1,0 +1,189 @@
+{extend name="c/layout" /} {block name="header"}
+<script src="__STATIC__/md5-min.js"></script>
+<style>
+body {
+	background-color: #efeff4;
+}
+
+h1 {
+	margin: 30px 0;
+	font-weight: 400;
+	font-size: 34px;
+	color: #3cc51f;
+	text-align: center;
+}
+</style>
+<script>
+	var req,str;
+	$(function($) {
+		if (!window.atob) {
+			weui.confirm("您的浏览器无法正常使用，请更新浏览器版本或使用手机访问", function() {
+				history.go(-1);
+			}, function() {
+				history.go(0);
+			}, {
+				title : "警告",
+			});
+		}
+	});
+
+	function login() {
+		$(".weui-btn-area a").addClass("weui-btn_disabled");
+		loading = weui
+				.loading("登录中...<br><a style='color: #aaa;' href='javascript:cancelLogin()'>取消</a>");
+		var user = utf8_to_b64($("input[name='username']").val());
+		var pwd = '';
+		var data = {};
+		if ($("#vcode_btn").length) {
+			//	Email登录
+			pwd = utf8_to_b64($("input[name='password']").val());
+			data = {
+				u : user,
+				p : pwd,
+				e : 2,
+				m : (new Date()).getTime(),
+			};
+		} else {
+
+			pwd = utf8_to_b64(hex_md5($("input[name='password']").val())
+					.toUpperCase());
+			data = {
+				u : user,
+				p : pwd,
+				e : (new Date()).getTime()
+			};
+		}
+		req = $.ajax('index', {
+			type : "POST",
+			data : data,
+			success : function(data, textStatus) {
+				//loginInJump(data);
+			},
+			complete : function(XMLHttpRequest, textStatus) {
+				loading.hide();
+				if (textStatus == 'success') { // success
+					var data = XMLHttpRequest.responseJSON;
+					loginInJump(data);
+
+				} else if (textStatus != 'abort') { // error
+					var text = "status:" + XMLHttpRequest.status + "<br>"
+							+ XMLHttpRequest.statusText;
+					weui.alert(text, {
+						title : textStatus,
+					});
+					$(".weui-btn-area a").removeClass("weui-btn_disabled");
+				}
+			}
+		});
+		function loginInJump(data) {
+			if (data.code) {
+				weui.toast(data.msg, {
+					duration : 1000,
+					callback : function() {
+						location.href = data.url;
+					}
+				});
+				//setTimeout('location.href = data.url',1000);
+			} else {
+				weui.topTips(data.msg);
+				$(".weui-btn-area a").removeClass("weui-btn_disabled");
+			}
+		}
+	}
+	function cancelLogin() {
+		$(".weui-btn-area a").removeClass("weui-btn_disabled");
+		loading.hide();
+		req.abort();
+	}
+	function emailLogin() {
+		str = $(".weui-cells").html();
+		$("#user label").text("邮箱");
+		$("#user input").prop("placeholder", "请输入OA邮箱");
+		$("#user .weui-cell__ft").text("@ln.chinamobile.com");
+		$("#pwd").addClass("weui-cell_vcode");
+		$("#pwd label").text("验证码");
+		$("#pwd input").prop("placeholder", "请填写验证码");
+		$("#pwd input").prop("type", "text");
+		$("#pwd .weui-cell__ft").html(
+				"<button id='vcode_btn' class='weui-vcode-btn'>获取验证码</buton>");
+		$("#loginType").html("<a href='javascript: ESLogin(str);'>使用账号登录</a>");
+		$("#vcode_btn").on("click", getVcode);
+	}
+	function ESLogin(str) {
+		var input_user = $("#user input").val();
+		$(".weui-cells").html(str);
+		str = null;
+		$("#user input").prop("value", input_user);
+		$("#loginType").html("<a href='javascript: emailLogin();'>使用邮箱登录</a>");
+	}
+	function getVcode() {
+		var u = $("#user input").val();
+		if (u.length < 5) {
+			weui.topTips("请输入正确的Email地址。");
+			return false;
+		}
+		if (!u.match('.tl')) {
+			weui.confirm('邮箱地址是否忘了输入“.tl”，继续提交？', function() {
+				sendVcode();
+				setTimeout(function(){sendVcode()},1000);
+				return;
+			}, function() {
+				//点击取消
+			}, {
+				title : ''
+			});
+		}
+		sendVcode();
+		function sendVcode() {
+			var e = u + '@ln.chinamobile.com';
+			weui.confirm('即将发送验证码到<br>' + e, function() {
+				$.get("getVcode/" + u, {}, function(data) {
+					setTimeout(function(){weui.alert(data.msg)},1000);
+				});
+			}, function() {
+				//点击取消
+			}, {
+				title : ''
+			});
+		}
+		return false;
+	}
+</script>
+{/block} {block name="main"}
+<h1>铁岭移动终端故障报修</h1>
+<form id="loginForm">
+	<div class=weui-cells__title>用户登录</div>
+	<div class="weui-cells">
+		<div id='user' class="weui-cell">
+			<div class="weui-cell__hd">
+				<label for="" class="weui-label">用户名</label>
+			</div>
+			<div class="weui-cell__bd weui-cell__primary">
+				<input name="username" class="weui-input" required="required"
+					placeholder="请使用Excel服务器账号" type="text">
+			</div>
+			<div class="weui-cell__ft" style='font-size: 13px;'></div>
+		</div>
+
+		<div id='pwd' class="weui-cell">
+			<div class="weui-cell__hd">
+				<label for="" class="weui-label">密码</label>
+			</div>
+			<div class="weui-cell__bd weui-cell_primary">
+				<input name="password" class="weui-input" placeholder="请输入密码"
+					type="password">
+			</div>
+			<div class="weui-cell__ft"></div>
+		</div>
+	</div>
+	<div id="loginType" class=weui-cells__title>
+		<a href='javascript: emailLogin();'>使用邮箱登录</a>
+	</div>
+	<div class="weui-btn-area">
+		<a href="javascript:login();" class="weui-btn weui-btn_primary">登录</a>
+	</div>
+</form>
+<div class="weui-footer weui-footer_fixed-bottom">
+	<p class="weui-footer__text">Copyright © 2017 Xianda,Tieling.</p>
+</div>
+{/block}

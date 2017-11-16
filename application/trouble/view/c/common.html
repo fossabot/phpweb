@@ -1,0 +1,146 @@
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="__STATIC__/jquery-3.2.1.min.js"></script>
+<!-- <link rel="STYLESHEET" type="text/css"
+	href="__STATIC__/jquery-weui/dist/css/jquery-weui.min.css"> -->
+<link rel="STYLESHEET" type="text/css"
+	href="__STATIC__/weui/weui.min.css">
+
+<script src="__STATIC__/weui/weui.min.js"></script>
+<!-- <script src="__STATIC__/jquery-weui/dist/js/jquery-weui.min.js"></script> -->
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+<meta http-equiv=”X-UA-Compatible” content=”IE=edge,chrome=1″ />
+<link rel="shortcut icon" href="__STATIC__/cmccIcon.ico"
+	type="/image/x-icon">
+
+<style>
+html {
+	font-size: 20px;
+}
+
+body {
+	font-size: 16px;
+}
+
+@media only screen and (min-width: 400px) {
+	html {
+		font-size: 21.33333333px !important;
+	}
+}
+
+@media only screen and (min-width: 414px) {
+	html {
+		font-size: 22.08px !important;
+	}
+}
+
+@media only screen and (min-width: 480px) {
+	html {
+		font-size: 25.6px !important;
+	}
+}
+
+.toolbar {
+	position: relative;
+	width: 100%;
+	font-size: .85rem;
+	line-height: 1.5;
+	color: #3d4145;
+	background: #f7f7f8;
+}
+
+.toolbar:before {
+	content: '';
+	position: absolute;
+	left: 0;
+	top: 0;
+	bottom: auto;
+	right: auto;
+	height: 1px;
+	width: 100%;
+	background-color: #d9d9d9;
+	display: block;
+	z-index: 15;
+	-webkit-transform-origin: 50% 0%;
+	transform-origin: 50% 0%;
+}
+
+@media only screen and (-webkit-min-device-pixel-ratio: 2) {
+	.toolbar:before {
+		-webkit-transform: scaleY(0.5);
+		transform: scaleY(0.5);
+	}
+}
+
+@media only screen and (-webkit-min-device-pixel-ratio: 3) {
+	.toolbar:before {
+		-webkit-transform: scaleY(0.33);
+		transform: scaleY(0.33);
+	}
+}
+
+.toolbar .toolbar-inner {
+	height: 2.2rem;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: -webkit-flex;
+	display: flex;
+	text-align: center;
+}
+
+.toolbar .title {
+	position: absolute;
+	display: block;
+	width: 100%;
+	padding: 0;
+	font-size: .85rem;
+	font-weight: normal;
+	line-height: 2.2rem;
+	color: #3d4145;
+	text-align: center;
+	white-space: nowrap;
+}
+
+.toolbar .picker-button {
+	position: absolute;
+	right: 0;
+	box-sizing: border-box;
+	height: 2.2rem;
+	line-height: 2.2rem;
+	color: #04BE02;
+	z-index: 1;
+	padding: 0 .5rem;
+}
+</style>
+<script>
+	var _htmlHeight = document.documentElement ? document.documentElement.clientHeight
+			: document.body.clientHeight;
+	var _htmlWidth = document.documentElement ? document.documentElement.clientWidth
+			: document.body.clientWidth;
+	function utf8_to_b64(str) {
+		return window.btoa(decodeURIComponent(encodeURIComponent(str)));
+	}
+
+	function b64_to_utf8(str) {
+		return decodeURIComponent(encodeURIComponent(window.atob(str)));
+	}
+	$(function($) {
+		function act() {
+			var tag = {
+				'view' : 0,
+				'todo' : 1,
+				'setting' : 2,
+				'me' : 3
+			};
+			var badgeDIV = $(".weui-tabbar a")[tag['{$Request.action}']];
+			if (badgeDIV)
+				badgeDIV.className += "weui-bar__item--on";
+			//$($(".weui-tabbar a")[0]).addClass("weui-bar__item--on");
+		}
+		act();
+		if ($(".weui-tabbar .weui-badge").text() == 0) {
+			$(".weui-tabbar .weui-badge").remove();
+		}
+	});
+</script>
+

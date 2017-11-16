@@ -1,0 +1,345 @@
+{extend name="c/layout" /} {block name="header"}
+<script src="__STATIC__/weui/weui.min.js"></script>
+<style>
+.back-button {
+	position: absolute;
+	left: 0;
+	box-sizing: border-box;
+	height: 2.2rem;
+	line-height: 2.2rem;
+	color: #04BE02;
+	z-index: 1;
+	padding: 0 .5rem;
+}
+
+.status-text {
+	position: absolute;
+	right: 0;
+	text-align: right;
+	margin-right: 55px;
+	font-size: 12px;
+	line-height: 29px;
+}
+
+.status-text span {
+	color: #088bff;
+}
+
+.weui-flex__items {
+	width: 120px;
+}
+
+.weui-media-box__desc {
+	-webkit-line-clamp: 20;
+}
+
+._function {
+	position: fixed;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 2;
+}
+
+.weui-panel {
+	margin-bottom: 46px;
+}
+</style>
+{/block} {block name="main"}
+<div class="toolbar top">
+	<div class="toolbar-inner">
+		<a href="javascript:history.go(-1);" class="back-button close-popup">返回</a>
+		<h1 class="title">
+			故障报修单 <span style="font-size: 12px;">编号 {$data.id|default=''}</span>
+		</h1>
+		<a href="javascript:cancel()" class="picker-button" id='cancelbtn'
+			style="display: none;">撤销</a>
+	</div>
+</div>
+<div class="weui-panel weui-panel_access">
+	<div class="weui-panel__bd">
+		<div class="weui-media-box weui-media-box_appmsg">
+			<div class="weui-media-box__bd">
+				<h3>
+					基本信息<span class="status-text">状态：<span>{$data.statusText|default=''}</span></span>
+				</h3>
+				<div class="weui-flex">
+					<div class="weui-flex__items">申请时间：</div>
+					<div class="weui-flex__item">{$data.createTime|default=''}</div>
+				</div>
+				<div class="weui-flex">
+					<div class="weui-flex__items">申请人：</div>
+					<div id="name" class="weui-flex__item">{$data.applicant|default=''}</div>
+				</div>
+				<div class="weui-flex">
+					<div class="weui-flex__items">邮箱：</div>
+					<div class="weui-flex__item"
+						style="font-size: 12px; line-height: 25px;">{$data.emailAddr|default=''}</div>
+				</div>
+				<div class="weui-flex">
+					<div class="weui-flex__items">所在部门：</div>
+					<div class="weui-flex__item">{$data.dept2|default=''}&nbsp;{$data.dept|default=''}</div>
+				</div>
+				<div class="weui-flex">
+					<div class="weui-flex__items">故障类型：</div>
+					<div class="weui-flex__item">{$data.troubleType|default=''}</div>
+				</div>
+				<div class="weui-flex">
+					<div class="weui-flex__items">故障现象：</div>
+					<div class="weui-flex__item">{$data.troubleDescrition|default=''}</div>
+				</div>
+			</div>
+		</div>
+		<div class="weui-cells">
+			<div class="weui-cell weui-cell_access" id="deptA">
+				<div class="weui-cell__bd">
+					<p>申请部门审批意见</p>
+				</div>
+				<div id="applicationApproval" class="weui-cell__ft">{$data.applicationApproval|default=''}</div>
+			</div>
+		</div>
+		<div class="weui-cells">
+			<div class="weui-cell weui-cell_access" id="kxA">
+				<div class="weui-cell__bd">
+					<p>客响中心领导审批意见</p>
+				</div>
+				<div id="approvalOpinion" class="weui-cell__ft">{$data.approvalOpinion|default=''}</div>
+			</div>
+		</div>
+		<div class="weui-cells">
+			<div class="weui-cell weui-cell_access" id="resultsA">
+				<div class="weui-cell__bd">
+					<p>代维处理情况</p>
+				</div>
+				<div id="resultsOpinion" class="weui-cell__ft">{$data.resultsOpinion|default=''}</div>
+			</div>
+		</div>
+
+		<div class="weui-cells">
+			<div class="weui-cell weui-cell_access" id="marks">
+				<div class="weui-cell__bd">
+					<p>申请人确认打分</p>
+				</div>
+				<div id="marks_val" class="weui-cell__ft">
+					{$data.marks|default=''}</div>
+			</div>
+		</div>
+		<div class="weui-cells">
+			<div class="weui-cell weui-cell_access" id="archive">
+				<div class="weui-cell__bd">
+					<p>派单人确认处理结果</p>
+				</div>
+				<div class="weui-cell__ft" id="marks_val">
+					{$data.managerConfirm|default=''}</div>
+			</div>
+		</div>
+		<div class="weui-media-box weui-media-box_text">
+			<h4 class="weui-media-box__title">操作记录</h4>
+			<p id="logs" class="weui-media-box__desc">{$data.logs|default=''}</p>
+		</div>
+	</div>
+	<div class="weui-panel__ft">
+		<a class="weui-cell weui-cell_access weui-cell_link"
+			href="../more/{$data.id|default=''}.html">
+			<div class="weui-cell__bd">查看更多</div> <span class="weui-cell__ft">查看更多信息</span>
+		</a>
+	</div>
+</div>
+<div class="_function">
+	<div class="weui-flex">
+		<div class="weui-flex__item">
+			<a href="javascript:;"
+				class="weui-btn weui-btn_default weui-btn_plain-disabled"
+				id="kxhandle">操作</a>
+		</div>
+		<div class="weui-flex__item">
+			<a href="javascript:;" class="weui-btn weui-btn_primary">提交</a>
+		</div>
+	</div>
+</div>
+
+{/block} {block name="script"}
+<script>
+
+//*******测试用********/
+/*
+$("#cancelbtn").show();
+$("#kxhandle").attr("onclick","sendTo()");
+$("#deptA").attr("onclick","applicationApproval()");
+$("#kxA").attr("onclick","kxApproval()");
+$("#resultsA").attr("onclick","resultsApproval()");
+$("#marks").attr("onclick","marks()");
+$("#archive").attr("onclick","managerConfirm()");*/
+//*******测试用********//
+	var user = JSON.parse('{$Think.session.user|json_encode=256}');
+	var formDate = {id: {$data.id|default=0},status:{$data.status|default=99}};
+	if(formDate.status<5){
+		if($("#name").text()==user.UserName){	//	撤销
+			$("#cancelbtn").show();
+		} else if(user.UserRole==3){	//	派单
+			$("#kxhandle").attr("onclick","sendTo()");
+		}
+	}
+	if(formDate.status == 0 && user.UserDept == "{$data.dept}" && user.UserDept2 == "{$data.dept2}" && user.UserRole == 1){	//	部门审批
+		addPower("deptA","applicationApproval");
+		//$("#deptA").attr("onclick","applicationApproval()");
+	}else if(formDate.status == 2 && user.UserRole == 2){	//	客响审批
+		addPower("kxA","kxApproval");
+		//$("#kxA").attr("onclick","kxApproval()");
+	}else if(formDate.status == 6 && user.UserRole == 4){	//	代维处理结果
+		addPower("resultsA","resultsApproval");
+		//$("#resultsA").attr("onclick","resultsApproval()");
+	}else if(formDate.status > 7){
+		if($("#name").text()==user.UserName){	//	打分
+			addPower("marks","marks");
+			//$("#marks").attr("onclick","marks()");
+		}else if(user.UserRole == 3){	//	归档
+			addPower("archive","managerConfirm");
+			//$("#archive").attr("onclick","managerConfirm()");
+		}
+	}
+	//	加权限
+	function addPower(id, funcName){
+		$("#"+id).attr("onclick", funcName+"()");
+	}
+	//	撤销
+	function cancel() {
+		weui.confirm('您确定要撤销本故障报修单？',function() {
+			$.get("../handle.html",{
+				id:{$data.id|default=''},
+				status:5,
+				logs:$("#logs").text()+"用户 "+$("#name").text()+" 已撤销，"+getNow()+"；",
+			},function(data){
+				console.log(data);
+				if(data.status==5){
+					$.toast("撤销成功",function(){
+						history.go(0);
+					});
+				}
+			});
+		},function(){
+			
+		},{
+			title : '确认撤销？',
+		});
+	}
+
+	//	打分
+	function marks() {
+		weui.picker([
+			{label:'',value:""},
+			{label:1,value:"1分"},
+			{label:2,value:"2分"},
+			{label:3,value:"3分"},
+			{label:4,value:"4分"},
+			{label:5,value:"5分"},
+		],{
+		defaultValue: [3],
+		onChange: function (result) {
+			$("#marks_val").text(result[0].value);
+			formDate.marks = result[0].label;
+		},
+		onConfirm: function (result) {
+		}
+		});
+		$(".weui-picker__hd a:first").after('<a class="weui-picker__action">打个分吧</a>');
+	}
+	
+	//	部门审批
+	function applicationApproval() {
+		weui.picker([
+				{label:'',value:""},
+				{label:'不同意',value:"不同意"},
+				{label:'同意',value:"同意"}
+		],{
+		defaultValue: [""],
+		onChange: function (result) {
+			formDate.applicationApproval = result[0].value;
+			$("#applicationApproval").text(result[0].value);
+		},
+		onConfirm: function (result) {
+		}
+		});
+		$(".weui-picker__hd a:first").after('<a class="weui-picker__action">部门审批</a>');
+	}
+	
+	//	客响审批
+	function kxApproval() {
+		weui.picker([
+			{label:'',value:""},
+			{label:'不同意',value:"不同意"},
+			{label:'同意',value:"同意"}
+		],{
+		defaultValue: [""],
+		onChange: function (result) {
+			formDate.approvalOpinion = result[0].value;
+			$("#approvalOpinion").text(result[0].value);
+		},
+		onConfirm: function (result) {
+		}
+		});
+		$(".weui-picker__hd a:first").after('<a class="weui-picker__action">客响审批</a>');
+	}
+	//	派单
+	function sendTo(){
+		$.get("sendList",function(data){
+			console.log(data);//////////////////////////
+		});
+	}
+	//	处理结果
+	function resultsApproval(){
+		weui.picker([
+			{label:'',value:""},
+			{label:'已解决',value:"已解决"},
+			{label:'未完成',value:"未完成"}
+		],{
+		defaultValue: [""],
+		onChange: function (result) {
+			formDate.resultsOpinion = result[0].value;
+			$("#resultsOpinion").text(result[0].value);
+		},
+		onConfirm: function (result) {
+		}
+		});
+		$(".weui-picker__hd a:first").after('<a class="weui-picker__action">处理结果</a>');
+	}
+	//	确认归档
+	function managerConfirm() {
+		weui.picker([
+			{label:'',value:""},
+			{label:'待定',value:"待定"},
+			{label:'已确认',value:"已确认"}
+		],{
+		defaultValue: [""],
+		onChange: function (result) {
+			$("#managerConfirm").text(result[0].value);
+			formDate.managerConfirm = result[0].label;
+		},
+		onConfirm: function (result) {
+		}
+		});
+		$(".weui-picker__hd a:first").after('<a class="weui-picker__action">确认归档</a>');
+	}
+	function getNow(){
+		var now = new Date();
+		var year = now.getFullYear(); //getFullYear getYear
+		var month = now.getMonth();
+		var date = now.getDate();
+		var hour = now.getHours();
+		var minu = now.getMinutes();
+		var sec = now.getSeconds();
+		month = reNum(month+1);
+		date = reNum(date);
+		hour = reNum(hour);
+		minu = reNum(minu);
+		sec = reNum(sec);
+		var time = "";
+		time = year + "-" + month + "-" + date + " " + hour + ":" + minu
+				+ ":" + sec;
+		function reNum(n){
+			return n>10?n:"0"+n;
+		}
+		return time;
+	}
+</script>
+{/block}

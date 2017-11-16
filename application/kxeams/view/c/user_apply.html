@@ -1,0 +1,245 @@
+<div id="myForm"></div>
+<div id="btn-add">
+	<button class="btn btn-primary" onclick="addAcc()">再领一个</button>
+</div>
+<div id="accObj"></div>
+<style>
+#myForm {
+	position: absolute;
+	top: 70px;
+	bottom: 0;
+	left: 20px;
+	width: 310px;
+	/*border: 1px solid red;*/
+}
+
+#btn-add {
+	position: absolute;
+	top: 70px;
+	left: 350px;
+}
+
+#accObj {
+	position: absolute;
+	top: 108px;
+	/*bottom: 0;*/
+	left: 350px;
+	/*right: 0;*/
+	width: 800px;
+}
+</style>
+{include file="C/user_apply_formStructure" /}
+<script>
+var myForm = new dhtmlXForm('myForm',formStructure);
+function getFromDept(){
+	$.post("get_combo_options.html",{
+		table:"store",field:{text:"sdept",value:"sdept"},distinct:1,where:{},order:"`order` desc,id"
+		},function(data){
+			myForm.reloadOptions("from_dept",data);
+	});
+}
+function getToStore(){
+	$.post("get_combo_options.html",{
+		table:"store",field:{text:"sname",value:"sname"},distinct:1,where:{sdept: myForm.getItemValue("to_dept")},order:"`order` desc,id"
+		},function(data){
+			myForm.reloadOptions("to_store",data);
+	});
+}
+getFromDept();
+getToStore();
+/*function getFromStore(sdept){
+	$.post("get_combo_options.html",{
+		table:"store",field:{text:"sname",value:"sname"},distinct:1,where:{sdept: sdept},order:"`order` desc,id"
+		},function(data){
+			myForm.reloadOptions("from_store",data);
+	});
+}
+myForm.attachEvent("onChange", function(name, value){
+	if(name=="from_dept"){
+		dhtmlx.message({text: value});
+		getFromStore(value);
+	}
+});*/
+myForm.attachEvent("onButtonClick", function(id){
+	if(id=="f_submit"){
+		/*myForm.send("{$_SERVER["REQUEST_URI"]}",function(loader,response){
+			//对返回值的处理
+			console.log(response);
+		});*/
+		sendApply();
+	} else if (id=='ttt'){
+		myForm.loadStruct({data:{"name":"","count":"55","location":"","usage":"uuuuuu","username":"","progress":"","remarks":"","form_type":"领用申请","create_time":"","type":"","marker":"sdf e","units":"","dept":"","usertel":""}});
+	} else if (id=='submit'){
+		
+	} else {
+    	alert("Button with name "+id+" was clicked");
+    }
+});
+myForm.enableLiveValidation(true);
+
+var myAcc = new dhtmlXAccordion({
+	parent: "accObj",
+	multi_mode: true,
+});
+myAcc.enableDND();
+var id = 0,idd;
+var accForm = [];
+addAcc();
+function sendApply(){
+	if(!myForm.validate()){
+		dhtmlx.alert({title:"信息不全",type:"alert-warning",text:"将领用申请单填写完整,并重试"});
+		return false;
+	}
+	var data = {
+		"apply": [myForm.getFormData()]
+	};
+	// data结构：data['apply'][0]=>myForm.getFormData(),data['apply'][1~n]=>itemDetails
+	for (var i = 1; i < accForm.length ;i++){
+		if(accForm[i].length==0){
+			break;
+		}
+		if( !accForm[i].validate() ){
+			dhtmlx.alert({title:"信息不全",type:"alert-warning",text:"将领用明细填写完整再提交"});
+			return false;
+		}
+		var item_id = accForm[i].getCombo("maker"+i).getSelectedValue();
+		if( item_id == undefined ){
+			dhtmlx.alert({title:"请选择正确的制造厂商",type:"alert-warning",text:"无法获取领用物品"+i+"的id,无法提交"});
+			return false;
+		} else {
+			data['apply'][i] = {};
+			data['apply'][i]['item_id'] = item_id;
+			data['apply'][i]['count'] = accForm[i].getItemValue("count"+i);
+			data['apply'][i]['dusage'] = accForm[i].getItemValue("dusage"+i);
+			data['apply'][i]['dremarks'] = accForm[i].getItemValue("dremarks"+i);
+		}
+	}
+	data['apply'][0]['formAccount'] = accForm.length;
+	//console.log("data Length:"+data['apply'].length);
+	$.post("{$_SERVER["REQUEST_URI"]}",data,function(data){
+		if(data.state)
+			data.callback = function(){
+				//location.href = "history.html";
+			};
+		dhtmlx.alert(data);
+	});
+	data = null;
+}
+function addAcc(){
+	id ++;
+	var addStructure = [
+		{type:"block",inputWidth:"auto",blockOffset:"10",offsetTop:0,list:[
+		{type:"settings",labelWidth:60,inputWidth:170},
+		{"type":"hidden","name":"delete"+id},
+		{type:"block",inputWidth:"auto",blockOffset:"-",list:[
+				{"type":"combo","name":"name"+id,"label":"名称",required:true,note:{text:"支持模糊查询"}},
+				{"type":"combo","name":"type"+id,"label":"型号",required:true},
+			]},
+			{type:"newcolumn"},
+			{type:"block",inputWidth:"auto",blockOffset:"-",list:[
+				{"type":"input","name":"units"+id,"label":"计量单位",note:{text:"此处会自动填写"},readonly:true},
+				{"type":"combo","name":"maker"+id,"label":"制造厂商",validate:"NotEmpty"},
+			]},
+			{type:"newcolumn"},
+			{type:"block",inputWidth:"auto",blockOffset:"-",list:[
+				{"type":"input","name":"count"+id,"label":"数量",note:{text:"填写领用数量"},validate:"ValidInteger",required: true},
+			{"type":"input","name":"dusage"+id,"label":"用途", note: {text:"选填，尽量填写详细"},maxLength:50},
+			]},
+		]},
+		{type:"block",inputWidth:"auto",blockOffset:"30",offsetTop:0,list:[
+		{type:"settings",labelWidth:60,inputWidth:675},
+		{"type":"input","name":"dremarks"+id,"label":"备注",maxLength:100,note: {text:"写清要用到了哪里"},required: true},
+		]},
+	];
+	myAcc.addItem("a"+id,"领用物品"+id+"<a class='btn btn-link' onclick='removeAcc("+id+")'>删除</a>",true,175);
+	accForm[id] = myAcc.cells("a"+id).attachForm(addStructure);
+	accForm[id].enableLiveValidation(true);
+	var idd = id;	//保存当前的 id 值, 在 callback 函数中使用
+	$.post("get_combo_options.html",{
+		table:"item",field:{text:"name",value:"units"},distinct:1
+		},function(data){
+			accForm[idd].reloadOptions("name"+idd,data);
+	});
+	
+	//accForm[id].getCombo("name"+id).load("get_combo_options.html?table=item&text=name&value=name&distinct=1");
+	accForm[id].getCombo("name"+id).enableFilteringMode("between");//开启模糊查询
+	accForm[id].getCombo("type"+id).enableFilteringMode("between");
+	// 表单事件监听
+
+	accForm[idd].getCombo("name"+idd).attachEvent("onClose", function (value, text){
+		//if(name.substr(0,4) == "name"){
+			//var idd = name.substr(4, name.length); //保存当前的 id 值, 在 callback 函数中使用
+			setUnitsValue(idd,accForm[idd].getCombo("name"+idd).getSelectedValue());
+			accForm[idd].getCombo("type"+idd).setComboText("");
+			accForm[idd].getCombo("maker"+idd).setComboText("");
+			//accForm[idd].getCombo("type"+idd).detachEvent("onChange");
+			accForm[idd].getCombo("type"+idd).attachEvent("onChange", function (value, text){
+				accForm[idd].getCombo("maker"+idd).setComboText("");
+				//accForm[idd].getCombo("maker"+idd).detachEvent("onChange");
+				accForm[idd].getCombo("maker"+idd).attachEvent("onChange", function (value, text){
+					
+					//setUnitsValue(idd,value);
+				});
+				getMakerOptions(idd,text);
+			});
+			getTypeOptions(idd,accForm[idd].getCombo("name"+idd).getSelectedText());
+		//}		
+	});
+	/*accForm[id].attachEvent("onAfterValidate", function (status){
+		if(!status){
+			$(".validate_error input").css("border","1px solid red");
+		}
+	});*/
+}
+function removeAcc(_id){
+	dhtmlx.alert({title:"暂不支持删除操作",text:"若操作失误请<a href=''>刷新页面</a>重新填写",callback:function(){
+		myAcc.cells("a"+_id).open();
+	}});
+	//可以使用sessionStorage保存数据刷新页面后再填进去
+	//accForm[_id].setItemValue("delete"+_id,"1");	//设置删除位
+	//myAcc.cells("a"+_id).hide();	//	隐藏该Acc
+	//myAcc.removeItem("a"+_id);	//	删Acc
+	//accForm.splice(_id,1);	//	删数组
+}
+/**
+ * 获取 combo 的 options 
+ *
+ * idd: form 序号
+ * table: 表名  
+ * field: 获取的 option 的 field (json格式)
+ * where： 查询的条件限定 (json格式 )
+ */
+function getOptions(idd,table,field,where){	
+	$.post("get_combo_options.html",{
+		table:table,field:field,distinct:1,where:where
+		},function(options){
+			//var options = data['options'];
+			accForm[idd].getCombo(field['text']+idd).clearAll();
+			accForm[idd].reloadOptions(field['text']+idd,options);
+			if (options.length > 1){
+				accForm[idd].setNote(field['text']+idd,{text:"有多个选项，请选择。"});
+			} else {
+				accForm[idd].setNote(field['text']+idd,{text:"唯一选项,没得选择。"});
+				//options[0]['selected'] = true;//设置默认选择第一个
+				accForm[idd].getCombo(field['text']+idd).selectOption(0,true,true);
+			}
+			$(".dhxform_note").width(170); // 修复 dhtmlxForm 里的 combo 设置 note width 为 0 的 bug  
+			// JQ ajax callback 函数是动态执行的, 使用的 idd 为所属 Form 的 id 而不是最后一个 Form 的 id .
+			option = null;
+	});
+}
+function getTypeOptions(idd,name){
+	getOptions(idd,"item",{text:"type",value:"type"},{name:name});
+}
+function getMakerOptions(idd,type){
+	getOptions(idd,"item",{text:"maker",value:"id"},{name:accForm[idd].getCombo("name"+idd).getSelectedText(),type:type});
+	// 隐含 value 值 为 id
+}
+function setUnitsValue(idd,value){
+	accForm[idd].setItemValue("units"+idd,value);
+}
+$(function($){
+	$(".dhxacc_cont").height($(".dhxacc_cont").height()-20); //拯救 dhtmlx Layout 组件 导致 DOM 溢出出现滚动条
+});
+</script>
+

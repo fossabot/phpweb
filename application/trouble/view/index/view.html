@@ -1,0 +1,206 @@
+{extend name="c/layout" /} {block name="header"}
+<script src="__STATIC__/jquery-weui/src/js/jquery-extend.js"></script>
+<script src="__STATIC__/jquery-weui/src/js/infinite.js"></script>
+<script src="__STATIC__/jquery-weui/src/js/pull-to-refresh.js"></script>
+<style>
+
+.weui-pull-to-refresh {
+  margin-top: -50px;
+  -webkit-transition: -webkit-transform .4s;
+  transition: -webkit-transform .4s;
+  transition: transform .4s;
+  transition: transform .4s, -webkit-transform .4s;
+}
+.weui-pull-to-refresh.refreshing {
+  -webkit-transform: translate3d(0, 50px, 0);
+          transform: translate3d(0, 50px, 0);
+}
+.weui-pull-to-refresh.touching {
+  -webkit-transition-duration: 0s;
+          transition-duration: 0s;
+}
+.weui-pull-to-refresh__layer {
+  height: 30px;
+  line-height: 30px;
+  padding: 10px;
+  text-align: center;
+}
+.weui-pull-to-refresh__layer .down {
+  display: inline-block;
+}
+.weui-pull-to-refresh__layer .up,
+.weui-pull-to-refresh__layer .refresh {
+  display: none;
+}
+.weui-pull-to-refresh__layer .weui-pull-to-refresh__arrow {
+  display: inline-block;
+  z-index: 10;
+  width: 20px;
+  height: 20px;
+  margin-right: 4px;
+  vertical-align: -4px;
+  background: no-repeat center;
+  background-size: 13px 20px;
+  -webkit-transition-duration: 300ms;
+          transition-duration: 300ms;
+  -webkit-transform: rotate(0deg) translate3d(0, 0, 0);
+          transform: rotate(0deg) translate3d(0, 0, 0);
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2026%2040'%3E%3Cpolygon%20points%3D'9%2C22%209%2C0%2017%2C0%2017%2C22%2026%2C22%2013.5%2C40%200%2C22'%20fill%3D'%238c8c8c'%2F%3E%3C%2Fsvg%3E");
+}
+.weui-pull-to-refresh__layer .weui-pull-to-refresh__preloader {
+  display: none;
+  vertical-align: -4px;
+  margin-right: 4px;
+  width: 20px;
+  height: 20px;
+  -webkit-transform-origin: 50%;
+          transform-origin: 50%;
+  -webkit-animation: preloader-spin 1s steps(12, end) infinite;
+          animation: preloader-spin 1s steps(12, end) infinite;
+}
+.weui-pull-to-refresh__layer .weui-pull-to-refresh__preloader:after {
+  display: block;
+  width: 100%;
+  height: 100%;
+  content: "";
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20viewBox%3D'0%200%20120%20120'%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20xmlns%3Axlink%3D'http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink'%3E%3Cdefs%3E%3Cline%20id%3D'l'%20x1%3D'60'%20x2%3D'60'%20y1%3D'7'%20y2%3D'27'%20stroke%3D'%236c6c6c'%20stroke-width%3D'11'%20stroke-linecap%3D'round'%2F%3E%3C%2Fdefs%3E%3Cg%3E%3Cuse%20xlink%3Ahref%3D'%23l'%20opacity%3D'.27'%2F%3E%3Cuse%20xlink%3Ahref%3D'%23l'%20opacity%3D'.27'%20transform%3D'rotate(30%2060%2C60)'%2F%3E%3Cuse%20xlink%3Ahref%3D'%23l'%20opacity%3D'.27'%20transform%3D'rotate(60%2060%2C60)'%2F%3E%3Cuse%20xlink%3Ahref%3D'%23l'%20opacity%3D'.27'%20transform%3D'rotate(90%2060%2C60)'%2F%3E%3Cuse%20xlink%3Ahref%3D'%23l'%20opacity%3D'.27'%20transform%3D'rotate(120%2060%2C60)'%2F%3E%3Cuse%20xlink%3Ahref%3D'%23l'%20opacity%3D'.27'%20transform%3D'rotate(150%2060%2C60)'%2F%3E%3Cuse%20xlink%3Ahref%3D'%23l'%20opacity%3D'.37'%20transform%3D'rotate(180%2060%2C60)'%2F%3E%3Cuse%20xlink%3Ahref%3D'%23l'%20opacity%3D'.46'%20transform%3D'rotate(210%2060%2C60)'%2F%3E%3Cuse%20xlink%3Ahref%3D'%23l'%20opacity%3D'.56'%20transform%3D'rotate(240%2060%2C60)'%2F%3E%3Cuse%20xlink%3Ahref%3D'%23l'%20opacity%3D'.66'%20transform%3D'rotate(270%2060%2C60)'%2F%3E%3Cuse%20xlink%3Ahref%3D'%23l'%20opacity%3D'.75'%20transform%3D'rotate(300%2060%2C60)'%2F%3E%3Cuse%20xlink%3Ahref%3D'%23l'%20opacity%3D'.85'%20transform%3D'rotate(330%2060%2C60)'%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: 50%;
+  background-size: 100%;
+}
+.bg-success{
+	background-color: #4cd964;
+}
+</style>
+
+<script type="text/javascript">
+	/*(function($) {
+		$.getUrlParam = function(name) {
+			var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+			var r = window.location.search.substr(1).match(reg);
+			if (r != null)
+				return unescape(r[2]);
+			return null;
+		}
+	})(jQuery);
+	function getPage() {
+		var page = window.location.pathname.match(/view\/([0-9]+)/);
+		if (page != null)
+			return parseInt( page[1]);
+		return 1;
+	}*/
+	function about(){
+		weui.alert("使用单位：铁岭<br>版权：Xianda<br>联系方式：<a href='mailto:1748104738@139.com'>1748104738@139.com</a>",{
+			title:"终端故障报修",
+			buttons:[{
+				label: '确定',
+				onClick: function(){ 
+					document.getElementById("ans").innerHTML = document.getElementById("ans").innerHTML;
+				}
+			}]
+		});
+	}
+	var page = 1;
+	var loading = false; //状态标记
+	//	获取数据并加载 loadingData()
+	function loadingData() {
+		$.get('getview/' + (page++), {}, function(data) {
+			if (data) {
+				renderData(data);
+			} else {
+				weui.topTips("没有更多了");
+				page--;
+				$("._load1").hide();
+				$("._load2").show();
+			}
+			loading = false;
+		});
+	}
+	// 基于模板加载数据 renderData()
+	function renderData(data) {
+		for ( var i in data) {
+			var str = $("#_example").html();
+			for ( var j in data[i]) {
+				str = str.replace(new RegExp("{_" + j + "}","g"), data[i][j]);
+			}
+			$("#ans").html($("#ans").html() + str);
+		}
+	}
+	// 可能是个假刷新
+	function refresh() {
+		$("._load1").show();
+		$("._load2").hide();
+		page = 1;
+		$("#ans").html("");
+		loadingData();
+		
+	}
+	$(function($) {
+		loadingData();
+		$(".weui-tabbar").css("position", "fixed");
+		//	上拉刷新
+		$(document.body).pullToRefresh().on("pull-to-refresh", function(){
+			refresh();
+			$(document.body).pullToRefreshDone();
+		});
+		//	滚动加载
+		$(document.body).infinite().on("infinite", function() {
+			if (loading)
+				return;
+			loading = true;
+			loadingData();
+		});
+		setTimeout("weui.topTips('Tips：下拉可刷新', {className:'bg-success'})",2000);
+	});
+</script>
+{/block}
+{block name="main"}
+<div class="weui-pull-to-refresh__layer">
+	<div class='weui-pull-to-refresh__arrow'></div>
+	<div class='weui-pull-to-refresh__preloader'></div>
+	<div class="down">下拉刷新</div>
+	<div class="up">释放刷新</div>
+	<div class="refresh">正在刷新</div>
+</div>
+<div class="toolbar">
+	<div class="toolbar-inner">
+		<a href="javascript: about();" class="picker-button close-popup">关于</a>
+		<h1 class="title">故障单列表</h1>
+	</div>
+</div>
+<div id='ans'></div>
+<div class="weui-loadmore" style='margin-bottom: 53px'>
+	<span class='_load1'> <i class="weui-loading"></i> <span
+		class="weui-loadmore__tips">正在加载</span>
+	</span> <span class='_load2' style='display: none;'> 到底了 -<a href=''>点此刷新</a>-
+	</span>
+</div>
+<div id="_example" style="display: none;">
+	<div class="weui-form-preview">
+		<div class="weui-form-preview__hd">
+			<label class="weui-form-preview__label">故障申请人</label> <em
+				class="weui-form-preview__value">{_applicant}</em>
+		</div>
+		<div class="weui-form-preview__bd" onclick="this.nextElementSibling.childNodes[1].click();return;location.href='detail/{_id}.html'">
+			<div class="weui-form-preview__item">
+				<label class="weui-form-preview__label">申请时间</label> <span
+					class="weui-form-preview__value">{_createTime}</span>
+			</div>
+			<div class="weui-form-preview__item">
+				<label class="weui-form-preview__label">故障描述</label> <span
+					class="weui-form-preview__value">{_troubleDescrition}</span>
+			</div>
+			<div class="weui-form-preview__item">
+				<label class="weui-form-preview__label">状态</label> <span
+					class="weui-form-preview__value">{_statusText}</span>
+			</div>
+		</div>
+		<div class="weui-form-preview__ft">
+			<a type="submit"
+				class="weui-form-preview__btn weui-form-preview__btn_primary"
+				href="/trouble/index/detail/{_id}.html">查看详情</a>
+		</div>
+	</div>
+</div>
+{include file="c/tabbar" /}
+{/block}

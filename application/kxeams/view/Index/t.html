@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <title>Quick start with dhtmlxGrid</title>
+   {include file="c/common" /}
+</head>
+<body>
+<h1>Xianda test</h1>
+    <div id="gridbox" style="width:1200px;height:400px;"></div> 
+    <button onclick="addBook()">Add Book</button><br><button onclick="removeBook()">Remove Book</button> 
+    <hr><div id="a_1"></div>
+    <script>
+	    mygrid = new dhtmlXGridObject('gridbox');
+		mygrid.enableMultiselect(true);
+		mygrid.enableBlockSelection();
+		mygrid.enableLightMouseNavigation(true);
+		
+		mygrid.setImagePath("__ROOT__/static/codebase/imgs/");
+		mygrid.attachEvent("onKeyPress",onKeyPressed);
+		function onKeyPressed(code,ctrl,shift){
+			if(code==67&&ctrl){
+				if (!mygrid._selectionArea) return alert("你需要先选定数据区域！");
+					mygrid.setCSVDelimiter("\t");
+					mygrid.copyBlockToClipboard()
+				}
+				if(code==86&&ctrl){
+					mygrid.setCSVDelimiter("\t");
+					mygrid.pasteBlockFromClipboard()
+				}
+			return true;
+		}
+	 
+		mygrid.setHeader("id,loginname,name,password,role,dept,tel,v_no");
+		mygrid.attachHeader("#connector_text_filter,#text_filter,#text_search,#connector_select_filter");
+		mygrid.setInitWidths("50,250,150,*,100,100,100,100");
+		//mygrid.setColTypes("ro,ro,ro,ro,ro,ro,ro,ro");
+		//mygrid.setColSorting("int,str,str,str,int,str,str,str");
+		mygrid.setSkin("dhx_skyblue"); 
+		mygrid.attachEvent("onRowSelect",m_f2);
+		
+		mygrid.init();
+		//mygrid.
+		mygrid.load("__ROOT__/static/connector.php?mytable=asset_user&myid=id&mycolumn=id,loginname,name,password,role,dept,tel,v_no","xml");
+		var mydp = new dataProcessor ("__ROOT__/static/connector.php?mytable=asset_user&myid=id&mycolumn=id,loginname,name,password,role,dept,tel,v_no");//inits dataProcessor
+		mydp.init(mygrid);//associates the dataProcessor instance with the grid
+
+		function addBook(){
+			var newId = (new Date()).valueOf();
+			mygrid.addRow(mygrid.getRowsNum(),mygrid.getRowsNum()+1+"",mygrid.getRowsNum());
+			mygrid.selectRowById(newId);
+		}
+		function removeBook(){
+			var selId = mygrid.getSelectedId();
+			mygrid.deleteRow(selId);
+		}
+		function m_f2(id){
+			document.getElementById("a_1").innerHTML="Selected row: "+id;
+		}
+		
+    </script>
+</body>
+</html>

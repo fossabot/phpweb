@@ -1,0 +1,85 @@
+<script>
+var standard = {
+"nat_session":{
+	"name":"NAT板会话数",
+	"rule":"单个NAT板最大600万，建议不高于480万",
+	"score":"8",
+	"advice":"单个NAT板会话数过高，请及时进行业务割接。",
+	},
+"nat_statis":{
+	"name":"NAT板吞吐量",
+	"rule":"单个NAT板小于20G",
+	"score":"12",
+	"advice":"单个NAT板吞吐量过高，请及时进行业务割接或数据调整。",
+},
+"pool_used":{"name":"地址池利用率","rule":"小于70%","score":"15","advice":"存在地址池利用率大于70%的情况，请及时进行地址池扩容整改。","meaning":"监测IP地址池使用情况，既要提高IP地址池资源利用率，又要避免IP地址池溢出，保证用户使用稳定。"},
+"port_flow":{"name":"端口流量百分比","rule":"小于70%","score":"15","advice":"存在端口利用率大于70%的链路，请及时进行链路扩容或进行网络结构调整。","meaning":"监测设备主端口流量利用率，避免造成端口拥塞，影响用户感知。"},
+"port_status":{"name":"端口状态异常","rule":"端口状态非DOWN","score":"8","advice":"存在开启的物理端口状态为DOWN的情况，请确认原因后进行整改。如为承载业务端口，请尽快维修；如为未承载业务端口，请尽快将端口关闭，以免影响设备安全。","meaning":"排查故障端口，加速故障处理。"},
+"cpu_memory":{"name":"CPU和内存利用率","rule":"小于70%","score":"8","advice":"存在CPU或内存利用率大于70%的情况，请尽快查明原因并整改。","meaning":"CPU利用率过高会影响设备的运行状态，内存利用率过高会影响设+C16备整机性能"},
+"bandwidth_balance":{"name":"上联带宽均衡度","rule":"根据描述","score":"10","advice":"存在上联两台PC设备带宽不一致情况，请及时调整网络结构。","meaning":"保证设备双向链路带宽一致，避免带宽不均衡导致流量，链路承载能力存在的风险"},
+"nat_multiplex":{"name":"NAT复用比","rule":"1：64","score":"12","advice":"公网私网NAT复用比非1：64，请及时进行数据调整。","meaning":"保证用户上网感知，避免IP地址冲突，确保1:64最佳NAT复用。"},
+"board_status":{"name":"单板状态","rule":"Normal","score":"12","advice":"存在单板状态不正常，请现场确认，及时处理。","meaning":"检查设备单板状态，提前预知设备单板故障，加速故障处理。"},
+};
+</script>
+<script>
+	// old Function
+
+	function cpu_memory0(text) {
+		//return n == undefined;
+
+		var key = "Memory Usage(Used/Total)";
+		var i = text.indexOf(key);
+		var str = text.substr(i);
+		str = cut_line(str, 2);
+		//var reg = new RegExp(key);
+		//var str = text.replace(/Memory Usage(Used\/Total)\S+/, text);
+		var line = str.split("\n");
+		var line_array = [];
+		for ( var i in line) {
+			line[i] = line[i].replace(/(^\s*)|(\s*$)/g, "")
+					.replace(/\s+/g, ",");
+			line_array[i] = line[i].split(",");
+		}
+		console.log(JSON.stringify(line_array));
+		console.log(line_array);
+		for ( var i in line_array) {
+			//if(line_array[i][2].substr(0,)<70)
+			var cpu_use = line_array[i][2];
+			cpu_use = cut_percent(cpu_use);
+			var mem_use = line_array[i][3];
+			cpu_use = cut_percent(cpu_use);
+			if (cpu_use > 70 | mem_use > 70) {
+				return false;
+			}
+		}
+		return true;
+	}
+	//剪掉前n行
+	function cut_line(str, n) {
+		if (n == undefined)
+			n = 1;
+		while (n-- > 0) {
+			str = str.substr(str.indexOf("\n") + 1);
+		}
+		var stopstr = str.match(/<\S+>/);
+		if (stopstr) {
+			var stop = stopstr.index - 1;
+			str = str.substr(0, stop);
+		} else {
+			dhtmlx.message({
+				text : "未正确的找到" + "cutline" + "结尾。"
+			});
+			//return false;
+		} //var stop = str.indexOf(new RegExp(stopstr));
+		return str;
+	}
+	function cut_word(str, word) {
+		return str.substr(0, str.indexOf(word) + word.length);
+	}
+
+	function aaa(t) {
+		dhtmlx.alert({
+			text : t
+		});
+	}
+</script>

@@ -1,0 +1,103 @@
+{extend name="Layout/layout" /}{block name="leftmenu"}{include
+file="C/leftmenu_manage" /}{/block} {block name="main"}
+<div class="htmltitle">
+	<h2>出入库表单明细</h2>
+</div>
+<hr>
+<div>
+	根据 名称 筛选<input id="mysearchFilter" />
+</div>
+<div>
+	<div id="gridbox" style="height: 450px; width: 98%;"></div>
+</div>
+<hr>
+<div id="a_1"></div>
+<script>
+	mygrid = new dhtmlXGridObject('gridbox');
+	mygrid.enableMultiselect(true);
+	mygrid.enableBlockSelection();
+	//mygrid.enableLightMouseNavigation(true);
+
+	mygrid.setImagePath("__ROOT__/static/codebase/imgs/");
+	mygrid.attachEvent("onKeyPress", onKeyPressed);
+	function onKeyPressed(code, ctrl, shift) {
+		if (code == 67 && ctrl) {
+			if (!mygrid._selectionArea)
+				return alert("你需要先选定数据区域！");
+			mygrid.setCSVDelimiter("\t");
+			mygrid.copyBlockToClipboard()
+		}
+		if (code == 86 && ctrl) {
+			mygrid.setCSVDelimiter("\t");
+			mygrid.pasteBlockFromClipboard()
+		}
+		return true;
+	}
+//							1	2	3		4		5		6	7		8		9		10		11		12		13		14		15		16			17
+	var mygrid__Header = "序号,名称,型号,制造厂商,计量单位,数量,物品用途,备注,所属领用单,建单时间,表单分类,建单人,建单人电话,存放地点,保管人,领用单用途,使用单位";
+	var mygrid__Widths = "80,150,150,100,65,60,100,150,80,150,80,100,100,100,100,100,100";
+	var mygrid__ColSorting = "str,str,str,str,str,str,str,str,str,str,str,str,str,str,str,str,str";
+	var mygrid__ColTypes = "ed,ed,ed,ed,ed,ed,ed,ed,ed,ed,ed,ed,ed,ed,ed,ed,ed";
+	var mygrid__ColNames = "dd.id,name,type,maker,units,count,dusage,dremarks,mm.id,mcreate_time,form_type,username,usertel,location,owner,musage,dept";
+	//mygrid.setHeader("id,name,type,marker,count,units,location,createtime,owner,usage,class,dept,username,usertel,form_type,progress,remarks");
+	mygrid.setHeader(mygrid__Header);
+	mygrid.attachHeader("#text_filter,#text_filter,#text_filter,#text_filter,#text_filter,#text_filter,#text_filter,#text_filter,#text_filter,#text_filter,#text_filter,#text_filter,#text_filter,#text_filter,#text_filter");
+	//mygrid.enableAutoWidth(true);
+	mygrid.setInitWidths(mygrid__Widths);
+	mygrid.setColSorting(mygrid__ColSorting);
+	mygrid.setColTypes(mygrid__ColTypes);
+	mygrid.setDateFormat("%Y-%m-%d %H:%i:%s");
+	//mygrid.setSkin("skyblue");
+	//mygrid.setStyle("margin-right:15px");
+	mygrid.attachEvent("onRowselect", function (id) {
+		document.getElementById("a_1").innerHTML = "当前选定行: " + (id);
+	});
+
+	mygrid.init();
+	mygrid.enableCSVAutoID(false);
+	mygrid.makeFilter("mysearchFilter",0);
+	//mygrid.enableSmartRendering(true);
+	mygrid.setCSVDelimiter('\t');
+	var jsonstr= {$dd};
+	mygrid.parse(jsonstr,"json");
+	//mygrid.load("__ROOT__/index/tt","json");
+	$(".xhdr table").css("margin-right","-15px");
+	//$("td[excell='ch']").attr("align","center");
+	$("td").attr("align","center");
+	//$(".objbox td").css("padding-left","15px");
+	function csvupload() {
+		var data = {
+			mygrid__Header : mygrid__Header,
+			mygrid__ColNames : mygrid__ColNames,
+			mygrid__Widths : mygrid__Widths,
+			mygrid__ColSorting : mygrid__ColSorting,
+			mygrid__ColTypes : mygrid__ColTypes,
+			data : mygrid.serializeToCSV()
+		};
+		$('.modal').modal();
+		$(".main .content").load("__ROOT__/manage/new_in", {
+			data : data
+		}, function() {
+			setTimeout("$('.modal').modal('hide')",2000);
+		});
+	}
+</script>
+
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog"
+	aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">
+					<span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+				</button>
+				<h4 class="modal-title" id="myModalLabel">Modal title</h4>
+			</div>
+			<div class="modal-body">保存中~~~</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">知道了</button>
+			</div>
+		</div>
+	</div>
+</div>
+{/block}

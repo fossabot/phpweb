@@ -1,0 +1,124 @@
+{extend name="common@Public/base" /}{block name="leftmenu"} {include
+file="c/leftmenu_esserver_main" /} {/block}{block name="main"} {include
+file="common@c/ie8warning" /}
+<style>
+#form_container {
+	margin: 20px 100px;
+	padding: 20px;
+	/*border: 1px solid red;*/
+}
+
+#dhtmlxMsg {
+	/*background-color: #b5d5ff;*/
+	margin: 20px 100px 0 100px;
+}
+</style>
+<div class="htmltitle">
+	<h2>Excel服务器账号密码找回</h2>
+</div>
+<div>
+	<p>
+		如果您忘记了Excel服务器账号的密码，可以在此输入个人信息进行自助找回。<b
+			style="color: #fff; background-color: #f00;">IE8无法正常访问，请在左侧下载Chrome浏览器</b>
+	</p>
+	<div id="form_container"></div>
+	<div id="dhtmlxMsg" class="text-warning">
+		<h3 class="bg-danger"></h3>
+		<p></p>
+	</div>
+
+</div>
+<script>
+{include file="c/main_formStructure" /}
+	var myForm = new dhtmlXForm("form_container", formStructure);
+	myForm.attachEvent("onButtonClick", function(id) {
+		if (id == 'ok') {
+			if(!myForm.validate()){
+				dhtmlx.message({text:"请把个人信息填写完整后重试！",type:"error"});
+				return false;
+			}
+			var data = myForm.getFormData();
+			//data['Email'] += data['Email2'];
+			$.post("/{$Request.pathinfo}", {data : data}, function(data) {
+				resetFormStructure();
+				if (data['num'] != undefined) {
+					myForm.loadStruct(addStructure);
+					var resultv = {};
+					for ( var i in data['auth']) {
+						if (data['auth'][i] == true)
+							resultv[i] = '正确';
+						else
+							resultv[i] = '验证不正确';
+					}
+					//console.log(resultv);
+					resultv['newEmail'] =  data['auth']['newEmail'];
+					resultv['aInfo'] = data['aInfo'];
+					resultv['e'] = data['e'];
+					myForm.setFormData(resultv);
+					$("#dhtmlxMsg").hide();
+				} else {
+					showMsg("登录名不存在","如无法验证请联系管理员处理。");
+					return;
+					//dhtmlx.alert({type : "alert-error",title : "登录名不存在",text : "如无法验证请联系管理员处理。"});
+				}
+				if (data['num'] < 1) {
+					myForm.disableItem("send");
+					var msg = data['auth']['EmptyMsg'];
+					msg = msg == "" ? "" : "<br><b>【"+msg+"】</b>";
+					var html = "个人信息验证失败。"+msg+"<br>提供相关信息证明你是主人。<br>如无法验证可以<a href='' onclick='reportLog();return false;'>一键反馈</a>。";
+					showMsg("Sorry!!!",html);
+					//dhtmlx.alert({type : "alert-warning",title : "Sorry!!!",text : "个人信息验证失败。"+msg+"<br>提供相关信息证明你是主人。<br>如无法验证可以<a href='' onclick='reportLog();return false;'>一键反馈</a>。"});
+				} else {
+					$("#dhtmlxMsg").hide();
+				}
+			});
+		}
+		if (id == "resett") {
+			myForm.clear();
+			resetFormStructure();
+			$("#dhtmlxMsg").hide();
+		}
+		if (id == "send") {
+			//var mail = myForm.getItemValue("Email") + myForm.getItemValue("Email2");
+			var mail = myForm.getItemValue("e")
+			sendEmail(mail);
+		}
+	});
+	function showMsg(title,html){
+		$("#dhtmlxMsg h3").text(title);
+		$("#dhtmlxMsg p").html(html);
+		$("#dhtmlxMsg").show();
+	}
+	function sendEmail(email) {
+		dhtmlx.confirm({title:"将发送邮件到下面的地址",text:"<b>"+email+"</b><br>请确认邮箱是否正确。<br><br>继续发送？",ok:"发送",cancel:"取消",callback:function(v){
+			if(v){
+				var arg = myForm.getItemValue("aInfo");
+				$.post("resetpwd.html", {"excel_data_for_resetpwd" : arg}, function(data) {
+					dhtmlx.alert({text:data['msg']});
+				});
+			}
+		}});
+	}
+	function resetFormStructure() {
+		myForm.removeItem("nc");
+		myForm.removeItem("res");
+	}
+	function reportLog(){
+		var formData = myForm.getFormData();
+		var reportData = {};
+		reportData['UserLogin'] = formData['UserLogin'];
+		reportData['str'] = '';
+		for (var i in formData){
+			reportData['str'] += i+": \""+formData[i]+"\".\n";
+		}
+		reportData['str'] += '反馈时间: "' + (new Date()).toLocaleString() + '"';
+		$("#dhtmlxMsg p").html("<br><br><br><br><h2>处理中，请稍等...</h2>");
+		$.post("reportLog.html", reportData, function(data) {
+			dhtmlx.alert({title:data['title'],text:data['msg'],callback:function(){
+				$("#dhtmlxMsg").hide();
+			}});
+		});
+	}
+</script>
+
+{/block}

@@ -1,0 +1,53 @@
+2017-09-14 15:17:27	zx_apply 模块，apply.html 36行 zxInfoTitle
+
+2017-05-03 17:09:57	密码找回功能细节更新。
+
+2017-04-25 17:04:45	todo：resetpwd.html 暂不设置myFrom的自定义validate，密码找回功能基本完成。kxeams项目暂停。
+
+2017-04-17 17:37:58	todo：resetpwd.html 设置myFrom的自定义validate。提交post前校验 （行44），esserver/Controller/index.php 行128:更新密码操作
+
+2017-04-12 17:40:21	todo：暂不支持 领用申请 点击再领一个后删除。今后可以使用sessionStorage 保存，刷新页面后再自动填写来实现。
+
+2017-04-10 17:43:47	todo：user_apply.html	removeAcc() 时，id问题：myAcc.cells(id).setText(text);以及Controller/User->apply()的数据接收问题。
+
+2017-04-07 02:00:33	修改大量架构。功能逻辑。可能有bug，待测试。todo： manage/index，manage/loglist。todo.html 操作 领用地点or 接收地点 判断显示。
+
+2017-04-06 23:25:46	修复bug。优化 申请/领用/审批流程。{$_SERVER["REQUEST_URI"]}
+
+2017-04-06 17:18:10	完成整合，完成部分架构整改。todo：领用时点击再领一个后无法减少再领一个。 优化修改库存统计算法。（Manage/index 方法）
+
+2017-03-31 17:37:51	整合kxeams项目进到phpweb完成。
+
+2017-03-30 17:37:34	架构调整(未完待续)
+
+2017-03-24 18:34:01	整合kxeams项目进到phpweb里的一分支。（未完待验证）
+
+----------------------------------------
+###	manage/index 新增 删除 item 功能（无删除数据库操作。）
+
+###	尝试 使用 dataview 组件，代替 grid 组件来显示数据
+
+###	2017-01-10_all，kxeams，manage，new_change.html 行155。
+
+###	2017-01-11 17:10:05 	new_changev2.html 行81.
+
+###	2017-01-11 17:10:05 	new_changev2.html 新入库 不在 生产厂商 列做限制
+
+###	2017-01-19 17:00:55	new_changev2.html 行205. 处理 From 数据到 Grid
+
+###	2017-01-22 17:04:18	new_changev2.html 行240. 处理 From 数据到 Grid完毕。继续编写批量录入。
+
+###	2017-2-7 01:28:59	bugReport.html 行 41，继续改进。
+
+###	2017-02-07 15:59:52	User/todo.html 初始化时需要区分县区来查询显示。
+				User/apply	三级领用需要填写使用去向，（提示填写在备注里。）
+
+###	2017-2-14 01:03:26	todo：	在asset_user中添加一个字段，关联Excel服务器的数据库。
+					编写phpweb项目里的模块用来连接SQLServer验证账号。
+
+###	2017-2-17 02:22:33	新增phpweb首页导航样式，新增PHPmail发送邮件功能。
+
+###	2017-02-20 04:00:26	phpweb/esserver/index/resetpwd 发邮件无法显示a标签，理清resetpwd和sendemail大逻辑区别
+				1) 发邮件操作。 2) 重置密码操作（验证URL有效期）。 3) 输入密文重置密码操作(暂不开发)
+
+###	2017-02-20 17:51:00	resetpwd.html 页面设计

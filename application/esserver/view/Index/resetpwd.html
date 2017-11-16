@@ -1,0 +1,69 @@
+{extend name="common@Public/base" /}{block name="leftmenu"} {include
+file="c/leftmenu_esserver_main" /} {/block}{block name="main"}
+<style>
+#form_container {
+	margin: 20px 100px;
+	padding: 20px;
+	border: 1px solid red;
+}
+</style>
+<div class="htmltitle">
+	<h2>密码重置</h2>
+</div>
+<div>
+	<div>
+		未申请密码找回的请先<a href="main.html">申请密码找回</a>
+	</div>
+	<div id="form_container"></div>
+
+
+</div>
+<script type="text/javascript">
+	var formStructure = [
+		{type:"settings",labelWidth:90,inputWidth:270},
+	 	{type:"block",inputWidth:"auto",blockOffset:0,list:[
+			{type:"label",label:"密码重置操作",labelWidth:150,list:[
+	 			{type:"input",name:"UserLogin",label:"登录名",value:"{$UserLogin|default="null"}",readonly:true},
+	 			{type:"password",name:"UserPwd",label:"原密码",value:"{$UserPwd|default="null"}",readonly:true,note:{text:"不要在意原密码的长度~"}},
+	 			{type:"password",name:"password",label:"新密码",required:true},
+	 			{type:"password",name:"password_confirm",label:"确认新密码",required:true},
+	 			
+		 	]},
+			{type:"label",label:"确认重置",labelWidth:150,list:[
+				{type:"block",inputWidth:"auto",blockOffset:"50",list:[
+					{type:"button",name:"ok",value:"确认"},
+					{type:"newcolumn"},
+					{type:"button",name:"resett",value:"重置"},
+		 		]},
+		 	]},
+	 	]},
+	];
+	var myForm = new dhtmlXForm("form_container", formStructure);
+	myForm.attachEvent("onButtonClick", function(id) {
+		if (id == 'ok') {
+			if(myForm.validate()){
+				var sendData = {
+						_method:"put",
+						UserLogin: myForm.getItemValue("UserLogin"),
+						UserPwd: myForm.getItemValue("password"),
+						UserPwd2: myForm.getItemValue("password_confirm"),
+						p: myForm.getItemValue("UserPwd"),
+				};
+				$.post("",sendData,function(data){
+					dhtmlx.alert({title: data['data'],text:data['msg'],callback:function(){
+						if(data["code"]==1){
+							location.href = data["url"];
+						}else{
+							$("input[name='password']").select();
+						}
+					}});
+					
+				});
+			}
+		}
+		if (id == 'resett') {
+			history.go(0);
+		}
+	});
+</script>
+{/block}

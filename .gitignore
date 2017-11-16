@@ -1,0 +1,8 @@
+.idea
+composer.lock
+*.log
+.buildpath
+.project
+.settings
+trouble-apply.xlsx
+thinkphp/

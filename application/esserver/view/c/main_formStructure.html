@@ -1,0 +1,41 @@
+var formStructure =  [
+   	{type:"settings",labelWidth:70,inputWidth:270},
+ 	{type:"block",inputWidth:"auto",blockOffset:0,list:[
+		{type:"label",label:"密码重置申请",labelWidth:150,list:[
+ 			{type:"input",name:"UserLogin",label:"登录名",note:{text:"通常为姓名的全拼"},required:true},
+ 			{type:"input",name:"UserName",label:"姓名",},
+ 			{type:"input",name:"MobilePhone",label:"电话",},
+ 			{type:"input",name:"Email",label:"邮箱",required:true},
+ 			{type:"combo",name:"Email2",label:"邮箱后缀",options:[
+ 				{text:"@139.com",value:"@139.com"},
+ 				{text:"@ln.chinamobile.com",value:"@ln.chinamobile.com",selected:true},
+ 				{text:"其他，请在邮箱处填写完整",value:""},
+			]},
+	 	]},
+		{type:"label",label:"确认以上信息",labelWidth:150,list:[
+			{type:"block",inputWidth:"auto",blockOffset:"50",list:[
+				{type:"hidden",name:"e"},
+				{type:"button",name:"ok",value:"申请找回"},
+				{type:"newcolumn"},
+				{type:"button",name:"resett",value:"重置"},
+	 		]},
+	 	]},
+ 	]},
+];
+var addStructure = [
+	{type:"newcolumn",name:"nc"},
+	{type:"block",name:"res",inputWidth:"auto",blockOffset:"0",list:[
+		{type:"settings",labelWidth:60,inputWidth:100},
+		{type:"label",label:"验证结果",labelWidth:150,list:[
+			{type:"input",name:"vUserLogin",label:"-->",note:{text:". "}},
+			{type:"input",name:"vUserName",label:"-->"},
+			{type:"input",name:"vMobilePhone",label:"-->"},
+			{type:"input",name:"vEmail",label:"-->"},
+			{type:"input",name:"newEmail",label:"邮箱信息"},
+		]},
+		{type:"label",label:"发送邮件",labelWidth:150,list:[
+			{type:"button",name:"send",value:"发送邮件",tooltip:"根据您收到的邮件进行密码重置"},
+			{type:"hidden",name:"aInfo"},
+		]},
+	]},
+];

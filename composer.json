@@ -1,0 +1,26 @@
+{
+	"name" : "yuxianda/phpweb",
+	"description" : "显达work小项目",
+	"type" : "project",
+	"keywords" : [
+		"framework",
+		"thinkphp"
+	],
+	"license" : "Apache-2.0",
+	"authors" : [{
+			"name" : "yuxianda",
+			"email" : "yuxianda.tl@139.com"
+		}
+	],
+	"require" : {
+		"php" : ">=5.4.0",
+		"topthink/framework" : "^5.0",
+		"phpmailer/phpmailer" : "^5.2"
+	},
+	"extra" : {
+		"think-path" : "thinkphp"
+	},
+	"config" : {
+		"preferred-install" : "dist"
+	}
+}

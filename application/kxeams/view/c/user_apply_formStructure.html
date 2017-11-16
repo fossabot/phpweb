@@ -1,0 +1,26 @@
+<script>
+var	formStructure = [
+	{type:"fieldset",label:"领用申请单",inputWidth:"auto",list:[
+		{type:"settings",labelWidth:80,inputWidth:170},
+		{type:"block",inputWidth:"auto",blockOffset:0,offsetTop:0,list:[
+			{"type":"input","name":"form_type","label":"表单分类",value:"维材领用",readonly:true},
+			{"type":"hidden","name":"moffice","label":"所属单位",value:"{$Think.session.user['office']}",readonly:true},
+			{"type":"input","name":"username","label":"建单人",value:"{$Think.session.user['name']}",readonly:true},
+			{"type":"input","name":"usertel","label":"建单人电话",value:"{$Think.session.user['tel']}"},
+			{"type":"select","name":"from_dept","label":"向谁申请",validate:"NotNULL"},
+			//{"type":"select","name":"from_store","label":"原库",required: true},
+			{"type":"input","name":"owner","label":"使用人",value:"{$Think.session.user['name']}",required: true,note:{text:"可修改"}},
+			{"type":"input","name":"to_dept","label":"使用单位",value:"{$Think.session.user['dept']}",note:{text:"若不正确请在个人设置里修改"},readonly:true},
+			{"type":"select","name":"to_store","label":"新库",required: true},
+			//{"type":"hidden","name":"progress","label":"审批状态",value:"待审批",disabled:true},
+			{"type":"input","name":"mremarks","label":"备注",rows:3,note:{text:"选填"}},
+		]},
+		{type:"block",inputWidth:"250",blockOffset:"80",offsetTop:20,list:[
+			{"type":"button","name":"f_submit","value":"提交"},
+		]}
+	]}
+];
+function NotNULL(data){
+	return !(data=="null")
+}
+</script>
