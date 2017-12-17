@@ -26,6 +26,14 @@ class Index extends Common {
 		return $this->fetch();
 	}
 	/**
+	 * 信息查询
+	 */
+	public function query(){
+		
+		
+		return $this->fetch();
+	}
+	/**
 	 * 专线制作数据合成 script.html
 	 */
 	// public function script()

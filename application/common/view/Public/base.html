@@ -3,7 +3,7 @@
 <head>
 {include file="common@c/common" /}
 <title></title>
-
+{block name="head"} {/block}
 <style>
 .page {
 	position: absolute;
@@ -191,7 +191,6 @@
 				$(".main .content").css("height", _htmlHeight - 70 - 20 + "px");
 				$(".main").css("width", _htmlWidth - 150 + "px");
 			};
-			//document.title = $(".htmltitle h2").text()+"-EAM系统";
 			//var mypath = "{$Request.path}";
 			//mypath = mypath.substr(mypath.lastIndexOf("/") + 1, mypath.length);
 			var cur_page = $(".leftmenu ul li a[href='{$Request.action}.html']");
@@ -204,11 +203,10 @@
 			//拯救 dhtmlx Layout组件导致的body over-flow:hidden 失效的问题
 			$("body").removeClass("dhxwins_vp_auto");
 			resizePage();
-
 		});
 	</script>
 </body>
-
+{block name="script"} {/block}
 </html>
 
 

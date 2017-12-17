@@ -7,7 +7,7 @@ use think\Session;
 
 class Index extends Controller {
 	public function index() {
-		if(substr(request()->ip(),0,8)=='10.61.21'){
+	    if(in_array(substr(request()->ip(),0,8),['10.61.21','0.0.0.0','127.0.0.'])){
 			return $this->fetch ('indexs');
 		}else{
 			return $this->fetch();
