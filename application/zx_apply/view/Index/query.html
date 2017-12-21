@@ -1,11 +1,60 @@
 {extend name="common@Public/base" /} {block name="head"}
 <link rel="STYLESHEET" type="text/css"
-	href="__STATIC__/handsontable/handsontable.full.min.css">
-<script src="__STATIC__/handsontable/handsontable.full.min.js"></script>
+	href="__STATIC__/handsontable-pro/handsontable.full.min.css">
+<script src="__STATIC__/handsontable-pro/handsontable.full.min.js?111"></script>
 {/block} {block name="leftmenu"} {include
 file="c/leftmenu_zx_apply_index" /} {/block} {block name="main"}
 <div class="htmltitle">
 	<h2>信息查询</h2>
 </div>
+<div></div>
+<div id='example'></div>
+<div id='example1'></div>
+{/block} {block name="script"}
+<script>
+var data = [
+	  ["", "Ford", "Tesla", "Toyota", "Honda"],
+	  ["2017", 10, 11, 12, 13],
+	  ["2018", 20, 11, 14, 13],
+	  ["2019", 30, 15, 12, 13]
+	];
 
+	var container = document.getElementById('example');
+	var hot = new Handsontable(container, {
+	  data: data,
+	  rowHeaders: true,
+	  colHeaders: true,
+	  filters: true,
+	  dropdownMenu: true
+	});
+	// ******************
+	  var
+	    data1 = [
+	      ['', 'Tesla', 'Nissan', 'Toyota', 'Honda', 'Mazda', 'Ford'],
+	      ['2017', 10, 11, 12, 13, 15, 16],
+	      ['2018', 10, 11, 12, 13, 15, 16],
+	      ['2019', 10, 11, 12, 13, 15, 16],
+	      ['2020', 10, 11, 12, 13, 15, 16],
+	      ['2021', 10, 11, 12, 13, 15, 16]
+	    ],
+	    container1 = document.getElementById('example1'),
+	    settings1 = {
+	      data: data1
+	    },
+	    hot1;
+
+	  hot1 = new Handsontable(container1, settings1);
+	  data1[0][1] = 'Forddddd'; // change "Kia" to "Ford" programmatically
+	 // hot1.render();
+	  
+	  
+	  
+	  if(
+			!(
+				i&&(n=!1,r=!1),
+				n&&!O&&(console[s?"info":"warn"](n),O=!0),
+				r&&t.parentNode
+			)
+		)
+</script>
 {/block}

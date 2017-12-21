@@ -3,7 +3,7 @@ title:       phpweb项目文档
 email:       yuxianda.tl@139.com
 author:      Yuxianda
 description: "phpweb项目文档"
-baseurl:     "/docs"
+baseurl:     "/phpweb"
 url:         ""
 date_format: "%Y 年 %m 月 %d 日 %H:%M"
 lang: zh #the language of your site
@@ -127,6 +127,7 @@ sass:
 plugins:
   - jekyll-paginate
   - jekyll-sitemap
+  - jemoji
 # https://github.com/jekyll/jekyll/issues/2938
 exclude:
   - Gemfile
