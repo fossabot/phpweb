@@ -29,8 +29,8 @@ class Index extends Common {
 	 * 信息查询
 	 */
 	public function query(){
-		
-		
+		echo long2ip(10*256*256*256+1);
+		//return ;
 		return $this->fetch();
 	}
 	/**

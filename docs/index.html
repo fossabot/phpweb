@@ -17,7 +17,7 @@ layout: default
               {{ post.excerpt | strip_html | truncate: 150 }}
             {% endif %}
           </p>
-		  <a class='anchorjs-link' href="{{ post.url | prepend: site.base_path | replace: '//', '/' }}">阅读全文...</a>
+		  <a class='anchorjs-link' href="{{ post.url | prepend: site.baseurl }}">阅读全文...</a>
         </div>
       {% endfor %}
     </div>

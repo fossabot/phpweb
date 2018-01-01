@@ -61,6 +61,8 @@ dropdownMenu:    # 下拉菜单
 minSpareRows:    # 最小多余的行数
 minSpareCols:    # 最小多余的列数
 afterChange: function () {}, # 修改显示后的回调函数
+
+copyPaste:       # 复制粘贴选项
 ```
 
 #### 常用API
@@ -70,7 +72,28 @@ hot.loadData()
 hot.getData()
 ```
 
+调用方法
 
+```javascript
+// all following examples assume that you constructed Handsontable like this
+var ht = new Handsontable(document.getElementById('example1'), options);
+
+// now, to use setDataAtCell method, you can either:
+ht.setDataAtCell(0, 0, 'new value');
+
+# Alternatively, you can call the method using jQuery wrapper (obsolete, requires initialization using our jQuery guide
+
+$('#example1').handsontable('setDataAtCell', 0, 0, 'new value');
+```
+
+hook #event:afterChange
+
+##### Parameters:
+
+| Name      | Type   | Description                              |
+| --------- | ------ | ---------------------------------------- |
+| `changes` | Array  | 2D array containing information about each of the edited cells `[[row, prop, oldVal, newVal], ...]`. |
+| `source`  | String | optionalString that identifies source of hook call([list of all available sources](http://docs.handsontable.com/tutorial-using-callbacks.html#page-source-definition)). |
 
 
 
@@ -427,3 +450,10 @@ var hot = new Handsontable(document.getElementById('example'), {
 ### 回调函数
 
 <https://docs.handsontable.com/pro/1.15.0/tutorial-using-callbacks.html>
+
+### 自定义样式
+
+<https://docs.handsontable.com/pro/1.15.0/tutorial-styling.html>
+
+## 开发者指南
+

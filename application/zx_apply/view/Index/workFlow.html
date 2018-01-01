@@ -1,7 +1,7 @@
 {extend name="common@Public/base" /} {block name="leftmenu"} {include
 file="c/leftmenu_zx_apply_index" /} {/block}{block name="main"}
 <div class="htmltitle">
-	<h2>新开点流程录入信息生成</h2>
+	<h2>流程录入信息生成</h2>
 </div>
 <div id="layoutObj" style="height: 520px;"></div>
 <div id="taiZhang" style="display: none;">
@@ -19,7 +19,7 @@ file="c/leftmenu_zx_apply_index" /} {/block}{block name="main"}
 </div>
 <div id="_out" style="display: none;">
 	<pre>
-描述,IP地址*,所属区县,单位行政级别,使用状态*,所属上一级子网名*,单位所属行业分类,所属地市*,单位所属分类,网关物理位置,IP地址类型*,使用方式,经营许可证编号,网关IP地址,所属专业系统*,单位性质,所属网元类型,业务类型*,业务小类*,所属省份*,设备名称,单位名称/具体业务信息*,联系人姓名(客户侧),Loopbak地址,联系电话(客户侧),单位详细地址,分配使用时间,联系人邮箱(客户侧),负责人姓名(移动侧)*,负责人电话(移动侧)*,管理状态*,备注,机房,接入端口信息,负责部门(移动侧)*,负责人邮箱(移动侧)*,所属单位*,数据质量责任人
+描述,IP地址*,所属区县,单位行政级别,使用状态*,所属上一级子网名*,单位所属行业分类,所属地市*,单位所属分类,网关物理位置,IP地址类型*,使用方式,经营许可证编号,网关IP地址,所属专业系统*,单位性质,所属网元类型,业务类型*,业务小类*,所属省份*,设备名称,单位名称/具体业务信息*,Loopbak地址,联系人姓名(客户侧),单位详细地址,联系电话(客户侧),分配使用时间,负责人姓名(移动侧)*,联系人邮箱(客户侧),负责人电话(移动侧)*,备注,管理状态*,机房,接入端口信息,负责部门(移动侧)*,负责人邮箱(移动侧)*,所属单位*,数据质量责任人*
 </pre>
 	<textarea id="out_info" rows="7" style="width: 100%"></textarea>
 </div>
@@ -91,22 +91,22 @@ textarea {
 			arr_new[19] = "辽宁";
 			arr_new[20] = "LNTIL-MA-CMNET-BAS02-YZME60X";
 			arr_new[21] = arr_o[6];
-			arr_new[22] = "";
-			arr_new[23] = arr_o[11];
-			arr_new[24] = arr_o[12];
-			arr_new[25] = arr_o[7];
+			arr_new[22] = arr_o[11];
+			arr_new[23] = "";
+			arr_new[24] = arr_o[7];
+			arr_new[25] = arr_o[12];
 			arr_new[26] = arr_o[0];
-			arr_new[27] = "卜玉"//arr_o[14];	
-			arr_new[28] = arr_o[13];
+			arr_new[27] = arr_o[13];
+			arr_new[28] = "卜玉"//arr_o[14];
 			arr_new[29] = "18841050815"//arr_o[15];
-			arr_new[30] = "";
-			arr_new[31] = "已启用";
+			arr_new[30] = "已启用";
+			arr_new[31] = "";
 			arr_new[32] = "";
 			arr_new[33] = "";
 			arr_new[34] = "客户响应中心";
 			arr_new[35] = "buyu.tl@ln.chinamobile.com"//arr_o[16];
 			arr_new[36] = "铁岭";
-			arr_new[37] = "";	
+			arr_new[37] = "卜玉";	
 		} else {	//	旧数据（ip为108段之前）生成
 			arr_new[0] = "";
 			arr_new[1] = ip;
@@ -130,22 +130,22 @@ textarea {
 			arr_new[19] = "辽宁";
 			arr_new[20] = "LNTIL-MA-CMNET-BAS02-YZME60X";
 			arr_new[21] = arr_o[12];
-			arr_new[22] = "";
-			arr_new[23] = arr_o[13];
-			arr_new[24] = arr_o[14];
-			arr_new[25] = arr_o[17];
+			arr_new[22] = arr_o[13];
+			arr_new[23] = "";
+			arr_new[24] = arr_o[17];
+			arr_new[25] = arr_o[14];
 			arr_new[26] = arr_o[0];
-			arr_new[27] = "卜玉"//arr_o[15];	
-			arr_new[28] = "";
+			arr_new[27] = "";
+			arr_new[28] = "卜玉"//arr_o[15];	
 			arr_new[29] = "18841050815"//arr_o[16];
-			arr_new[30] = "";
-			arr_new[31] = "已启用";
+			arr_new[30] = "已启用";
+			arr_new[31] = "";
 			arr_new[32] = "";
 			arr_new[33] = "";
 			arr_new[34] = "客户响应中心";
 			arr_new[35] = "buyu.tl@ln.chinamobile.com"//arr_o[16]+"@139.com";
 			arr_new[36] = "铁岭";
-			arr_new[37] = "";
+			arr_new[37] = "卜玉";
 		}
 		$("#out_info").val(arr_new.join('\t'));
 	}

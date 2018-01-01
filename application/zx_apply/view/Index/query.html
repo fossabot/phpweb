@@ -12,20 +12,17 @@ file="c/leftmenu_zx_apply_index" /} {/block} {block name="main"}
 <div id='example1'></div>
 {/block} {block name="script"}
 <script>
-var data = [
-	  ["", "Ford", "Tesla", "Toyota", "Honda"],
-	  ["2017", 10, 11, 12, 13],
-	  ["2018", 20, 11, 14, 13],
-	  ["2019", 30, 15, 12, 13]
-	];
-
+var data;
+$.get("/demo.csv",function(_data){
+	data = _data;
+	var header = "申请时间,产品实例标识,专线类别,带宽,网元厂家,A端基站,客户名,客户地址,客户需求,ipId,vlanId,客户联系人姓名,客户联系人电话,客户联系人邮箱,客户经理姓名,客户经理电话,客户经理邮箱,单位性质,备注";
 	var container = document.getElementById('example');
 	var hot = new Handsontable(container, {
 	  data: data,
 	  rowHeaders: true,
-	  colHeaders: true,
+	  colHeaders: header.split(","),
 	  filters: true,
-	  dropdownMenu: true
+	  dropdownMenu: true,
 	});
 	// ******************
 	  var
@@ -44,17 +41,8 @@ var data = [
 	    hot1;
 
 	  hot1 = new Handsontable(container1, settings1);
-	  data1[0][1] = 'Forddddd'; // change "Kia" to "Ford" programmatically
+	  data1[0][1] = 'Forddddd';  // change "Kia" to "Ford" programmatically
 	 // hot1.render();
-	  
-	  
-	  
-	  if(
-			!(
-				i&&(n=!1,r=!1),
-				n&&!O&&(console[s?"info":"warn"](n),O=!0),
-				r&&t.parentNode
-			)
-		)
+});
 </script>
 {/block}
