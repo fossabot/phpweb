@@ -23,7 +23,8 @@ class Index extends Common {
 	public function apply() {
 		$zxInfoTitle = Db::table("phpweb_sysinfo")->field("value,option")->where("label","zxInfoTitle")->select();
 		$this->assign('zxInfoTitle',json_encode($zxInfoTitle,256));
-		return $this->fetch();
+		//return dump($zxInfoTitle);
+		return $this->fetch("apply-v2");
 	}
 	/**
 	 * 信息查询

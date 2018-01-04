@@ -527,8 +527,8 @@ function checkWindows(id){
 {/block}
 script-v2.hml 对比  script.hml
 
-pre标签改成了textarea标签,跟符合使用的逻辑，但是IE下的textarea会有莫名奇妙的问题。
+pre标签改成了textarea标签,更符合使用的逻辑，但是IE下的textarea会有莫名奇妙的问题。
 textarea换行需要输出\r\n，pre输出\n即可。
-textarea最后是\r\n无需家空格,而pre最后是\n的话需加空格，否则显示不出来。
+textarea最后是\r\n无需加空格,而pre最后是\n的话需加空格，否则显示不出来。
 
 台账数据保存到数据库，原script.hml即可实现修改实时更新到数据库。
