@@ -4,8 +4,10 @@ title:          handsontable 用法笔记
 date:           2017-12-21 20:56:07--0800
 summary:        开发中用到了handsontable，官网的demos、usage和api查阅起来不是很方便，在学习过程中自己整理了一下。版本基于社区版v0.35.0，专业版v1.15.0。
 categories:     notes
-update_date:    2017-12-22 02:18:57
+update_date:    2018-1-6 13:38:03
 ---
+
+{:TOC}
 
 ##  简介
 
@@ -51,25 +53,33 @@ $('#example1').handsontable('setDataAtCell', 0, 0, 'new value');
 #### 构造函数的options参数
 
 ``` javascript
-data:            # 数据源（二维数组、对象）
-startRows:       # 初始行数
-startCols:       # 初始列数
-rowHeaders:      # 行标
-colHeaders:      # 列名
-filters:         # 过滤
-dropdownMenu:    # 下拉菜单
-minSpareRows:    # 最小多余的行数
-minSpareCols:    # 最小多余的列数
+data:               # 数据源（二维数组、对象）
+startRows:          # 初始行数
+startCols:          # 初始列数
+rowHeaders: true    # 行标 []
+colHeaders: true    # 列名 可以设置为自定义数组 []
+colWidths:          # 列宽度 integer:均等 or []
+autoColumnSize:true # 列宽自适应
+filters:            # 过滤
+dropdownMenu:true   # 下拉菜单
+minSpareRows:       # 最小多余的行数
+minSpareCols:       # 最小多余的列数
 afterChange: function () {}, # 修改显示后的回调函数
-
-copyPaste:       # 复制粘贴选项
+manualColumnMove：  # 列移动 
+manualRowMove: true # 行移动 
+manualColMove: true # 列移动 true
+// https://docs.handsontable.com/pro/1.15.0/demo-moving.html
+stretchH:           # 拉伸高度 默认:"none" 可选 "last" "all" 用于父级不可滚动时
+// https://docs.handsontable.com/pro/1.15.0/demo-stretching.html
+copyPaste:          # 复制粘贴选项
 ```
 
-#### 常用API
+### 常用API
 
 ```
 hot.loadData()
 hot.getData()
+hot.search.query()
 ```
 
 调用方法
@@ -86,7 +96,7 @@ ht.setDataAtCell(0, 0, 'new value');
 $('#example1').handsontable('setDataAtCell', 0, 0, 'new value');
 ```
 
-hook #event:afterChange
+#### hook #event:afterChange
 
 ##### Parameters:
 
@@ -94,6 +104,27 @@ hook #event:afterChange
 | --------- | ------ | ---------------------------------------- |
 | `changes` | Array  | 2D array containing information about each of the edited cells `[[row, prop, oldVal, newVal], ...]`. |
 | `source`  | String | optionalString that identifies source of hook call([list of all available sources](http://docs.handsontable.com/tutorial-using-callbacks.html#page-source-definition)). |
+
+#### updateSettings
+
+在初始化之后，更新handsontable的设置
+
+```javascript
+var hot = new Handsontable(example, settings);
+hot.updateSettings(Settings);
+// Settings 是 json 结构 {} 如：
+hot.updateSettings({
+  contextMenu: {
+    callback: function (key, options){
+      xxxxxx
+    },
+    items:{
+      xxx:{},
+      yyy:{}
+    }
+  }  
+});
+```
 
 
 
@@ -455,5 +486,416 @@ var hot = new Handsontable(document.getElementById('example'), {
 
 <https://docs.handsontable.com/pro/1.15.0/tutorial-styling.html>
 
+
+
+## Setting options
+
+### Introduction to cell options
+
+Any constructor or column option may be overwritten for a particular cell (row/column combination),      using `cell` array passed to the Handsontable constructor. Example:
+
+```
+var hot = new Handsontable(document.getElementById('example'), {
+  cell: [
+    {row: 0, col: 0, readOnly: true}
+  ]
+});
+```
+
+Or using cells function property to the Handsontable constructor. Example:
+
+```
+var hot = new Handsontable(document.getElementById('example'), {
+  cells: function (row, col, prop) {
+    var cellProperties = {}
+
+    if (row === 0 && col === 0) {
+      cellProperties.readOnly = true;
+    }
+
+    return cellProperties;
+  }
+})
+```
+
+### How does the Cascading Configuration work?
+
+Since Handsontable 0.9 we use Cascading Configuration, which is a fast way to provide configuration options      for the whole table, along with its columns and particular cells.
+
+Consider the following example:
+
+```
+var hot = new Handsontable(document.getElementById('example'), {
+  readOnly: true,
+  columns: [
+    {readOnly: false},
+    {},
+    {}
+  ],
+  cells: function (row, col, prop) {
+    var cellProperties = {}
+
+    if (row === 0 && col === 0) {
+      cellProperties.readOnly = true;
+    }
+
+    return cellProperties;
+  }
+});
+```
+
+The above notation will result in all TDs being read only, except for first column TDs      which will be editable, except for the TD in top left corner which will still be read only.
+
+### The cascading configuration model
+
+The Cascading Configuration model is based on prototypal inheritance. It is much faster and memory      efficient compared to the previous model that used jQuery extend. See it yourself:      <http://jsperf.com/extending-settings>
+
+- **Constructor**
+
+  Configuration options that are provided using first-level
+
+  ```
+  new Handsontable(document.getElementById('example'), {
+    option: 'value'
+  });
+  ```
+
+  and `updateSettings` method.
+
+- **Columns**
+
+  Configuration options that are provided using second-level object
+
+  ```
+  new Handsontable(document.getElementById('example'), {
+    columns: {
+      option: 'value'
+    }
+  });
+  ```
+
+- **Cells**
+
+  Configuration options that are provided using second-level function
+
+  ```
+  new Handsontable(document.getElementById('example'), {
+    cells: function(row, col, prop) {
+
+    }
+  });
+  ```
+
+## [Using callbacks](https://docs.handsontable.com/pro/1.15.0/tutorial-using-callbacks.html)
+
+Please visit：<https://docs.handsontable.com/pro/1.15.0/tutorial-using-callbacks.html>
+
+
+
+## Styling
+
+Commonly used styles:
+
+
+
+​      There is very little you can't do with Handsontable. As it doesn't impose any specific theme,      you can play with CSS however you like. Keep in mind that Handsontable needs to calculate the      width and height of elements inside it to control the scrollbar, so the complex styling rules      may affect the performance.    
+
+​      Some of the recipes listed below need an additional parent class/id or other modifications      to override the default values. Also, the styles might slightly vary depending on your configuration.      The below examples were tested with a 10x10 grid with both row and column headers turned on.    
+
+### Table
+
+​        **Background**      
+
+```css
+.ht_master tr td {
+  background-color: #F00;
+}
+```
+
+### Headers
+
+​        **Background**      
+
+```css
+/* All headers */
+.handsontable th {
+  background-color: #F00;
+}
+
+/* Row headers */
+.ht_clone_left th {
+  background-color: #F00;
+}
+
+/* Column headers */
+.ht_clone_top th {
+  background-color: #F00;
+}
+```
+
+​        **Borders**      
+
+```css
+/* Row headers */
+/* Bottom */
+.ht_clone_top_left_corner th {
+  border-bottom: 1px solid #F00;
+}
+
+/* Left and right */
+.ht_clone_left th {
+  border-right: 1px solid #F00;
+  border-left: 1px solid #F00;
+}
+
+/* Column headers */
+/* Top, bottom and right */
+.ht_clone_top th {
+  border-top: 1px solid #F00;
+  border-right: 1px solid #F00;
+  border-bottom: 1px solid #F00;
+}
+
+/* Left */
+.ht_clone_top_left_corner th {
+  border-right: 1px solid #F00;
+}
+```
+
+### Corner
+
+​        **Background**      
+
+```css
+.ht_clone_top_left_corner th {
+  background-color: #F00;
+}
+```
+
+​        **Borders**      
+
+```css
+.ht_clone_top_left_corner th {
+  border: 1px solid #F00;
+}
+```
+
+### Rows
+
+​        **Background**      
+
+```css
+/* Every odd row */
+.ht_master tr:nth-of-type(odd) > td {
+  background-color: #f00;
+}
+
+/* Every even row */
+.ht_master tr:nth-of-type(even) > td {
+  background-color: #f00;
+}
+
+/* Selected row  */
+/* Add a custom class name in the configuration: currentRowClassName: "foo"; */
+.ht_master tr.foo > td {
+  background-color: #f00;
+}
+
+/* Specific row (2) */
+.ht_master tr:nth-child(2) > td {
+  background-color: #f00;
+}
+```
+
+​        **Borders**      
+
+```css
+/* Bottom */
+.ht_master tr > td {
+  border-bottom: 1px solid #F00;
+}
+
+/* Right */
+.ht_master tr > td {
+  border-right: 1px solid #F00;
+}
+```
+
+### Columns
+
+​        **Background**      
+
+```css
+/* Every odd column */
+.ht_master tr > td:nth-of-type(odd) {
+  background-color: #f00;
+}
+
+/* Every even column */
+.ht_master tr > td:nth-of-type(even) {
+  background-color: #f00;
+}
+
+/* Selected column  */
+/* Add a custom class name in the configuration: currentColClassName: "foo"; */
+.ht_master tr > td.foo {
+  background-color: #f00;
+}
+
+/* Specific column (B) */
+.ht_master tr > td:nth-child(3) {
+  background-color: #f00;
+}
+```
+
+### Cell
+
+​        **Background**      
+
+```css
+/* Selected cell */
+.ht_master tr > td.current {
+  background-color: #F00;
+}
+
+/* Specific cell (B2) */
+.ht_master tr:nth-child(2) > td:nth-child(3) {
+  background-color: #F00;
+}
+
+/* Edit mode */
+.handsontableInput {
+  background-color: #F00!important;
+}
+```
+
+### Selection
+
+​        **Background**      
+
+```css
+.handsontable td.area {
+  background-color: #F00;
+}
+```
+
+### Notice
+
+​        Be careful when using Handsontable with popular CSS frameworks.        They not only modify the style of all DOM elements, including textareas and inputs,        but also add some transition properties which may negatively affect the performance.        Make sure you add styles carefully and selectively or use the official Bootstrap integration.      
+
+​        The selection border color has been hard-coded. It can be changed using JavaScript, or alternatively        you can postscript your CSS values with an (ugly) "!important" rule.      
+
+​        **JavaScript**      
+
+```css
+var borders = document.querySelectorAll('.handsontable .wtBorder');
+for (var i = 0; i < borders.length; i++) {
+  borders[i].style.backgroundColor = 'red';
+}
+
+```
+
+​        **CSS**      
+
+```
+.wtBorder {
+  background-color: #F00!important;
+}
+```
+
+
+
 ## 开发者指南
+
+### 搜索 
+
+初始化时在`option`里可以配置`search: true`开启。
+
+```javascript
+var queryResult = hot.search.query(value);
+```
+
+queryResult 格式：
+
+```javascript
+{
+  {row: 0, col:0, data: "xxxxx"}，
+  {row: x, col:y, data: "xxxxx"},
+  length: n
+}
+```
+
+
+
+
+
+### 右键菜单 
+
+初始化时在`option`里可以配置`contextMenu:ture`开启，或者配置为如下选项：
+
+如：`contextMenu：[row_above,row_below,undo,redo]`
+
+- row_above
+- row_below
+- hsep1
+- col_left
+- col_right
+- hsep2
+- remove_row
+- remove_col
+- hsep3
+- undo
+- redo
+- make_read_only
+- alignment
+- borders (with Custom Borders turned on)
+- commentsAddEdit, commentsRemove (with Comments turned on)
+
+[自定义菜单](https://docs.handsontable.com/pro/1.15.0/demo-context-menu.html#page-custom)：
+
+``` javascript
+var
+    example3 = document.getElementById('example3'),
+    settings3,
+    hot3;
+
+  settings3 = {
+    data: getData(),
+    rowHeaders: true,
+    colHeaders: true
+  };
+  hot3 = new Handsontable(example3, settings3);
+
+  hot3.updateSettings({
+    contextMenu: {
+      callback: function (key, options) {
+        if (key === 'about') {
+          setTimeout(function () {
+            // timeout is used to make sure the menu collapsed before alert is shown
+            alert("This is a context menu with default and custom options mixed");
+          }, 100);
+        }
+      },
+      items: {
+        "row_above": {
+          disabled: function () {
+            // if first row, disable this option
+            return hot3.getSelected()[0] === 0;
+          }
+        },
+        "row_below": {},
+        "hsep1": "---------",
+        "remove_row": {
+          name: 'Remove this row, ok?',
+          disabled: function () {
+            // if first row, disable this option
+            return hot3.getSelected()[0] === 0
+          }
+        },
+        "hsep2": "---------",
+        "about": {name: 'About this menu'}
+      }
+    }
+  })
+```
 

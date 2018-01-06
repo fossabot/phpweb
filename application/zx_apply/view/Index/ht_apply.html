@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>ht_</title>
+<script src="__STATIC__/jquery.min.js"></script>
+<link rel="STYLESHEET" type="text/css"
+	href="__STATIC__/handsontable-pro/handsontable.full.min.css">
+<script src="__STATIC__/handsontable-pro/handsontable.full.min.js"></script>
+</head>
+<body>
+	<div id='inp_area'></div>
+	123
+</body>
+<script>
+	function urlGen(data) {
+		var _url = "";
+		for ( var d in data) {
+			_url += "/" + data[d];
+		}
+		return _url;
+	}
+	var _headerdata = {
+		label : "zx_apply-223-rb",
+		order : "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18"
+	};
+	var _url = "getHeader" + urlGen(_headerdata);
+	//console.log(_url);
+	var apply_data = [ [ " 0", " ", " ", " ", " ", " ", " ", " ", " ", " ",
+			" ", " ", " ", " ", " ", " ", " " ] ];
+	//var colHeaderData = "";
+	var zxTypeData = ["互联网", "IMS", "点对点", "平安校园"];
+	var container = document.getElementById('inp_area');
+	var hot = new Handsontable(container, {
+		rowHeaders : true,
+		//colHeaders: ["申请时间","产品实例标识","专线类别","带宽","网元厂家","A端基站","客户名称","单位详细地址","客户需求说明(选填)","VLAN","IP","联系人姓名(客户侧)","联系电话(客户侧)","联系人邮箱(客户侧)*","负责人姓名(移动侧)*","负责人电话(移动侧)*","负责人邮箱(移动侧)*","单位性质","备注"],
+
+		//colWidths: [null,null,100,null,null,null,null,80,80,null,null,null,null,null,null,null,null,null,80],
+		autoColumnSize : true,
+		filters : true,
+		//dropdownMenu: true,
+		minSpareRows : 1,
+		minSpareCols : 2,
+		manualColumnResize : true,
+		columns : [ {
+			validator : "date"
+		}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+				{} ],
+	});
+	$.get(_url, "", function(data) {
+		colHeaderData = data.split(",");
+		hot.updateSettings({
+			colHeaders : data.split(","),
+			columns : [ {
+				data : colHeaderData[0],
+				type : "date",
+				dateFormat: "YYYY/MM/DD",
+			}, {
+				data : colHeaderData[1],
+				type : 'numeric'
+			}, {
+				data : colHeaderData[2],
+				type : 'autocomplete',
+				source : zxTypeData,
+			}, {}, {}, {}, {}, {}, {}, {
+				type : 'numeric'
+			}, {}, {}, {}, {}, {}, {}, {}, {}, {} ],
+		});
+	});
+	$(function($) {
+		hot.updateSettings({
+			data : apply_data,
+		});
+	});
+
+	var ipValidatorRegexp = /^(?:\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b|null)$/;
+	////////
+	/*var
+	 data1 = [
+	 ['', 'Tesla', 'Nissan', 'Toyota', 'Honda', 'Mazda', 'Ford', 'Tesla', 'Nissan', 'Toyota', 'Honda', 'Mazda', 'Ford', 'Tesla', 'Nissan', 'Toyota', 'Honda', 'Mazda', 'Ford', 'Tesla', 'Nissan', 'Toyota', 'Honda', 'Mazda', 'Ford', 'Tesla', 'Nissan', 'Toyota', 'Honda', 'Mazda', 'Ford', 'Tesla', 'Nissan', 'Toyota', 'Honda', 'Mazda', 'Ford', 'Tesla', 'Nissan', 'Toyota', 'Honda', 'Mazda', 'Ford', 'Tesla', 'Nissan', 'Toyota', 'Honda', 'Mazda', 'Ford'],
+	 ['2017', 10, 11, 12, 13, 15, 16],
+	 ['2018', 10, 11, 12, 13, 15, 16],
+	 ['2019', 10, 11, 12, 13, 15, 16],
+	 ['2020', 10, 11, 12, 13, 15, 16],
+	 ['2021', 10, 11, 12, 13, 15, 16]
+	 ],
+	 container1 = document.getElementById('example1'),
+	 settings1 = {
+	 data: data1
+	 },
+	 hot1;
+
+	 hot1 = new Handsontable(container1, settings1);
+	 data1[0][1] = 'Forddddd';  // change "Kia" to "Ford" programmatically
+	 // hot1.render();
+	 */
+</script>
+</html>

@@ -10,22 +10,62 @@ class Index extends Common {
 	/*protected $beforeActionList = [ 
 			'checkAuth' 
 	];*/
+	
+    /**
+     * FOR TEST
+     * @return void|string
+     */
 	public function tt(){
 		$data = Db::table("temp_tb1")->select();
 		//$str = json_encode($data);
 		return dump($data);
 	}
+	
+	/**
+	 * 首页
+	 * @return mixed|string|void
+	 */
 	public function index() {
 		// 暂未配置登录页面
 		return $this->fetch ();
 		return $this->redirect ( 'apply' );
 	}
+	
+	/**
+	 * ip、vlan申请
+	 * @return mixed|string
+	 */
 	public function apply() {
 		$zxInfoTitle = Db::table("phpweb_sysinfo")->field("value,option")->where("label","zxInfoTitle")->select();
 		$this->assign('zxInfoTitle',json_encode($zxInfoTitle,256));
 		//return dump($zxInfoTitle);
 		return $this->fetch("apply-v2");
 	}
+	
+	/**
+	 * 根据label、order 获取表格的 header
+	 * @param String $label
+	 * @param String $order
+	 * @return string
+	 */
+	public function getHeader(String $label="label",String $order="order"){
+		if($label==="label"||$order==="order"){
+			return "{msg:\"你要搞什么？\"}";
+		}
+		$_headerData = Db::table("phpweb_sysinfo")->field("value,option")->where(["label"=>$label])->order("id")->select();
+		/*$_header = [];
+		foreach ($_headerData as $h){
+			$_header[$h["value"]] = $h["option"];
+		}
+		return dump($_header);*/
+		$orderArr = explode(",",$order);
+	    $headerArr = [];
+	    foreach ($orderArr as $o){
+	    	$headerArr[] = $_headerData[$o]["option"];
+	    }
+	    return implode(",", $headerArr);
+	}
+	
 	/**
 	 * 信息查询
 	 */
@@ -39,8 +79,11 @@ class Index extends Common {
 	 */
 	// public function script()
 	
+	
+	
+	
 	/**
-	 * 空方法 直接 fetch 对应的view
+	 * 空方法 _empty 直接 fetch 对应的view
 	 *
 	 * @return mixed|string|void
 	 */
@@ -50,7 +93,7 @@ class Index extends Common {
 		if (file_exists ( $dir ))
 			return $this->fetch ( $request->action () );
 		else {
-			return $this->error ( "请求未找到，将返回上一页...(zx_apply/controller/index.php->_empty())" );
+			return $this->error ( "请求未找到，将返回上一页...<b>(zx_apply/controller/index.php->_empty())</b>" );
 		}
 	}
 }
