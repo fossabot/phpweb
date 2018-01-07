@@ -1,3 +1,17 @@
+### v0.2.2.0108(2018-01-08)
+
+- 补充`/docs/_posts/2017-12-21-handsontable-usage-notes.md`内容
+
+> 总结的自己脑袋都乱了。这个[docs](https://docs.handsontable.com)真的一点也不友好。
+
+### v0.2.2.0107(2018-01-07)
+
+- 补充`/docs/_posts/2017-12-21-handsontable-usage-notes.md`内容
+- 使用`handsontable`作为grid组件。与`dhtmlXGrid`相比的优点：
+  - 有配置默认值，上手更简单
+  - UI更接近Excel，功能也更近似Excel
+  - 可全局搜索，性能良好
+
 ### v0.2.2(2017-12-22)
 
 - 修改docs入口为项目名，可在github pages自动发布

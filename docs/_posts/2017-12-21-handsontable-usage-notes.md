@@ -72,14 +72,16 @@ manualColMove: true # 列移动 true
 stretchH:           # 拉伸高度 默认:"none" 可选 "last" "all" 用于父级不可滚动时
 // https://docs.handsontable.com/pro/1.15.0/demo-stretching.html
 copyPaste:          # 复制粘贴选项
+search:             # 启动搜索插件
 ```
 
 ### 常用API
 
 ```
 hot.loadData()
-hot.getData()
-hot.search.query()
+hot.getData()             // 数组格式
+got.getSourceData()       // JSON格式（columns里配置data）
+hot.search.query()        // 全局搜索并高亮，返回 [{row,col,data},...]
 ```
 
 调用方法
@@ -125,8 +127,6 @@ hot.updateSettings({
   }  
 });
 ```
-
-
 
 ### 快速开始
 
@@ -827,7 +827,95 @@ queryResult 格式：
 
 
 
+###  单元格数据类型(*to be updated*)
 
+`columns`参数详解
+
+```javascript
+hot = new Handsontable(, {
+  columns: [
+    xxx： yyy
+  ]
+});
+/////////////////////
+data // 在获取hot数据时，作为数据的下角标
+type // 数据类型
+// 其他使用详见下面例子
+```
+
+初始化的`options`中配置举例
+
+
+
+[autocomplete](https://docs.handsontable.com/0.35.0/demo-autocomplete.html)
+
+```javascript
+hot = new Handsontable(container, {
+  columns: [
+    {
+      type: 'numeric',
+      numericFormat: {
+      pattern: '$0,0.00',
+      culture: 'en-US' // this is the default culture, set up for USD  # zh-CN
+      },
+      allowEmpty: false
+    },
+    {
+      type: 'date',
+      dateFormat: 'MM/DD/YYYY',
+      correctFormat: true,
+      defaultDate: '01/01/1900',
+    },
+```
+
+> 时间格式列的数据可能不合法，记得在初始化后调用`hot.validateCells()`方法。
+
+```javascript
+    {
+     type: 'time',
+      timeFormat: 'h:mm:ss a',
+      correctFormat: true
+    },
+    {
+      type: 'checkbox'
+    }，
+    {
+      editer: 'select',
+      selectOptions:['互联网','IMS'],
+    },
+    {
+      type: 'dropdown',
+      source: ['yellow', 'red', 'orange', 'green']
+    }，
+```
+> Internally, cell `{type: "dropdown"}` is equivalent to cell` {type: "autocomplete", strict: true, filter: false}`. Therefore you can think of `dropdown` as a searchable `<select>`.
+
+``` javascript
+    {
+      type: 'autocomplete',
+      source: ['yellow', 'red', 'orange and another color', 'green', 'blue', 'gray', 'black', 'white', 'purple', 'lime', 'olive', 'cyan'],
+      visibleRows: 4,           // 下拉菜单可见列数
+      strict: false,            // 是否严格模式（是否验证）
+      trimDropdown: false,      // 宽度自适应下拉内容
+      allowInvalid: true        // 严格模式开启时，是否允许存在非法值
+    },
+    {
+      type: 'handsontable',
+      handsontable: {
+        colHeaders: ['Marque', 'Country', 'Parent company'],
+        autoColumnSize: true,
+        data: manufacturerData,
+        getValue: function() {
+          var selection = this.getSelected();
+          // Get always manufacture name of clicked row
+          return this.getSourceDataAtRow(selection[0]).name;
+       },
+      }
+    },
+  ]
+});
+hot.validateCells();
+```
 
 ### 右键菜单 
 
@@ -899,3 +987,34 @@ var
   })
 ```
 
+## 插件
+
+### 获取自动调整的宽度
+
+```javascript
+...
+hot.updateSettings({autoColumnSize:true}); 
+...
+// Access to plugin instance:
+var colSizePlugin = hot.getPlugin('autoColumnSize');
+console.log(colSizePlugin.getColumnWidth(4));
+```
+
+### 导出到文件
+
+```javascript
+var exportPlugin = hot.getPlugin('exportFile');
+
+// Export as a string:
+exportPlugin.exportAsString('csv');
+
+// Export as a Blob object:
+exportPlugin.exportAsBlob('csv');
+
+// Export to downloadable file (MyFile.csv):
+exportPlugin.downloadFile('csv', {filename: 'MyFile'});
+```
+
+
+
+### 

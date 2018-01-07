@@ -10,9 +10,13 @@ file="c/leftmenu_zx_apply_index" /} {/block} {block name="main"}
 <div></div>
 <div id='example'></div>
 <div id='example1'></div>
+
 11
 {/block} {block name="script"}
 <script>
+$(function($){
+	$(".wtHolder")[0].style.height="";	//修复wtHolder层height过大。
+});
 var data;
 /*$.get("/static/demo-data.csv",function(_data){
 	data = _data;
@@ -29,7 +33,7 @@ var data;
 	// ******************
 	  var
 	    data1 = [
-	      ['', 'Tesla', 'Nissan', 'Toyota', 'Honda', 'Mazda', 'Ford', 'Tesla', 'Nissan', 'Toyota', 'Honda', 'Mazda', 'Ford', 'ffffffffffff'],
+	      ['', 'Tesla', 'Nissan', 'Toyota', 'Honda', 'Mazda', 'Ford', 'Tesla','Honda', 'Mazda', 'Ford', 'Tesla', 'Nissan', 'Toyota', 'Honda', 'Mazda', 'Ford', 'ffffffffffff'],
 	      ['2017', 10, 11, 12, 13, 15, 16],
 	      ['2018', 10, 11, 12, 13, 15, 16],
 	      ['2019', 10, 11, 12, 13, 15, 16],
@@ -46,6 +50,5 @@ var data;
 	  hot1 = new Handsontable(container1, settings1);
 	  data1[0][1] = 'Forddddd';  // change "Kia" to "Ford" programmatically
 	 // hot1.render();
-
 </script>
 {/block}
