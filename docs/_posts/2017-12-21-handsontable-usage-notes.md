@@ -4,7 +4,7 @@ title:          handsontable 用法笔记
 date:           2017-12-21 20:56:07--0800
 summary:        开发中用到了handsontable，官网的demos、usage和api查阅起来不是很方便，在学习过程中自己整理了一下。版本基于社区版v0.35.0，专业版v1.15.0。
 categories:     notes
-update_date:    2018-1-6 13:38:03
+update_date:    2018-1-9 03:35:54
 ---
 
 {:TOC}

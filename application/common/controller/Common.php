@@ -27,10 +27,10 @@ class Common extends Controller {
 		$permitActions = [ 
 				"index",
 				"main",
-				"getVcode"
+				"getVcode" 
 		];
-		// 若 url 不允许 未登录访问，则跳转
-		if ((! in_array ( $request->module (), $permitModule )) && (! in_array ( $request->controller (), $permitController )) && (! in_array ( $request->action (), $permitActions )) && (! input ( 'session.user/a' ))) {
+		// 判断是否从localhost 访问，若 url 不允许 未登录访问，则跳转
+		if ((! substr ( $request->domain (), - 9 ) == "localhost") && (! in_array ( $request->module (), $permitModule )) && (! in_array ( $request->controller (), $permitController )) && (! in_array ( $request->action (), $permitActions )) && (! input ( 'session.user/a' ))) {
 			// $this->assign ( "version", $request->controller () );
 			// $this->assign ( "version", "登陆超时" );
 			return $this->error ( '您未登录或登录超时，请先登录！', 'index/index' );

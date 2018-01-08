@@ -4,7 +4,7 @@ file="c/leftmenu_zx_apply_index" /} {/block}{block name="main"}
 	<h2>专线申请表填写</h2>
 </div>
 <p>
-	请根据<span><a href="" title='点击下载'>模板</a></span>样式，将数据（不带标题，可多行）直接粘贴至下面文本框，
+	请根据<span><a href="" title='点击下载'>模板</a></span>样式，将数据（<b>不带标题，可多行</b>）直接粘贴至下面文本框，
 </p>
 <p>
 	然后点击
@@ -12,7 +12,7 @@ file="c/leftmenu_zx_apply_index" /} {/block}{block name="main"}
 </p>
 <div id="inp_area">
 	<textarea
-		style="width: 100%; height: 200px; font-size: 10px; font-family: Arial, sans-serif, '宋体'; color: #936;">粘贴到这里~</textarea>
+		style="width: 100%; height: 100px; font-size: 10px; font-family: Arial, sans-serif, '宋体'; color: #936;">粘贴到这里~</textarea>
 </div>
 <!-- <div id="griddiv" style="height: 100%;overflow: auto;"><div id="gridbox"></div></div>
 <div id="myForm" style="width: 450px;"></div> -->
@@ -32,20 +32,47 @@ file="c/leftmenu_zx_apply_index" /} {/block}{block name="main"}
 	
 	var data = [];
 	$("#btn_submit").on("click", function() {
-		var items = $("#inp_area textarea").val().split("\n");
-		zxInfoTitle = {$zxInfoTitle};
-		for (itemstr in items) {
+		var items = $("#inp_area textarea").val().trim().split("\n");
+		var zxInfoTitle = {$zxInfoTitle};
+		titleAttr = zxInfoTitle["order"].split(",");
+		for (i in items) {
 			//对于每一行数据
-			var item = itemstr.split("\t");
-			var json = [];
-			for (var i = 0; i < item.length; i++) {
-				//var unit = {ColNames[i]:item[i]};
-				//a.push(unit);
+			var item = items[i].split("\t");
+			var _data = [];
+			for (var j in item) {	// j一定是数字，且从0自增
+				_data[titleAttr[j]]=item[j];
 			}
+			data.push(_data);
 		}
+		confirmTable(data);
 		//StandardPost(location.href,encodeURI(data));
-
 	});
+	function AsyncLoad(V_tag,V_src) {
+		if (V_tag == "script") {
+			var s = document.createElement('script');
+			s.type = 'text/javascript';
+			s.async = true;
+			s.src = V_src;
+			
+		}else if (V_tag == "css") {
+			var s = document.createElement('link');
+			s.rel = 'stylesheet';
+			s.async = true;
+			s.href = V_src;
+		}
+		var h = document.getElementsByTagName('head')[0];
+		h.appendChild(s);
+	}
+	
+	function confirmTable(){
+		AsyncLoad("css","__STATIC__/handsontable-pro/handsontable.full.min.css");
+		AsyncLoad("script","__STATIC__/handsontable-pro/handsontable.full.min.js");
+		
+		
+		
+		
+	}
+	
 	function StandardPost(url, args) {
 		var form = $("<form method='post'></form>");
 		form.attr({
@@ -61,5 +88,15 @@ file="c/leftmenu_zx_apply_index" /} {/block}{block name="main"}
 		}
 		form.submit();
 	}
+	
+	var myWins= new dhtmlXWindows();
+	function htTable(){
+		myWins.attachViewportTo(document.getElementById("winVP"));
+		myWins.createWindow("_input",0,50,_htmlWidth,_htmlHeight-70);
+		myWins.window("_input").setText("录入");
+		myWins.window("_input").attachURL("ht_apply");
+	}
+	
+	
 </script>
 {/block}
