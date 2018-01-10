@@ -7,17 +7,21 @@ use think\Session;
 
 class Index extends Controller {
 	public function index() {
-	    if(in_array(substr(request()->ip(),0,8),['10.61.21','0.0.0.0','127.0.0.'])){
-			return $this->fetch ('indexs');
-		}else{
-			return $this->fetch();
+		if (in_array ( substr ( request ()->ip (), 0, 8 ), [ 
+				'10.61.21',
+				'0.0.0.0',
+				'127.0.0.' 
+		] )) {
+			return $this->fetch ( 'indexs' );
+		} else {
+			return $this->fetch ();
 		}
 	}
 	public function loginout() {
 		Session::delete ( "user" );
 		$f = input ( "param.fromUrl" );
-		if (strlen( $f ) > 10) {
-			return $this->error( "你在非法注入？！", "/" );
+		if (strlen ( $f ) > 10) {
+			return $this->error ( "你在非法注入？！", "/" );
 		}
 		return $this->success ( "已注销登录", "/" . $f . "/index", "", 1 );
 	}
@@ -57,11 +61,11 @@ class Index extends Controller {
 		exit ( 0 );
 	}
 	public function _empty() {
-		$dir = APP_PATH . request()->module () . DS . "view" . DS . request()->controller () . DS . request()->action () . "." . config ( 'template.view_suffix' );
+		$dir = APP_PATH . request ()->module () . DS . "view" . DS . request ()->controller () . DS . request ()->action () . "." . config ( 'template.view_suffix' );
 		if (file_exists ( $dir ))
-			return $this->fetch ( request()->action () );
-			else {
-				return $this->error( "请求未找到(╯﹏╰)",null,null,60 );
-			}
+			return $this->fetch ( request ()->action () );
+		else {
+			return $this->error ( "请求未找到(╯﹏╰)", null, null, 60 );
+		}
 	}
 }

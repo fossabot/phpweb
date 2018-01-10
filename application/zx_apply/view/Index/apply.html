@@ -3,50 +3,54 @@ file="c/leftmenu_zx_apply_index" /} {/block}{block name="main"}
 <div class="htmltitle">
 	<h2>专线申请表填写</h2>
 </div>
-<p>
-	请根据<span><a href="" title='点击下载'>模板</a></span>样式，将数据（<b>不带标题，可多行</b>）直接粘贴至下面文本框，
-</p>
-<p>
-	然后点击
-	<button id="btn_submit" class="btn btn-primary">导入</button>
-</p>
-<div id="inp_area">
-	<textarea
-		style="width: 100%; height: 100px; font-size: 10px; font-family: Arial, sans-serif, '宋体'; color: #936;">粘贴到这里~</textarea>
+<div id="pasteDiv">
+	<p>
+		请根据模板（<a href="__STATIC__/README.md" title='点击下载模板'
+			download="导入模板.xlsx">点击下载</a>）格式，将数据（<b>不带标题，可多行</b>）直接粘贴至下面文本框， 然后点击
+		<button id="btn_submit" class="btn btn-xs btn-primary">导入</button>
+	</p>
+	<div id="inp_area">
+		<textarea
+			style="width: 100%; height: 100px; font-size: 10px; font-family: Arial, sans-serif, '宋体'; color: #936;">粘贴到这里~</textarea>
+	</div>
 </div>
+<div id="fillInNotice">
+	还可以
+	<button class="btn btn-xs btn-link">手动录入</button>
+</div>
+<div id="fillInDiv" style="display: none;">
+	<div id="_form"></div>
+
+
+</div>
+<div id="ht_table"></div>
 <!-- <div id="griddiv" style="height: 100%;overflow: auto;"><div id="gridbox"></div></div>
 <div id="myForm" style="width: 450px;"></div> -->
 <script>
 	$(function() {
 		//
 	});
+	var initDefaults = "粘贴到这里~";
 	$("#inp_area textarea").on("focus", function() {
-		if ($("#inp_area textarea").val() == '粘贴到这里~') {
+		if ($("#inp_area textarea").val() == initDefaults) {
 			$("#inp_area textarea").val('');
 		}
 	}).on("blur", function() {
 		if ($("#inp_area textarea").val() == '') {
-			$("#inp_area textarea").val('粘贴到这里~');
+			$("#inp_area textarea").val(initDefaults);
 		}
 	});
 	
-	var data = [];
 	$("#btn_submit").on("click", function() {
-		var items = $("#inp_area textarea").val().trim().split("\n");
-		var zxInfoTitle = {$zxInfoTitle};
-		titleAttr = zxInfoTitle["order"].split(",");
-		for (i in items) {
-			//对于每一行数据
-			var item = items[i].split("\t");
-			var _data = [];
-			for (var j in item) {	// j一定是数字，且从0自增
-				_data[titleAttr[j]]=item[j];
-			}
-			data.push(_data);
-		}
-		confirmTable(data);
-		//StandardPost(location.href,encodeURI(data));
+		var items = $("#inp_area textarea").val().trim();
+		if(items == initDefaults){
+			dhtmlx.message({text:"你还没有粘贴数据。。。"});
+			$("#inp_area textarea").focus();
+		}else{
+			confirmTable();
+		}//StandardPost(location.href,encodeURI(data));
 	});
+	
 	function AsyncLoad(V_tag,V_src) {
 		if (V_tag == "script") {
 			var s = document.createElement('script');
@@ -67,12 +71,17 @@ file="c/leftmenu_zx_apply_index" /} {/block}{block name="main"}
 	function confirmTable(){
 		AsyncLoad("css","__STATIC__/handsontable-pro/handsontable.full.min.css");
 		AsyncLoad("script","__STATIC__/handsontable-pro/handsontable.full.min.js");
-		
-		
-		
-		
+		var ss = {k:Date.now(),v:$("#inp_area textarea").val().trim()};
+		// 使用 sessionStorage 传递 textarea 数据
+		var t = btoa("appInputVal_"+ss["k"]);
+		sessionStorage.setItem(t,ss["v"]);
+		myWins.attachViewportTo(document.getElementById("winVP"));
+		myWins.createWindow("_input",0,50,_htmlWidth,_htmlHeight-70);
+		myWins.window("_input").setText("录入验证");
+		myWins.window("_input").attachURL("ht_apply?t="+t);		
 	}
-	
+	var myWins= new dhtmlXWindows();
+
 	function StandardPost(url, args) {
 		var form = $("<form method='post'></form>");
 		form.attr({
@@ -89,13 +98,7 @@ file="c/leftmenu_zx_apply_index" /} {/block}{block name="main"}
 		form.submit();
 	}
 	
-	var myWins= new dhtmlXWindows();
-	function htTable(){
-		myWins.attachViewportTo(document.getElementById("winVP"));
-		myWins.createWindow("_input",0,50,_htmlWidth,_htmlHeight-70);
-		myWins.window("_input").setText("录入");
-		myWins.window("_input").attachURL("ht_apply");
-	}
+
 	
 	
 </script>

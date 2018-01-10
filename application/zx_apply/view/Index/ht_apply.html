@@ -23,23 +23,26 @@
 	<div id="checkTable"></div>
 </body>
 <script>
+	var zxInfoTitle = {
+		label : "zx_apply-223-rb",
+		order : "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18"
+	};
 	var _url = (function(data) {
 		var _url = "getHeader";
 		for ( var d in data) {
 			_url += "/" + data[d];
 		}
 		return _url;
-	})({
-		label : "zx_apply-223-rb",
-		order : "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18"
-	});
+	})(zxInfoTitle);
 	//var applyData = " , , , , , , , , , , , , , , , , , , ";
 	var colWidthsData = "115,114,90,50,73,92,270,231,473,50,135,121,121,195,105,114,195,73,176";
 	var zxTypeData = "互联网,IMS,点对点,平安校园,营业厅,卫生网,教育网,其他";
 	var aStationData = "柴河局,西丰新局,西丰老局,昌图新局,昌图老局,开原老局,开原新局,清河,调兵山新局,铁岭县,银州区";
 	var neFactoryData = "华为,中兴";
+	var colHeaderData = [];
 	var container = document.getElementById('inp_area');
 	var hot = new Handsontable(container, {
+		data : [ [ " " ] ],
 		rowHeaders : true,
 		colWidths : colWidthsData.split(","),
 		//autoColumnSize : true,
@@ -48,10 +51,14 @@
 		minSpareRows : 1,
 		manualColumnResize : true,
 	});
+	var infoData = []; // 用于保存hot的初始数据
+	loadDataFromStorage();
 	$.get(_url, {
 		t : Date.now()
 	}, function(data) {
 		colHeaderData = data.split(",");
+		
+
 		hot.updateSettings({
 			colHeaders : data.split(","),
 			columns : [ {
@@ -77,17 +84,71 @@
 				data : colHeaderData[5],
 				editor : 'select',
 				selectOptions : aStationData.split(","),
-			}, {}, {}, {}, {
+			}, {
+				data : colHeaderData[6]
+			}, {
+				data : colHeaderData[7]
+			}, {
+				data : colHeaderData[8]
+			}, {
 				type : 'numeric'
-			}, {}, {}, {}, {}, {}, {}, {}, {}, {} ],
+			}, {
+				data : colHeaderData[9]
+			}, {
+				data : colHeaderData[10]
+			}, {
+				data : colHeaderData[11]
+			}, {
+				data : colHeaderData[12]
+			}, {
+				data : colHeaderData[13]
+			}, {
+				data : colHeaderData[14]
+			}, {
+				data : colHeaderData[15]
+			}, {
+				data : colHeaderData[16]
+			}, {
+				data : colHeaderData[17]
+			} ],
 		});
 	});
 	$(function($) {
 		hot.updateSettings({
 		//data : applyData,
 		});
-	});
 
+	});
+	function loadDataFromStorage() {
+		var Param_t = getQueryString("t");
+		if (Param_t) {
+			var items = sessionStorage.getItem(Param_t);
+			if (items) {
+				items = items.split("\n");
+				//var titleAttr = zxInfoTitle["order"].split(",");
+				for (i in items) {
+					//对于每一行数据
+					var itemAttr = items[i].split("\t");
+					/*var _data = [];
+					for (var j in item) {	// j一定是数字，且从0自增
+						_data[titleAttr[j]]=item[j];
+					}*/
+					infoData.push(itemAttr);
+				}
+				hot.updateSettings({
+					data: infoData
+				});
+			}
+		}
+	}
+	function getQueryString(name) {
+		var reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)', 'i');
+		var r = window.location.search.substr(1).match(reg);
+		if (r != null) {
+			return unescape(r[2]);
+		}
+		return null;
+	}
 	var ipValidatorRegexp = /^(?:\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b|null)$/;
 	////////
 	/*function a(){
