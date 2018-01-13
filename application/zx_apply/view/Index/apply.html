@@ -54,7 +54,14 @@ file="c/leftmenu_zx_apply_index" /} {/block}{block name="main"}
 		}//StandardPost(location.href,encodeURI(data));
 	});
 	$("#btn_manual").on("click", function() {
-		dhtmlx.alert({title:"手动填表开发中",text:"复制粘贴操作更简单，不是吗？",type:"alert-warning"});
+		dhtmlx.alert({
+			title:"手动填表开发中",
+			text:"复制粘贴操作更简单，不是吗？",
+			type:"alert-warning",
+			callback:function(){
+				$("#inp_area textarea").select();
+			},
+		});
 	});
 	function AsyncLoad(V_tag,V_src) {
 		if (V_tag == "script") {

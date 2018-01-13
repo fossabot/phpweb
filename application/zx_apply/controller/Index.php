@@ -36,8 +36,22 @@ class Index extends Common {
 		return $this->redirect ( 'apply' );
 	}
 	public function _ht_apply(){
-		if(input('?get.zxInfoTitle')&&input('?get.t')){
-			return $this->fetch();
+		if(request()->isPost()){
+			$postData = input("post.data");
+			$zxInfoTitle = input("post.zxInfoTitle");
+			
+			$data = [];
+			$info = explode("\n", $postData);
+			foreach ($info as $i){
+				$t = explode(",", $i);
+				$data[] = $t;
+			}
+			return dump($zxInfoTitle);
+		}
+		if(request()->isGet()){
+			if(input('?get.zxInfoTitle')&&input('?get.t')){
+				return $this->fetch();
+			}
 		}
 	}
 	/**

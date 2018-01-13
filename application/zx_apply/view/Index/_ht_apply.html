@@ -20,10 +20,17 @@
 </head>
 <body>
 	<div id="notice">
-		<p>请检查并调整信息的规范性，确认后即可<button id="confirm-commit" class="btn btn-xs btn-primary">提交</button>。</p>
+		<p>
+			请检查并调整信息的规范性，确认后即可
+			<button id="confirm-commit" class="btn btn-xs btn-primary">提交</button>
+			。
+		</p>
 		<p></p>
 	</div>
 	<div id='inp_area'></div>
+	<div>
+		<p id="xhr_response"></p>
+	</div>
 </body>
 <script>
 	// 0. 初始化
@@ -151,8 +158,16 @@
 		}
 		return null;
 	}
-	$("#confirm-commit").on("click",function(){
-		hot.getData();
+	//	确认录入提交
+	$("#confirm-commit").on("click", function() {
+		var ht_data = hot.getPlugin("exportFile").exportAsString("csv");
+		var _data = {
+			data : ht_data,
+			zxInfoTitle : JSON.stringify(zxInfoTitle),
+		};
+		$.post("", _data, function(data) {
+			$("#xhr_response").html(data);
+		});
 	});
 	////////
 	/*function a(){
