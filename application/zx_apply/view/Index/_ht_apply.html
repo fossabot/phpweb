@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>_ht_</title>
+<script src="__STATIC__/jquery.min.js"></script>
+<link rel="STYLESHEET" type="text/css"
+	href="__STATIC__/handsontable-pro/handsontable.full.min.css">
+<script src="__STATIC__/handsontable-pro/handsontable.full.min.js"></script>
+<style>
+.body {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	overflow: hidden;
+}
+</style>
+</head>
+<body>
+	<div id="notice">
+		<p>请检查并调整信息的规范性，确认后即可<button id="confirm-commit" class="btn btn-xs btn-primary">提交</button>。</p>
+		<p></p>
+	</div>
+	<div id='inp_area'></div>
+</body>
+<script>
+	// 0. 初始化
+	var zxInfoTitle = JSON.parse(sessionStorage
+			.getItem(getQueryString("zxInfoTitle")));
+	//var zxInfoTitle = JSON.parse(sessionStorage.getItem("zxInfoTitle"));
+	var _url = (function(data) {
+		var _url = "getHeader";
+		for ( var d in data) {
+			_url += "/" + data[d];
+		}
+		return _url;
+	})(zxInfoTitle);
+	//var applyData = " , , , , , , , , , , , , , , , , , , ";
+	var colWidthsData = "115,114,90,50,73,92,270,231,473,50,135,121,121,195,105,114,195,73,176";
+	var zxTypeData = "互联网,IMS,点对点,平安校园,营业厅,卫生网,教育网,其他";
+	var aStationData = "柴河局,西丰新局,西丰老局,昌图新局,昌图老局,开原老局,开原新局,清河,调兵山新局,铁岭县,银州区";
+	var neFactoryData = "华为,中兴";
+	var colHeaderData = [];
+	var container = document.getElementById('inp_area');
+	var infoData = []; // 用于保存hot的初始数据
+	var hot;
+	// 1. 获取列名
+
+	$.get(_url, {
+		t : Date.now()
+	}, function(data) {
+		colHeaderData = data.split(",");
+		// 3. 获取数据
+		infoData = loadDataFromStorage(colHeaderData);
+		// 2. 生成hot
+		hot = new Handsontable(container, {
+			data : infoData,
+			rowHeaders : true,
+			colWidths : colWidthsData.split(","),
+			//autoColumnSize : true,
+			//filters : true,
+			//search : true,
+			//minSpareRows : 1,
+			manualColumnResize : true,
+			colHeaders : data.split(","),
+			columns : [ {
+				type : "date",
+				dateFormat : "YYYY-MM-DD",
+				correctFormat : true,
+				validator : "date"
+			}, {
+
+				type : 'numeric'
+			}, {
+
+				editor : 'select',
+				selectOptions : zxTypeData.split(","),
+			}, {
+
+			}, {
+
+				editor : 'select',
+				selectOptions : neFactoryData.split(","),
+			}, {
+				strict : true,
+				type : 'autocomplete',
+				source : aStationData.split(","),
+			}, {
+
+			}, {
+
+			}, {
+
+			}, {
+				type : 'numeric', //  vlan
+
+			}, {
+				validator : ipValidatorRegexp,
+			}, {
+
+			}, {
+
+			}, {
+
+			}, {
+
+			}, {
+
+			}, {
+
+			}, {
+
+			}, {
+
+			} ],
+		});
+		hot.validateCells();
+	});
+	$(function($) {
+
+	});
+	function loadDataFromStorage(colHeaders) {
+		var Param_t = getQueryString("t");
+		var data = [];
+		if (Param_t) {
+			console.log("loadDataFromStorage:YES");
+			var items = sessionStorage.getItem(Param_t);
+			if (items) {
+				items = items.split("\n");
+				for (i in items) {
+					//对于每一行数据
+					var itemAttr = items[i].split("\t");
+					/*var _data = [];
+					for ( var j in itemAttr) { // j一定是数字，且从0自增
+						_data[colHeaders[j]] = itemAttr[j];
+					}*/
+					data.push(itemAttr);
+				}
+			}
+		}
+		return data;
+	}
+	var ipValidatorRegexp = /^(?:\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b|null)$/;
+	function getQueryString(name) {
+		var reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)', 'i');
+		var r = window.location.search.substr(1).match(reg);
+		if (r != null) {
+			return unescape(r[2]);
+		}
+		return null;
+	}
+	$("#confirm-commit").on("click",function(){
+		hot.getData();
+	});
+	////////
+	/*function a(){
+		console.log($(".wtHolder")[0].style.height);
+		$(".wtHolder")[0].style.height="";
+		
+	}*/
+</script>
+</html>

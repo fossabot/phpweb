@@ -35,7 +35,11 @@ class Index extends Common {
 		return $this->fetch ();
 		return $this->redirect ( 'apply' );
 	}
-	
+	public function _ht_apply(){
+		if(input('?get.zxInfoTitle')&&input('?get.t')){
+			return $this->fetch();
+		}
+	}
 	/**
 	 * ip、vlan申请
 	 *

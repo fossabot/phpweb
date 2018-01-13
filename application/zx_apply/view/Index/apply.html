@@ -1,7 +1,7 @@
 {extend name="common@Public/base" /} {block name="leftmenu"} {include
 file="c/leftmenu_zx_apply_index" /} {/block}{block name="main"}
 <div class="htmltitle">
-	<h2>专线申请表填写</h2>
+	<h2>专线申请表录入</h2>
 </div>
 <div id="pasteDiv">
 	<p>
@@ -16,7 +16,7 @@ file="c/leftmenu_zx_apply_index" /} {/block}{block name="main"}
 </div>
 <div id="fillInNotice">
 	还可以
-	<button class="btn btn-xs btn-link">手动录入</button>
+	<button id="btn_manual" class="btn btn-xs btn-link">手动录入</button>
 </div>
 <div id="fillInDiv" style="display: none;">
 	<div id="_form"></div>
@@ -46,11 +46,16 @@ file="c/leftmenu_zx_apply_index" /} {/block}{block name="main"}
 		if(items == initDefaults){
 			dhtmlx.message({text:"你还没有粘贴数据。。。"});
 			$("#inp_area textarea").focus();
+		}else if(items.length<70){
+			dhtmlx.message({text:"内容有点儿少吧。。。"});
+			dhtmlx.message({text:"重新编辑一下？"});
 		}else{
 			confirmTable();
 		}//StandardPost(location.href,encodeURI(data));
 	});
-	
+	$("#btn_manual").on("click", function() {
+		dhtmlx.alert({title:"手动填表开发中",text:"复制粘贴操作更简单，不是吗？",type:"alert-warning"});
+	});
 	function AsyncLoad(V_tag,V_src) {
 		if (V_tag == "script") {
 			var s = document.createElement('script');
@@ -67,21 +72,27 @@ file="c/leftmenu_zx_apply_index" /} {/block}{block name="main"}
 		var h = document.getElementsByTagName('head')[0];
 		h.appendChild(s);
 	}
-	
+
 	function confirmTable(){
-		AsyncLoad("css","__STATIC__/handsontable-pro/handsontable.full.min.css");
-		AsyncLoad("script","__STATIC__/handsontable-pro/handsontable.full.min.js");
+		//AsyncLoad("css","__STATIC__/handsontable-pro/handsontable.full.min.css");
+		//AsyncLoad("script","__STATIC__/handsontable-pro/handsontable.full.min.js");
 		var ss = {k:Date.now(),v:$("#inp_area textarea").val().trim()};
 		// 使用 sessionStorage 传递 textarea 数据
 		var t = btoa("appInputVal_"+ss["k"]);
 		sessionStorage.setItem(t,ss["v"]);
+		var zxInfoTitle = btoa("zxInfoTitle"+ss["k"]);
+		sessionStorage.setItem(zxInfoTitle,JSON.stringify(zxInfoTitleData));
 		myWins.attachViewportTo(document.getElementById("winVP"));
 		myWins.createWindow("_input",0,50,_htmlWidth,_htmlHeight-70);
-		myWins.window("_input").setText("录入验证");
-		myWins.window("_input").attachURL("ht_apply?t="+t);		
+		myWins.window("_input").setText("录入验证&nbsp;&nbsp;&nbsp;&nbsp;<a onclick='win_close()'>返回录入</a>");
+		myWins.window("_input").attachURL("_ht_apply?t="+t+"&zxInfoTitle="+zxInfoTitle);
 	}
 	var myWins= new dhtmlXWindows();
-
+	var zxInfoTitleData = {$zxInfoTitle};
+	function win_close(){
+		myWins.window("_input").close();
+		$("#inp_area textarea").select();
+	}
 	function StandardPost(url, args) {
 		var form = $("<form method='post'></form>");
 		form.attr({

@@ -494,7 +494,7 @@ var hot = new Handsontable(document.getElementById('example'), {
 
 Any constructor or column option may be overwritten for a particular cell (row/column combination),      using `cell` array passed to the Handsontable constructor. Example:
 
-```
+```javascript
 var hot = new Handsontable(document.getElementById('example'), {
   cell: [
     {row: 0, col: 0, readOnly: true}
@@ -504,7 +504,7 @@ var hot = new Handsontable(document.getElementById('example'), {
 
 Or using cells function property to the Handsontable constructor. Example:
 
-```
+```javascript
 var hot = new Handsontable(document.getElementById('example'), {
   cells: function (row, col, prop) {
     var cellProperties = {}
@@ -524,7 +524,7 @@ Since Handsontable 0.9 we use Cascading Configuration, which is a fast way to pr
 
 Consider the following example:
 
-```
+```javascript
 var hot = new Handsontable(document.getElementById('example'), {
   readOnly: true,
   columns: [
@@ -554,7 +554,7 @@ The Cascading Configuration model is based on prototypal inheritance. It is much
 
   Configuration options that are provided using first-level
 
-  ```
+  ```javascript
   new Handsontable(document.getElementById('example'), {
     option: 'value'
   });
@@ -566,7 +566,7 @@ The Cascading Configuration model is based on prototypal inheritance. It is much
 
   Configuration options that are provided using second-level object
 
-  ```
+  ```javascript
   new Handsontable(document.getElementById('example'), {
     columns: {
       option: 'value'
@@ -578,7 +578,7 @@ The Cascading Configuration model is based on prototypal inheritance. It is much
 
   Configuration options that are provided using second-level function
 
-  ```
+  ```javascript
   new Handsontable(document.getElementById('example'), {
     cells: function(row, col, prop) {
 
