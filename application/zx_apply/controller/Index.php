@@ -35,22 +35,26 @@ class Index extends Common {
 		return $this->fetch ();
 		return $this->redirect ( 'apply' );
 	}
-	public function _ht_apply(){
-		if(request()->isPost()){
-			$postData = input("post.data");
-			$zxInfoTitle = input("post.zxInfoTitle");
+	public function _ht_apply() {
+		if (request ()->isPost ()) {
+			$postData = input ( "post.data" );
+			$zxInfoTitle = input ( "post.zxInfoTitle", null, null );
+			$zxInfoTitle = json_decode($zxInfoTitle,JSON_UNESCAPED_UNICODE);
+			$dataHeader = $this->getHeader ( $zxInfoTitle ["label"], $zxInfoTitle ["order"], true );
+			//	获取数据库的列名
+			$dataHeader = explode(",", $dataHeader);
+			//return dump($postData);
+			//	根据列名和数据转成php数组
+			$data = $this->csv_to_array($dataHeader,$postData);
+			// ip/vlan信息要单独存储。
 			
-			$data = [];
-			$info = explode("\n", $postData);
-			foreach ($info as $i){
-				$t = explode(",", $i);
-				$data[] = $t;
-			}
-			return dump($zxInfoTitle);
+			return dump($data);
+			Db::name("infotables")->insertAll($data);
+			return dump ( $data );
 		}
-		if(request()->isGet()){
-			if(input('?get.zxInfoTitle')&&input('?get.t')){
-				return $this->fetch();
+		if (request ()->isGet ()) {
+			if (input ( '?get.zxInfoTitle' ) && input ( '?get.t' )) {
+				return $this->fetch ();
 			}
 		}
 	}
@@ -79,12 +83,11 @@ class Index extends Common {
 	 */
 	public function getHeader(String $label = "label", String $order = "order", $v = false) {
 		if ($label === "label" || $order === "order") {
-			return "{msg:\"你要搞什么？\"}";
+			return "{msg:\"你要搞什么？\"}"; // 未输入参数label或order
 		}
 		$_headerData = Db::table ( "phpweb_sysinfo" )->field ( "value,option" )->where ( [ 
 				"label" => $label 
 		] )->order ( "id" )->select ();
-		
 		$orderArr = explode ( ",", $order );
 		$headerArr = [ ];
 		$sub = $v ? "value" : "option";

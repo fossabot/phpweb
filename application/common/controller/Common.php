@@ -106,6 +106,13 @@ class Common extends Controller {
 		$csvstr = substr ( $csvstr, 0, strlen ( $csvstr ) - 1 );
 		return $csvstr;
 	}
+	
+	
+	function zz (){
+		
+		return dump($this->csv_to_array(["a","b","c"],"1,2,3"));
+	}
+	
 	/**
 	 * csv 转 php数组
 	 *
