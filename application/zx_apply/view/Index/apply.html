@@ -6,7 +6,7 @@ file="c/leftmenu_zx_apply_index" /} {/block}{block name="main"}
 <div id="pasteDiv">
 	<p>
 		请根据模板（<a href="__STATIC__/README.md" title='点击下载模板'
-			download="导入模板.xlsx">点击下载</a>）格式，将数据（<b>不带标题，可多行</b>）直接粘贴至下面文本框， 然后点击
+			download="导入模板.xlsx">点击下载</a>）格式，填好后将数据（<b>不带标题，可多行</b>）直接粘贴至下面文本框， 然后点击
 		<button id="btn_submit" class="btn btn-xs btn-primary">导入</button>
 	</p>
 	<div id="inp_area">
@@ -90,9 +90,15 @@ file="c/leftmenu_zx_apply_index" /} {/block}{block name="main"}
 		var zxInfoTitle = btoa("zxInfoTitle"+ss["k"]);
 		sessionStorage.setItem(zxInfoTitle,JSON.stringify(zxInfoTitleData));
 		myWins.attachViewportTo(document.getElementById("winVP"));
-		myWins.createWindow("_input",0,50,_htmlWidth,_htmlHeight-70);
-		myWins.window("_input").setText("录入验证&nbsp;&nbsp;&nbsp;&nbsp;<a onclick='win_close()'>返回录入</a>");
+		myWins.createWindow("_input",0,50,_htmlWidth,_htmlHeight/2);
+		//myWins.createWindow("_input",0,50,_htmlWidth,_htmlHeight-70);
+		var text = "验证您的录入&nbsp;&nbsp;&nbsp;&nbsp;<a onclick='win_close()'>返回录入</a>&nbsp;&nbsp;&nbsp;&nbsp;<button id='confirm-commit' class='btn btn-xs btn-success'>提交</button>";
+		myWins.window("_input").setText(text);
 		myWins.window("_input").attachURL("_ht_apply?t="+t+"&zxInfoTitle="+zxInfoTitle);
+		$("#confirm-commit").on("click",function(){
+			var ifr = myWins.window("_input").getFrame();
+			ifr.contentWindow.document.getElementById("confirm-commit").click();
+		});
 	}
 	var myWins= new dhtmlXWindows();
 	var zxInfoTitleData = {$zxInfoTitle};

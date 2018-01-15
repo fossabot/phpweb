@@ -5,6 +5,7 @@ namespace app\zx_apply\controller;
 use think\Controller;
 use think\Request;
 use think\Db;
+use app\zx_apply\model\Infotables;
 
 class Index extends Common {
 	
@@ -20,9 +21,12 @@ class Index extends Common {
 	 * @return void|string
 	 */
 	public function tt() {
-		$data = Db::table ( "temp_tb1" )->select ();
-		// $str = json_encode($data);
-		return dump ( $data );
+		$info = new Infotables();
+		//$array = $info->all();
+		$array= Db::table("phpweb_sysinfo")->where("label","zx_apply-222-rb")->update(["label"=>"zx_apply-223-rb"]);
+		
+		
+		return dump ( $array );
 	}
 	
 	/**
@@ -39,18 +43,28 @@ class Index extends Common {
 		if (request ()->isPost ()) {
 			$postData = input ( "post.data" );
 			$zxInfoTitle = input ( "post.zxInfoTitle", null, null );
-			$zxInfoTitle = json_decode($zxInfoTitle,JSON_UNESCAPED_UNICODE);
+			$zxInfoTitle = json_decode ( $zxInfoTitle, JSON_UNESCAPED_UNICODE );
 			$dataHeader = $this->getHeader ( $zxInfoTitle ["label"], $zxInfoTitle ["order"], true );
-			//	获取数据库的列名
-			$dataHeader = explode(",", $dataHeader);
-			//return dump($postData);
-			//	根据列名和数据转成php数组
-			$data = $this->csv_to_array($dataHeader,$postData);
+			// 获取数据库的列名
+			$dataHeader = explode ( ",", $dataHeader );
+			// return dump($postData);
+			// 根据列名和数据转成php数组
+			$data = $this->csv_to_array ( $dataHeader, $postData );
 			// ip/vlan信息要单独存储。
-			
-			return dump($data);
-			Db::name("infotables")->insertAll($data);
-			return dump ( $data );
+			//return dump($data);
+			foreach ( $data as $k => $d ) {
+				if ($d ["vlan"]) {
+					$data ["$k"] ["vlan"] = null;
+				}
+				if ($d ["ip"]) {
+					$data ["$k"] ["ip"] = null;
+				}
+				$data [$k] = array_filter ( $data [$k] );
+			}
+			$data = array_filter ( $data );
+			$info = new Infotables ();
+			$result = count ( $info->saveAll ( $data ) );
+			return dump ( $result );
 		}
 		if (request ()->isGet ()) {
 			if (input ( '?get.zxInfoTitle' ) && input ( '?get.t' )) {

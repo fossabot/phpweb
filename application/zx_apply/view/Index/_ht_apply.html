@@ -5,6 +5,8 @@
 <title>_ht_</title>
 <script src="__STATIC__/jquery.min.js"></script>
 <link rel="STYLESHEET" type="text/css"
+	href="__STATIC__/bootstrap/css/bootstrap.min.css">
+<link rel="STYLESHEET" type="text/css"
 	href="__STATIC__/handsontable-pro/handsontable.full.min.css">
 <script src="__STATIC__/handsontable-pro/handsontable.full.min.js"></script>
 <style>
@@ -16,20 +18,24 @@
 	right: 0;
 	overflow: hidden;
 }
+#notice{
+	padding: 10px;
+}
 </style>
 </head>
 <body>
 	<div id="notice">
-		<p>
+		<p class="lead text-info">
 			请检查并调整信息的规范性，确认后即可
-			<button id="confirm-commit" class="btn btn-xs btn-primary">提交</button>
+			<button id="confirm-commit" class="btn btn-success">提 交</button>
 			。
 		</p>
-		<p></p>
+		<hr />
+		<p id="xhr_response" class="text-primary"></p>
 	</div>
 	<div id='inp_area'></div>
 	<div>
-		<p id="xhr_response"></p>
+		<p></p>
 	</div>
 </body>
 <script>
@@ -46,7 +52,7 @@
 	})(zxInfoTitle);
 	//var applyData = " , , , , , , , , , , , , , , , , , , ";
 	var colWidthsData = "115,114,90,50,73,92,270,231,473,50,135,121,121,195,105,114,195,73,176";
-	var zxTypeData = "互联网,IMS,点对点,平安校园,营业厅,卫生网,教育网,其他";
+	var zxTypeData = "互联网,营业厅,平安校园,点对点,卫生网,教育网,IMS,其他";
 	var aStationData = "柴河局,西丰新局,西丰老局,昌图新局,昌图老局,开原老局,开原新局,清河,调兵山新局,铁岭县,银州区";
 	var neFactoryData = "华为,中兴";
 	var colHeaderData = [];
@@ -122,6 +128,33 @@
 			}, {
 
 			} ],
+			contextMenu: {
+				callback: function (key, options) {
+					if (key === 'about') {
+						setTimeout(function () {
+							// timeout is used to make sure the menu collapsed before alert is shown
+							parent.dhtmlx.alert("本菜单由 Xianda 汉化。感谢Xianda");
+						}, 100);
+					}
+				},
+				items: {
+					"about": {name: "关于本菜单"},
+					"row_above": {name: "在上面插入一行"},
+					"row_below": {name: "在下面插入一行"},
+					"hsep1": "---------",
+					"col_left": {name: "在左侧插入一列"},
+					"col_right": {name: "在右侧插入一列"},
+					"hsep2": "---------",
+					"remove_row": {name: "移除此行"},
+					"remove_col": {name: "移除次列"},
+					"hsep3": "---------",
+					"undo": {name: "撤销"},
+					"redo": {name: "还原"},
+					"make_read_only": {name: "设为只读"},
+					"alignment": {name: "对齐"},
+					
+				},
+			}
 		});
 		hot.validateCells();
 	});
@@ -165,10 +198,19 @@
 			data : ht_data,
 			zxInfoTitle : JSON.stringify(zxInfoTitle),
 		};
+		pageScroll();
 		$.post("", _data, function(data) {
 			$("#xhr_response").html(data);
 		});
 	});
+	function pageScroll() { 
+		window.scrollBy(-5,-10); 
+		scrolldelay = setTimeout('pageScroll()',5); 
+		if(document.documentElement.scrollTop==0&&document.documentElement.scrollLeft==0) {
+			clearTimeout(scrolldelay);
+			window.scrollTo(0,0);
+		}
+	} 
 	////////
 	/*function a(){
 		console.log($(".wtHolder")[0].style.height);

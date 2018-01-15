@@ -121,7 +121,11 @@ class Common extends Controller {
 	 * @return array
 	 */
 	public static function csv_to_array($header = [], $csvstr = '') {
-		$data_ora = explode ( "\n", $csvstr ); // 原始数据（多条）
+		if(strpos($csvstr,"\r\n")!==false){
+			$data_ora = explode ( "\r\n", $csvstr ); // 原始数据（多条）
+		}else{
+			$data_ora = explode ( "\n", $csvstr );
+		}
 		$data_arr = [ ]; // 初始化数据数组
 		$result = [ ]; // 初始化结果数据
 		for($i = 0; $i < count ( $data_ora ); $i ++) { // 将多条原始数据分别分割为数组
