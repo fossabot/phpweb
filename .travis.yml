@@ -1,0 +1,15 @@
+sudo: false
+dist: trusty
+group: deprecated-2017Q4
+language: php
+php:
+ - '5.6'
+ - '7.1'
+ 
+install:
+ - composer install
+ - wget https://github.com/yuxianda/phpweb/releases/download/v0.2.2/static_0.2.2.zip
+ - unzip -o -d public/static static_0.2.2.zip
+
+script:
+ - php think optimize:config
