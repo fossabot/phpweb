@@ -21,11 +21,12 @@ class Index extends Common {
 	 * @return void|string
 	 */
 	public function tt() {
-		$info = new Infotables();
-		//$array = $info->all();
-		$array= Db::table("phpweb_sysinfo")->where("label","zx_apply-222-rb")->update(["label"=>"zx_apply-223-rb"]);
-		
-		
+		$info = new Infotables ();
+		$array = $info->save ( [ 
+				"aDate" => "2017-12-14",
+				"cName"=>"cccccccccccccc"
+		] );
+		// $array= Db::table("phpweb_sysinfo")->where("label","zx_apply-222-rb")->update(["label"=>"zx_apply-223-rb"]);
 		return dump ( $array );
 	}
 	
@@ -51,20 +52,19 @@ class Index extends Common {
 			// 根据列名和数据转成php数组
 			$data = $this->csv_to_array ( $dataHeader, $postData );
 			// ip/vlan信息要单独存储。
-			//return dump($data);
-			foreach ( $data as $k => $d ) {
-				if ($d ["vlan"]) {
-					$data ["$k"] ["vlan"] = null;
-				}
-				if ($d ["ip"]) {
-					$data ["$k"] ["ip"] = null;
-				}
-				$data [$k] = array_filter ( $data [$k] );
-			}
-			$data = array_filter ( $data );
+			// return dump($data);
 			$info = new Infotables ();
-			$result = count ( $info->saveAll ( $data ) );
-			return dump ( $result );
+			$tt = [ 
+					$data[0]
+			];
+			foreach ( $data as $k => $d ) {
+				// unset ( $data [$k] ["ip"] );
+				unset ( $data [$k] ["vlan"] );
+				$result = $info->save ( $data [$k] );
+			}
+			$tt ["int"] = $result;
+			// $result = $info->save($data[0]);
+			return dump ( $tt);
 		}
 		if (request ()->isGet ()) {
 			if (input ( '?get.zxInfoTitle' ) && input ( '?get.t' )) {

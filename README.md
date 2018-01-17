@@ -1,5 +1,7 @@
 ## Xianda小项目:bow:
 
+[![Build Status](https://travis-ci.org/yuxianda/phpweb.svg?branch=master)](https://travis-ci.org/yuxianda/phpweb)
+
 基于ThinkPHP 5.0.x开发
 
 目前模块有：

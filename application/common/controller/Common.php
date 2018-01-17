@@ -164,7 +164,7 @@ class Common extends Controller {
 		$table = input ( "param.table" );
 		$column = input ( "param.column" );
 		if ($table == '' || $column == '')
-			return "传值为空,需要table和column参数";
+			return "传值为空,需要_table和_column参数";
 		$result = Db::name ( $table )->distinct ( true )->field ( $column . " as value" )->select ();
 		for($i = 0; $i < count ( $result ); $i ++) {
 			$result [$i] ['text'] = $result [$i] ['value'];
