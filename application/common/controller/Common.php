@@ -106,11 +106,12 @@ class Common extends Controller {
 		$csvstr = substr ( $csvstr, 0, strlen ( $csvstr ) - 1 );
 		return $csvstr;
 	}
-	
-	
-	function zz (){
-		
-		return dump($this->csv_to_array(["a","b","c"],"1,2,3"));
+	function zz() {
+		return dump ( $this->csv_to_array ( [ 
+				"a",
+				"b",
+				"c" 
+		], "1,2,3" ) );
 	}
 	
 	/**
@@ -121,19 +122,11 @@ class Common extends Controller {
 	 * @return array
 	 */
 	public static function csv_to_array($header = [], $csvstr = '') {
-		if(strpos($csvstr,"\r\n")!==false){
-			$data_ora = explode ( "\r\n", $csvstr ); // 原始数据（多条）
-		}else{
-			$data_ora = explode ( "\n", $csvstr );
-		}
-		$data_arr = [ ]; // 初始化数据数组
+		trim ( $csvstr );
+		$data = explode ( "\n", $csvstr );
 		$result = [ ]; // 初始化结果数据
-		for($i = 0; $i < count ( $data_ora ); $i ++) { // 将多条原始数据分别分割为数组
-			$data_arr [] = explode ( ",", $data_ora [$i] );
-		}
-		foreach ( $data_arr as $val ) {
-			$result [] = array_combine ( $header, $val );
-			// $data_ColNames 作为键名, $val 作为键值,组成新的数组(我们要的对象), 放进 $result 。
+		for($i = 0; $i < count ( $data ); $i ++) { // 将多条原始数据分别分割为数组
+			$result [] = array_combine ( $header, explode ( ",", trim ( $data [$i] ) ) );
 		}
 		return $result;
 	}

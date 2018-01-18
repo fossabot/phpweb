@@ -21,13 +21,8 @@ class Index extends Common {
 	 * @return void|string
 	 */
 	public function tt() {
-		$info = new Infotables ();
-		$array = $info->save ( [ 
-				"aDate" => "2017-12-14",
-				"cName" => "cccccccccccccc" 
-		] );
-		// $array= Db::table("phpweb_sysinfo")->where("label","zx_apply-222-rb")->update(["label"=>"zx_apply-223-rb"]);
-		return dump ( $array );
+		$str = Infotables::get ( 9 )->toArray () ["aDate"];
+		return dump ( $str );
 	}
 	
 	/**
@@ -40,6 +35,13 @@ class Index extends Common {
 		return $this->fetch ();
 		return $this->redirect ( 'apply' );
 	}
+	
+	/**
+	 * get:加载数据到handsontable并验证，
+	 * post:上传，后台处理入库
+	 *
+	 * @return void|string|mixed|string
+	 */
 	public function _ht_apply() {
 		if (request ()->isPost ()) {
 			$postData = input ( "post.data" );
@@ -50,23 +52,17 @@ class Index extends Common {
 			$dataHeader = explode ( ",", $dataHeader );
 			// return dump($postData);
 			// 根据列名和数据转成php数组
+			// $postData = substr ( $postData, 3 ); // 莫名奇妙的前三个字节是垃圾数据。3天才研究出来，只能这样解决！！！
 			$data = $this->csv_to_array ( $dataHeader, $postData );
 			// ip/vlan信息要单独存储。
-			// return dump($data);
-			$info = new Infotables ();
-			$tt = [ 
-					$data [0] 
-			];
 			foreach ( $data as $k => $d ) {
 				// unset ( $data [$k] ["ip"] );
-				unset ( $data [$k] ["vlan"] );
-				////////////////////////////////////////////
-				///////////////////////////////////////////////
-				///////////////////////////////
-				//$temp=array_merge(["tags"=>"导入"],$data [$k]);
-				$result = $info->save ( $data [$k] );
+				// unset ( $data [$k] ["vlan"] );
+				$temp = array_merge ( [ 
+						"tags" => "导入" 
+				], $data [$k] );
+				$tt [] = Infotables::create ( $temp );
 			}
-			$tt ["int"] = $result;
 			// $result = $info->save($data[0]);
 			return dump ( $tt );
 		}

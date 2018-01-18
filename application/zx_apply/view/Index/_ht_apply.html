@@ -194,10 +194,15 @@
 	//	确认录入提交
 	$("#confirm-commit").on("click", function() {
 		var ht_data = hot.getPlugin("exportFile").exportAsString("csv");
+		// 导出的csv字符串会带有不可见的BOM，
+		// 在JavaScript中占一个单位，在php中占3个单位，
+		// 把它去掉，解决了每次传递csv格式数据第一行的第一列的数据总会有异常的bug
+		ht_data = ht_data.substr(1);
 		var _data = {
 			data : ht_data,
 			zxInfoTitle : JSON.stringify(zxInfoTitle),
 		};
+		// 页面滚动到左上角位置
 		pageScroll();
 		$.post("", _data, function(data) {
 			$("#xhr_response").html(data);
