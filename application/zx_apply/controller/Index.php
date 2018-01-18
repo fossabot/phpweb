@@ -24,7 +24,7 @@ class Index extends Common {
 		$info = new Infotables ();
 		$array = $info->save ( [ 
 				"aDate" => "2017-12-14",
-				"cName"=>"cccccccccccccc"
+				"cName" => "cccccccccccccc" 
 		] );
 		// $array= Db::table("phpweb_sysinfo")->where("label","zx_apply-222-rb")->update(["label"=>"zx_apply-223-rb"]);
 		return dump ( $array );
@@ -55,16 +55,20 @@ class Index extends Common {
 			// return dump($data);
 			$info = new Infotables ();
 			$tt = [ 
-					$data[0]
+					$data [0] 
 			];
 			foreach ( $data as $k => $d ) {
 				// unset ( $data [$k] ["ip"] );
 				unset ( $data [$k] ["vlan"] );
+				////////////////////////////////////////////
+				///////////////////////////////////////////////
+				///////////////////////////////
+				//$temp=array_merge(["tags"=>"导入"],$data [$k]);
 				$result = $info->save ( $data [$k] );
 			}
 			$tt ["int"] = $result;
 			// $result = $info->save($data[0]);
-			return dump ( $tt);
+			return dump ( $tt );
 		}
 		if (request ()->isGet ()) {
 			if (input ( '?get.zxInfoTitle' ) && input ( '?get.t' )) {
@@ -95,7 +99,7 @@ class Index extends Common {
 	 * @param boolean $v        	
 	 * @return string
 	 */
-	public function getHeader(String $label = "label", String $order = "order", $v = false) {
+	public function getHeader($label = "label", $order = "order", $v = false) {
 		if ($label === "label" || $order === "order") {
 			return "{msg:\"你要搞什么？\"}"; // 未输入参数label或order
 		}
