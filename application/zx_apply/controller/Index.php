@@ -37,34 +37,32 @@ class Index extends Common {
 	}
 	
 	/**
-	 * get:加载数据到handsontable并验证，
-	 * post:上传，后台处理入库
+	 * get:加载数据到handsontable并验证,
+	 * post:上传,后台处理入库
+	 * 1.默认post为新申请,移除ip、vlan信息再保存,
+	 * 严格验证，不合规不许提交，标记status：0
+	 * 2.带post参数type=import,视为旧信息导入,
+	 * 生成ip表（全）和vlan表信息（不全）。直接入库，并标记tags:导入
+	 * 3.
 	 *
 	 * @return void|string|mixed|string
 	 */
 	public function _ht_apply() {
 		if (request ()->isPost ()) {
 			$postData = input ( "post.data" );
+			$type = input ( "post.type" );
 			$zxInfoTitle = input ( "post.zxInfoTitle", null, null );
 			$zxInfoTitle = json_decode ( $zxInfoTitle, JSON_UNESCAPED_UNICODE );
 			$dataHeader = $this->getHeader ( $zxInfoTitle ["label"], $zxInfoTitle ["order"], true );
 			// 获取数据库的列名
 			$dataHeader = explode ( ",", $dataHeader );
-			// return dump($postData);
 			// 根据列名和数据转成php数组
 			// $postData = substr ( $postData, 3 ); // 莫名奇妙的前三个字节是垃圾数据。3天才研究出来，只能这样解决！！！
 			$data = $this->csv_to_array ( $dataHeader, $postData );
-			// ip/vlan信息要单独存储。
-			foreach ( $data as $k => $d ) {
-				// unset ( $data [$k] ["ip"] );
-				// unset ( $data [$k] ["vlan"] );
-				$temp = array_merge ( [ 
-						"tags" => "导入" 
-				], $data [$k] );
-				$tt [] = Infotables::create ( $temp );
-			}
+			// 若导入，ip/vlan信息要单独存储。
+			$result = Infotables::createInfo ( $data, $type );
 			// $result = $info->save($data[0]);
-			return dump ( $tt );
+			return dump ( $result);
 		}
 		if (request ()->isGet ()) {
 			if (input ( '?get.zxInfoTitle' ) && input ( '?get.t' )) {
@@ -72,6 +70,7 @@ class Index extends Common {
 			}
 		}
 	}
+	
 	/**
 	 * ip、vlan申请
 	 *
