@@ -7,7 +7,8 @@ use think\Model;
 class Infotables extends Model {
 	protected $autoWriteTimestamp = true;
 	protected $type = [ 
-			"aDate" => "date" 
+			"aDate" => "date",
+			"extal" => "array" 
 	];
 	public function setIpAttr($value) {
 		return ip2long ( $value );
@@ -41,6 +42,13 @@ class Infotables extends Model {
 		];
 		return array_key_exists ( $value, $statusArr ) ? $statusArr [$value] : "";
 	}
+	/**
+	 * 新增Info，type可选导入、申请
+	 * 
+	 * @param string $data        	
+	 * @param string $type        	
+	 * @return number[]|\think\false[]
+	 */
 	public static function createInfo($data = "", $type = "") {
 		$result = [ ];
 		foreach ( $data as $k => $d ) {
@@ -56,7 +64,7 @@ class Infotables extends Model {
 				unset ( $data [$k] ["ip"] );
 				unset ( $data [$k] ["vlan"] );
 			}
-			$result [] = $this->isUpdate ( false )->save ( $data [$k] );
+			$result [] = $this->isUpdate ( false )->allowField ( true )->save ( $data [$k] );
 		}
 		return $result;
 	}

@@ -21,8 +21,9 @@ class Index extends Common {
 	 * @return void|string
 	 */
 	public function tt() {
-		$str = Infotables::get ( 9 )->toArray () ["aDate"];
-		return dump ( $str );
+		$str = config ( "aStation" );
+		//$result = json_decode ( $str ,true );
+		return dump ( config("aStation") );
 	}
 	
 	/**
@@ -43,7 +44,8 @@ class Index extends Common {
 	 * 严格验证，不合规不许提交，标记status：0
 	 * 2.带post参数type=import,视为旧信息导入,
 	 * 生成ip表（全）和vlan表信息（不全）。直接入库，并标记tags:导入
-	 * 3.
+	 * 3.为了新增字段不修改数据库，将新增字段用json保存到一列。
+	 * 在csv转数组时，需要获取额外的字段
 	 *
 	 * @return void|string|mixed|string
 	 */
@@ -59,10 +61,19 @@ class Index extends Common {
 			// 根据列名和数据转成php数组
 			// $postData = substr ( $postData, 3 ); // 莫名奇妙的前三个字节是垃圾数据。3天才研究出来，只能这样解决！！！
 			$data = $this->csv_to_array ( $dataHeader, $postData );
+			// 获取额外的字段
+			$extraHeader = config("extraInfo");
+			foreach ($data as $k=>$v){
+				$temp=[];
+				foreach ($extraHeader as $eH){
+					$temp[$eh]=$data[$k][$eH];
+				}
+				$data[$k]["extra"]=json_encode($temp);
+			}
 			// 若导入，ip/vlan信息要单独存储。
 			$result = Infotables::createInfo ( $data, $type );
 			// $result = $info->save($data[0]);
-			return dump ( $result);
+			return dump ( $result );
 		}
 		if (request ()->isGet ()) {
 			if (input ( '?get.zxInfoTitle' ) && input ( '?get.t' )) {
