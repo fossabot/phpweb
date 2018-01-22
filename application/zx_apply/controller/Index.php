@@ -6,6 +6,7 @@ use think\Controller;
 use think\Request;
 use think\Db;
 use app\zx_apply\model\Infotables;
+use app\zx_apply\model\Vlantables;
 
 class Index extends Common {
 	
@@ -21,9 +22,9 @@ class Index extends Common {
 	 * @return void|string
 	 */
 	public function tt() {
-		$str = config ( "aStation" );
-		//$result = json_decode ( $str ,true );
-		return dump ( config("aStation") );
+		$str = " vlan batch 2 to 3 8 to 10 12 to 16 20 100 to 101 103 200 to 201 1023 1235 to 1357 1535 to 1538\r\n vlan batch 1798 2000 to 2073 2075 to 2298 2387 to 2390 2560 to 2576 2723 to 2738 3010 3015 to 3021 3030 3071\r\n vlan batch 3073 to 3076 3079 to 3080 3083 3087 3089 to 3094 3105 to 3106 3120 to 3123 3200 to 3208 3220 3244\r\n vlan batch 3500 to 3502 3514 to 3515 3528 to 3529 3562 to 3563 3576 to 3583 3798 3901 to 3946 3991 to 3992 4000 4004\r\n vlan batch 4080 to 4083 4088 4090 to 4094";
+		return dump(date("Y-m-d h:i:s",time()));
+		return Vlantables::importUsedVlan("",$str);
 	}
 	
 	/**
