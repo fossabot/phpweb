@@ -25,11 +25,23 @@ class Vlantables extends Model {
 	}
 	/**
 	 * 自动预分配vlan
-	 *
-	 * @param string $aStation        	
-	 * @param string $cName        	
+	 * @param string $aStation
+	 * @param string $cName
+	 * @return number|string
 	 */
 	public static function generateVlan($aStation = "", $cName = "") {
+		$vlans = Db::name ( "vlantables" )->where ( "deviceName", $aStation )->column ( "vlan" );
+		for($vlan = 2049; $vlan < 3000; $vlan ++) {
+			if (! in_array ( $vlan, $vlans )) {
+				$result = Db::name ( "vlantables" )->insert ( [ 
+						"deviceName" => $aStation,
+						"vlan" => $vlan,
+						"description" => $cName 
+				] );
+				break;
+			}
+		}
+		return $result;
 	}
 	/**
 	 * 导入更新已使用vlan
@@ -62,10 +74,17 @@ class Vlantables extends Model {
 		sort ( $array, SORT_NUMERIC );
 		foreach ( $array as $v ) {
 			// 已有，则放弃
-			$vlanInfo = Db::name("vlantables")->where(["deviceName"=>$aStation,"vlan"=>$v])->select();
-			if(!$vlanInfo){
+			$vlanInfo = Db::name ( "vlantables" )->where ( [ 
+					"deviceName" => $aStation,
+					"vlan" => $v 
+			] )->select ();
+			if (! $vlanInfo) {
 				// 无信息，则insert
-				$vlanInfo = Db::name("vlantables")->insert(["deviceName"=>$aStation,"vlan"=>$v,"description"=>"手动导入-".date("Y-m-d h:i:s",time())]);
+				$vlanInfo = Db::name ( "vlantables" )->insert ( [ 
+						"deviceName" => $aStation,
+						"vlan" => $v,
+						"description" => "手动导入-" . date ( "Y-m-d h:i:s", time () ) 
+				] );
 			}
 		}
 		return dump ( $array );
