@@ -55,8 +55,8 @@ class Vlantables extends Model {
 		$array = explode ( " ", $str );
 		$result = [ ];
 		for($i = 0; $i < count ( $array );) {
-			// 移除空值
-			if ((! $array [$i]) || $array [$i] < 2000 || $array [$i] > 3000) {
+			// 移除空值和范围之外的vlan
+			if ((! $array [$i]) || $array [$i] < 2000 || $array [$i] > 3300) {
 				array_splice ( $array, $i, 1 );
 			} else {
 				// 替换 "to"

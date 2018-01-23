@@ -14,6 +14,7 @@ class Common extends CCommon {
 			$this->checkAuth ();
 		}
 		parent::_initialize ();
+		$this->assign("title","专线开通全流程辅助--Xianda");
 	}
 	private function checkAuth() {
 		$u = input ( 'get.u' );

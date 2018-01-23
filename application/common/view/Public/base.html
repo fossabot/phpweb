@@ -2,8 +2,7 @@
 <html>
 <head>
 {include file="common@c/common" /}
-<title></title>
-{block name="head"} {/block}
+<title></title> {block name="head"} {/block}
 <style>
 .page {
 	position: absolute;
@@ -38,6 +37,15 @@
 	bottom: 0;
 	height: 30px;
 	line-height: 30px;
+}
+
+.header .title {
+	position: relative;
+	left: 250px;
+	bottom: 0;
+	line-height: 50px;
+	font-size: 30px;
+	font-family: Microsoft YaHei, sans-serif;
 }
 
 .header .tools {
@@ -100,6 +108,7 @@
 
 .main .content {
 	/*overflow: hidden;*/
+	
 }
 
 .footer {
@@ -122,6 +131,7 @@
 			<div class="nav">
 				<a href="/">返回首页</a>
 			</div>
+			<div class="title">{$title|default=""}</div>
 			<div class="tools">
 				<ul>
 					<li>您好。<a href="">{$Think.session.user.name}</a></li>

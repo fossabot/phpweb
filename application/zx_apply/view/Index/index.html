@@ -1,8 +1,52 @@
 {extend name="common@Public/base" /}{block name="leftmenu"} {include
-file="c/leftmenu_zx_apply_index" /} {/block}
+file="c/leftmenu_zx_apply_index" /} {/block} 
+{block name="head"}
+<style>
+#form_container {
+	margin: 20px 100px;
+	padding: 20px;
+	/*border: 1px solid red;*/
+}
+</style>
+{/block}
 {block name="main"}
 <div class="htmltitle">
-<h2>内测...</h2>
+	<h2>公测版..</h2>
 </div>
-<div>没有入口</div>
+<div id="form_container"></div>
+{/block}
+{block name="script"}
+<script>
+var formStructure = [
+	{type:"settings",labelWidth:80,inputWidth:170},
+	{type:"block",inputWidth:"auto",blockOffset:"0",list:[			
+		{type: "label", label: "申请IP前请先登记身份",labelWidth:200,list:[
+			{type:"block",inputWidth:"auto",blockOffset:"0",list:[
+				{type:"input",name:"aPersion",label:"申请人姓名",required:true},
+				{type:"input",name:"aEmail",label:"申请人邮箱",required:true},
+			]}
+		]},
+		{type:"label",label:"确认以上信息",labelWidth:200,list:[
+			{type:"block",inputWidth:"auto",blockOffset:"0",list:[
+				{type:"input",name:"vcode",label:"验证码"},
+			]},
+			{type:"block",inputWidth:"auto",blockOffset:"0",list:[
+				{type:"button",name:"getVcode",value:"获取验证码"},
+				{type:"newcolumn"},
+				{type:"button",name:"verification",value:"验证并继续",disabled:true},
+			]},
+		]},
+	]}
+];
+var myForm = new dhtmlXForm("form_container",formStructure);
+myForm.attachEvent("onButtonClick", function(id) {
+	if(id == "getVcode"){
+		if(!myForm.validate()){
+			dhtmlx.message({text:"请把个人信息填写完整后重试！",type:"error"});
+			return false;
+		}
+		var data = myForm.getFormData();
+	}
+});
+</script>
 {/block}
