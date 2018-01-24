@@ -179,7 +179,6 @@ class Common extends Controller {
 		} else {
 			$e = strtolower ( $e );
 		}
-		
 		// 限制系统每小时最多发送6封邮件。
 		$data = Db::table ( "phpweb_check" )->whereTime ( 'time', '-2 hours' )->select ();
 		if (count ( $data ) > 12) {
