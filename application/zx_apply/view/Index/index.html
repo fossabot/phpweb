@@ -18,12 +18,13 @@ file="c/leftmenu_zx_apply_index" /} {/block}
 {block name="script"}
 <script>
 var formStructure = [
-	{type:"settings",labelWidth:80,inputWidth:170},
+	{type:"settings",labelWidth:80,inputWidth:200},
 	{type:"block",inputWidth:"auto",blockOffset:"0",list:[			
 		{type: "label", label: "申请IP前请先登记身份",labelWidth:200,list:[
 			{type:"block",inputWidth:"auto",blockOffset:"0",list:[
 				{type:"input",name:"aPersion",label:"申请人姓名",required:true},
 				{type:"input",name:"aEmail",label:"申请人邮箱",required:true},
+				{type:"input",name:"fe_code",label:"验证码",required:true},
 			]}
 		]},
 		{type:"label",label:"确认以上信息",labelWidth:200,list:[

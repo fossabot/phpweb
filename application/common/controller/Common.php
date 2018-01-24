@@ -168,6 +168,61 @@ class Common extends Controller {
 		return $result;
 	}
 	/**
+	 * 获取邮件验证码
+	 *
+	 * @param string $e        	
+	 * @param number $ttl        	
+	 */
+	public function getVcode($e = '', $ttl = '120') {
+		if (preg_match ( '/[^A-Za-z._]+/', $e )) {
+			return $this->error ( '非法邮箱地址哦' );
+		} else {
+			$e = strtolower ( $e );
+		}
+		
+		// 限制系统每小时最多发送6封邮件。
+		$data = Db::table ( "phpweb_check" )->whereTime ( 'time', '-2 hours' )->select ();
+		if (count ( $data ) > 12) {
+			return $this->success ( "单位时间发送邮件数超限。请根据页面下方与管理员联系。" );
+		}
+		// 检查$ttl分钟内是否已申请
+		// $data = Db::table ( "phpweb_check" )->whereTime ( 'time', '-31 min' )->where ( "loginName", $e )->order ( "time desc" )->find ();
+		$vcode = rand ( 0, 9999 );
+		$codes = [ ];
+		foreach ( $data as $v ) {
+			if ($v ['loginName'] == $e) {
+				if (time () - strtotime ( $v ['time'] ) < $ttl * 60) {
+					return $this->success ( "距离上一次申请间隔小于" . $ttl . "分钟，请勿重复操作。" );
+				}
+			}
+			$codes [] = $v ['code'];
+		}
+		// 检查是否与生效中的其他用户的相同
+		while ( in_array ( $vcode, $codes ) ) {
+			$vcode = rand ( 0, 9999 );
+		}
+		// 存入数据库
+		$insertData = [ 
+				'code' => $vcode,
+				'loginName' => $e 
+		];
+		Db::table ( "phpweb_check" )->insert ( $insertData );
+		
+		$address = $e;
+		$subject = '【ESWeb】您的登录验证码为：' . sprintf ( "%04s", $vcode ) . '，请在30分钟内使用。';
+		$body = '<p>您申请了邮箱登录的验证码，若非本人操作，请忽略本邮件</p><hr><br>
+				<p style="text-align:right;">Powered by <a href="https://github.com/yuxianda/")">Xianda</a></p>';
+		// $sendEmail = $this->sendEmail ( $address, $subject, $body );
+		$sendEmail = true; // 测试用例
+		if (is_bool ( $sendEmail )) {
+			$msg = "验证码已通过邮件发送，请到邮箱内查收主题包含<b>【ESWeb】</b>的邮件。";
+			return $this->success ( $msg, null, 2 * $vcode );
+		} else {
+			Db::table ( "phpweb_check" )->where ( 'code', $vcode )->delete ();
+			return $this->error ( '邮件发送未成功：' . $sendEmail );
+		}
+	}
+	/**
 	 * 获取参数
 	 *
 	 * @param string $table        	

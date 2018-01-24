@@ -26,7 +26,12 @@ class Index extends Common {
 		$ip = "95.100.109.1";
 		$long = ip2long ( $ip );
 		//$ip = long2ip($long);
-		return dump (910011013210);
+		$data = Db::table ( "phpweb_check" )->whereTime ( 'time', '-2 hours' )->select ();
+		$codes = [ ];
+		foreach ( $data as $k=> $v ) {
+			$codes [] = $v;
+		}
+		return dump ($data);
 	}
 	
 	/**
