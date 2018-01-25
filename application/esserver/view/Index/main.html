@@ -94,7 +94,7 @@ file="common@c/ie8warning" /}
 			if(v){
 				var arg = myForm.getItemValue("aInfo");
 				$.post("resetpwd.html", {"excel_data_for_resetpwd" : arg}, function(data) {
-					dhtmlx.alert({text:data['msg']});
+					dhtmlx.alert({text:data['msg'],width:"600px",});
 				});
 			}
 		}});
@@ -103,6 +103,8 @@ file="common@c/ie8warning" /}
 		myForm.removeItem("nc");
 		myForm.removeItem("res");
 	}
+	
+	// 一键反馈
 	function reportLog(){
 		var formData = myForm.getFormData();
 		var reportData = {};
@@ -114,7 +116,7 @@ file="common@c/ie8warning" /}
 		reportData['str'] += '反馈时间: "' + (new Date()).toLocaleString() + '"';
 		$("#dhtmlxMsg p").html("<br><br><br><br><h2>处理中，请稍等...</h2>");
 		$.post("reportLog.html", reportData, function(data) {
-			dhtmlx.alert({title:data['title'],text:data['msg'],callback:function(){
+			dhtmlx.alert({title:data['title'],text:data['msg'],width:"400px",callback:function(){
 				$("#dhtmlxMsg").hide();
 			}});
 		});

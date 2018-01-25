@@ -50,13 +50,18 @@ file="c/leftmenu_esserver_main" /} {/block}{block name="main"}
 						p: myForm.getItemValue("UserPwd"),
 				};
 				$.post("",sendData,function(data){
-					dhtmlx.alert({title: data['data'],text:data['msg'],callback:function(){
-						if(data["code"]==1){
-							location.href = data["url"];
-						}else{
-							$("input[name='password']").select();
+					dhtmlx.alert({
+						title: data['data'],
+						text:data['msg'],
+						width:"600px",
+						callback:function(){
+							if(data["code"]==1){
+								location.href = data["url"];
+							}else{
+								$("input[name='password']").select();
+							}
 						}
-					}});
+					});
 					
 				});
 			}

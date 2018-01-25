@@ -6,6 +6,7 @@ use think\Controller;
 use think\Request;
 use think\Config;
 use think\Db;
+use think\Env;
 
 class Common extends Controller {
 	
@@ -35,7 +36,7 @@ class Common extends Controller {
 			// $this->assign ( "version", "登陆超时" );
 			return $this->error ( '您未登录或登录超时，请先登录！', 'index/index' );
 		} else {
-			$this->assign ( "version", config ( "version" ) );
+			$this->assign ( "version", ("version") );
 		}
 	}
 	public function index() {
@@ -239,6 +240,39 @@ class Common extends Controller {
 			// return dump($data);
 			return Db::name ( 'bugreport' )->insert ( $data );
 			// return $this->success("");
+		}
+	}
+	protected function sendEmail($address = '', $subject = '', $body = '', $url = []) {
+		$mail = new \PHPMailer ();
+		$mail->isSMTP (); // Set mailer to use SMTP
+		$mail->CharSet = "utf-8";
+		$mail->SetLanguage ( 'zh_cn' );
+		// $mail->SMTPDebug = 1;
+		$account = config( "email" );
+		//return $account;
+		$mail->Host = $account ['SMTP']; // Specify main and backup SMTP servers
+		$mail->SMTPAuth = true; // Enable SMTP authentication
+		$mail->Username = $account ['Username']; // SMTP username
+		$mail->Password = $account ['Password']; // SMTP password
+		                                        // $mail->SMTPSecure = 'tls'; // Enable TLS encryption, `ssl` also accepted
+		$mail->Port = 25; // TCP port to connect to
+		$mail->setFrom ( $account ['Username'], 'Xianda' );
+		$mail->addAddress ( $address ); // Name is optional
+		                                // $mail->addReplyTo ( 'info@example.com', 'Information' );
+		                                // $mail->addCC ( 'cc@example.com' );
+		                                // $mail->addBCC ( 'bcc@example.com' );
+		                                // $mail->addAttachment ( '/var/tmp/file.tar.gz' ); // Add attachments
+		                                // $mail->addAttachment ( '/aa.jpg', '附件new.jpg' ); // Optional name
+		                                // 绝对路径从磁盘根目录算起，相对路径从public/idnex.php算起。
+		$mail->isHTML ( true ); // Set email format to HTML
+		$mail->Subject = $subject;
+		$mail->Body = $body;
+		$mail->AltBody = '您的邮件客户端不支持查看HTML格式的邮件正文。请复制下面的地址到浏览器访问操作：' . implode ( "，", $url );
+		
+		if (! $mail->send ()) {
+			return $mail->ErrorInfo;
+		} else {
+			return true;
 		}
 	}
 	public function _empty() {

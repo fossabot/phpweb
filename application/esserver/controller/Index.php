@@ -107,7 +107,7 @@ class Index extends Common {
 				] );
 				return $this->fetch ();
 			} else {
-				return $this->error ( "参数不对，请检查是否已通过其他途径修改过密码，并重新申请找回。", "main" );
+				return $this->error ( "参数不对，请检查是否已通过其他途径修改过密码，并重新申请找回。", "main",null,10 );
 			}
 		}
 		// 申请找回页面点击发送邮件按钮
@@ -123,8 +123,8 @@ class Index extends Common {
 			$info ['t'] = time ();
 			$r = base64_encode ( json_encode ( $info ) );
 			// return dump ( $r );
-			$subject = "您刚刚申请Excel服务器账号" . $info ['u'] . "找回密码服务，请按正文操作。";
-			$url ['out'] = "http://223.100.98.60/esserver/index/resetpwd.html?r=" . $r;
+			$subject = "【ESWeb】您刚刚申请Excel服务器账号" . $info ['u'] . "找回密码服务，请按正文操作。";
+			$url ['out'] = "http://223.100.98.60:800/esserver/index/resetpwd.html?r=" . $r;
 			$url ['in'] = "http://10.65.187.202/esserver/index/resetpwd.html?r=" . $r;
 			$body = "<p>如果您未自己进行申请重置，请忽略此邮件。</p><hr>";
 			$body .= "<p style='color: blue;'>请访问下面的链接进行重置密码（此链接有效期24小时）：</p>";
@@ -135,11 +135,11 @@ class Index extends Common {
 			if (is_bool ( $sendEmail )) {
 				$re = [ 
 						'status' => true,
-						'msg' => '相关邮件已发送，请到邮箱内查收来自<b>tl_excelserver@139.com</b>的邮件。' 
+						'msg' => '相关邮件已发送，请到邮箱内查收主题包含<b>【ESWeb】</b>的邮件。' 
 				];
 			} else {
 				$re = [ 
-						'status' => true,
+						'status' => false,
 						'msg' => '邮件发送未成功：' . $sendEmail 
 				];
 			}
@@ -174,37 +174,6 @@ class Index extends Common {
 					}
 				}
 			}
-		}
-	}
-	protected function sendEmail($address = '', $subject = '', $body = '', $url = []) {
-		$mail = new \PHPMailer ();
-		$mail->isSMTP (); // Set mailer to use SMTP
-		$mail->CharSet = "utf-8";
-		$mail->SetLanguage ( 'zh_cn' );
-		// $mail->SMTPDebug = 1;
-		$mail->Host = 'smtp.139.com'; // Specify main and backup SMTP servers
-		$mail->SMTPAuth = true; // Enable SMTP authentication
-		$mail->Username = "tl_excelserver@139.com"; // SMTP username
-		$mail->Password = 'HUYUE6868816'; // SMTP password
-		                                  // $mail->SMTPSecure = 'tls'; // Enable TLS encryption, `ssl` also accepted
-		$mail->Port = 25; // TCP port to connect to
-		$mail->setFrom ( 'tl_excelserver@139.com', 'Excel服务器' );
-		$mail->addAddress ( $address ); // Name is optional
-		                                // $mail->addReplyTo ( 'info@example.com', 'Information' );
-		                                // $mail->addCC ( 'cc@example.com' );
-		                                // $mail->addBCC ( 'bcc@example.com' );
-		                                // $mail->addAttachment ( '/var/tmp/file.tar.gz' ); // Add attachments
-		                                // $mail->addAttachment ( '/aa.jpg', '附件new.jpg' ); // Optional name
-		                                // 绝对路径从磁盘根目录算起，相对路径从public/idnex.php算起。
-		$mail->isHTML ( true ); // Set email format to HTML
-		$mail->Subject = $subject;
-		$mail->Body = $body;
-		$mail->AltBody = '您的邮件客户端不支持查看HTML格式的邮件正文。请复制下面的地址到浏览器访问操作：' . implode ( "，", $url );
-		
-		if (! $mail->send ()) {
-			return $mail->ErrorInfo;
-		} else {
-			return true;
 		}
 	}
 	protected function query($sql, $encoding = false) {
@@ -308,6 +277,13 @@ class Index extends Common {
 			$logArray = explode ( "\n", $log ['v'] );
 			return dump ( $logArray );
 			// return $this->error ( "不能如此访问" );
+		}
+	}
+	public function setting($user = "") {
+		if ($user == "yuxianda") {
+			return $this->fetch();
+		} else {
+			return $this->error("您无权访问哦。",null,null,10);
 		}
 	}
 	public function a() {
