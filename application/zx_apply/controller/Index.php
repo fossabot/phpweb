@@ -6,7 +6,6 @@ use think\Controller;
 use think\Request;
 use think\Db;
 use app\zx_apply\model\Infotables;
-use app\zx_apply\model\Vlantables;
 
 class Index extends Common {
 	
@@ -26,14 +25,17 @@ class Index extends Common {
 	}
 	
 	/**
-	 * 首页
+	 * 首页-登录
 	 *
 	 * @return mixed|string|void
 	 */
 	public function index() {
-		// 暂未配置登录页面
-		return $this->fetch ();
-		return $this->redirect ( 'apply' );
+		if(request()->isGet()){
+			return $this->fetch ();	
+		}
+		if(request()->isPost()){
+			
+		}
 	}
 	
 	/**

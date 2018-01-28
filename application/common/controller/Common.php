@@ -6,7 +6,7 @@ use think\Controller;
 use think\Request;
 use think\Config;
 use think\Db;
-use think\Env;
+use think\Session;
 
 class Common extends Controller {
 	
@@ -36,11 +36,18 @@ class Common extends Controller {
 			// $this->assign ( "version", "登陆超时" );
 			return $this->error ( '您未登录或登录超时，请先登录！', 'index/index' );
 		} else {
-			$this->assign ( "version", ("version") );
+			$this->assign ( "version", config("version") );
 		}
 	}
 	public function index() {
 		return "当前执行的是：common/index";
+	}
+	/**
+	 * 退出登录
+	 */
+	public function loginout() {
+		Session::delete ( "user" );
+		return $this->success ( "已注销登录", "index", "", 1 );
 	}
 	/**
 	 * php 数组 转成 Grid 组件需要的 json 格式
@@ -175,7 +182,7 @@ class Common extends Controller {
 	 * @param number $ttl        	
 	 */
 	public function getVcode($e = '', $ttl = '120') {
-		if (preg_match ( '/[^A-Za-z._]+/', $e )) {
+		if (preg_match ( '/[^A-Za-z.@_]+/', $e )) {
 			return $this->error ( '非法邮箱地址哦' );
 		} else {
 			$e = strtolower ( $e );
@@ -190,7 +197,7 @@ class Common extends Controller {
 		$vcode = rand ( 0, 9999 );
 		$codes = [ ];
 		foreach ( $data as $v ) {
-			if ($v ['loginName'] == $e) {
+			if ($v ['email'] == $e) {
 				if (time () - strtotime ( $v ['time'] ) < $ttl * 60) {
 					return $this->success ( "距离上一次申请间隔小于" . $ttl . "分钟，请勿重复操作。" );
 				}
@@ -201,24 +208,24 @@ class Common extends Controller {
 		while ( in_array ( $vcode, $codes ) ) {
 			$vcode = rand ( 0, 9999 );
 		}
-		// 存入数据库
-		$insertData = [ 
-				'code' => $vcode,
-				'loginName' => $e 
-		];
-		Db::table ( "phpweb_check" )->insert ( $insertData );
-		
 		$address = $e;
-		$subject = '【ESWeb】您的登录验证码为：' . sprintf ( "%04s", $vcode ) . '，请在30分钟内使用。';
-		$body = '<p>您申请了邮箱登录的验证码，若非本人操作，请忽略本邮件</p><hr><br>
+		$subject = '【ESWeb】您的登录验证码为：' . sprintf ( "%04s", $vcode ) . '，在30分钟内可使用。';
+		$body = '<p>您申请了邮箱登录的验证码，若非本人操作，请忽略本邮件。[显达]</p><hr><br>
 				<p style="text-align:right;">Powered by <a href="https://github.com/yuxianda/")">Xianda</a></p>';
-		// $sendEmail = $this->sendEmail ( $address, $subject, $body );
-		$sendEmail = true; // 测试用例
+		$sendEmail = $this->sendEmail ( $address, $subject, $body );
+		//$sendEmail = true; // 测试用例
 		if (is_bool ( $sendEmail )) {
 			$msg = "验证码已通过邮件发送，请到邮箱内查收主题包含<b>【ESWeb】</b>的邮件。";
+			// 存入数据库
+			$insertData = [
+					'code' => $vcode,
+					'email' => $e,
+					'name'=>input("param.aPersion")
+			];
+			Db::table ( "phpweb_check" )->insert ( $insertData );
 			return $this->success ( $msg, null, 2 * $vcode );
 		} else {
-			Db::table ( "phpweb_check" )->where ( 'code', $vcode )->delete ();
+			//Db::table ( "phpweb_check" )->where ( 'code', $vcode )->delete ();
 			return $this->error ( '邮件发送未成功：' . $sendEmail );
 		}
 	}

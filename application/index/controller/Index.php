@@ -17,14 +17,6 @@ class Index extends Controller {
 			return $this->fetch ();
 		}
 	}
-	public function loginout() {
-		Session::delete ( "user" );
-		$f = input ( "param.fromUrl" );
-		if (strlen ( $f ) > 10) {
-			return $this->error ( "你在非法注入？！", "/" );
-		}
-		return $this->success ( "已注销登录", "/" . $f . "/index", "", 1 );
-	}
 	public function testMail() {
 		$mail = new \PHPMailer ();
 		$mail->isSMTP (); // Set mailer to use SMTP

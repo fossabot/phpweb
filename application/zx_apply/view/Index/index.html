@@ -1,35 +1,52 @@
 {extend name="common@Public/base" /}{block name="leftmenu"} {include
-file="c/leftmenu_zx_apply_index" /} {/block} 
-{block name="head"}
+file="c/leftmenu_zx_apply_index" /} {/block} {block name="head"}
 <style>
 #form_container {
 	margin: 20px 100px;
 	padding: 20px;
 	/*border: 1px solid red;*/
 }
+.tips p{
+	padding: 15px;
+}
 </style>
-{/block}
-{block name="main"}
+{/block} {block name="main"}
 <div class="htmltitle">
 	<h2>专线开通-IP申请-登陆</h2>
 </div>
 <div id="form_container"></div>
-{/block}
-{block name="script"}
+<div class="clearfix"></div>
+<div class="tips">
+	<p class="bg-info">请使用自己的邮箱获取验证码，基于Email方便查找已申请的数据。</p>
+</div>
+{/block} {block name="script"}
 <script>
+$(function(){
+	//generateCombo(combo,getCookies("phpweb_aEmail"));
+	myForm.setItemValue("aPersion",getCookies("phpweb_aPersion"));
+	loadEmailFromCookie();
+});
+function loadEmailFromCookie(){
+	var e = getCookies("phpweb_aEmail");
+	var i = e.indexOf("@");
+	var str = e.substr(0,i);
+	combo.setComboText(e);
+	generateCombo(combo,str);
+	
+}
 var formStructure = [
-	{type:"settings",labelWidth:80,inputWidth:200},
+	{type:"settings",labelWidth:80,inputWidth:250},
 	{type:"block",inputWidth:"auto",blockOffset:"0",list:[			
 		{type: "label", label: "申请IP前请先登记身份",labelWidth:200,list:[
 			{type:"block",inputWidth:"auto",blockOffset:"0",list:[
 				{type:"input",name:"aPersion",label:"申请人姓名",required:true},
-				{type:"combo",name:"aEmail",label:"申请人邮箱",required:true},
+				{type:"combo",name:"aEmail",label:"申请人邮箱",validate:"ValidEmail",required:true},
 				//{type:"input",name:"fe_code",label:"验证码",required:true},
 			]}
 		]},
 		{type:"label",label:"确认以上信息",labelWidth:200,list:[
 			{type:"block",inputWidth:"auto",blockOffset:"0",list:[
-				{type:"input",name:"vcode",label:"验证码"},
+				{type:"input",name:"vcode",label:"验证码",validate:"ValidInteger"},
 			]},
 			{type:"block",inputWidth:"auto",blockOffset:"0",list:[
 				{type:"button",name:"getVcode",value:"获取验证码"},
@@ -40,14 +57,80 @@ var formStructure = [
 	]}
 ];
 var myForm = new dhtmlXForm("form_container",formStructure);
+var combo = myForm.getCombo("aEmail");
+combo.attachEvent("onKeyPressed",function(name){
+	combo.clearAll();
+	setTimeout(function(){
+		var value = combo.getComboText();
+		generateCombo(combo,value);
+		combo.openSelect();
+	},50);
+});
+function generateCombo (_combo,_value){
+	var emailSuffix = ["@ln.chinamobile.com","@139.com","@qq.com","@"];
+	for (var i in emailSuffix){
+		_combo.addOption(_value + emailSuffix[i], _value + emailSuffix[i]);
+	}
+}
 myForm.attachEvent("onButtonClick", function(id) {
 	if(id == "getVcode"){
 		if(!myForm.validate()){
 			dhtmlx.message({text:"请把个人信息填写完整后重试！",type:"error"});
 			return false;
 		}
-		var data = myForm.getFormData();
+		var formData = myForm.getFormData();
+		console.log(formData);
+		$.get("getVcode/"+formData.aEmail+"/",formData,function(data){
+			console.log(data);
+			if(data.code==1){
+				dhtmlx.alert({type:"alert",title:" ",text:data.msg,width:"400px"});
+				setTimeout('$(".dhtmlx_popup_button div")[0].click()',2000);
+			}else{
+				dhtmlx.alert({type:"alert-error",title:"发件箱设置异常",text:data.msg,width:"600px"});
+			}
+		});
+		setCookies("phpweb_aPersion", formData.aPersion, 15);
+		setCookies("phpweb_aEmail", formData.aEmail, 15);
+	}
+	if(id == "verification"){
+		if(!myForm.validate()){
+			dhtmlx.message({text:"验证码不合法！",type:"error"});
+			return false;
+		}else{
+			$.get("",{vcode:myForm.getItemValue("code")},function(data){
+				//////////////////////////////////////////////////
+			});
+		}
 	}
 });
+myForm.attachEvent("onInputChange",function(name,value,form){
+	if(name=="vcode"){
+		if(value.length==4){
+			myForm.enableItem("verification");
+		}else{
+			myForm.disableItem("verification");
+		}
+	}
+});
+function setCookies(c_name, value, expiresdays) {
+	var exdate = new Date();
+	exdate.setDate(exdate.getDate() + expiresdays);
+	document.cookie = c_name + "=" + escape(value) + ";expires="
+			+ exdate.toGMTString();
+}
+function getCookies(c_name) {
+	if (document.cookie.length > 0) {
+		c_start = document.cookie.indexOf(c_name + "=");
+		if (c_start != -1) {
+			c_start = c_start + c_name.length + 1;
+			c_end = document.cookie.indexOf(";", c_start);
+			if (c_end == -1)
+				c_end = document.cookie.length;
+			return unescape(document.cookie.substring(c_start, c_end));
+		}
+	}
+	return "";
+}
 </script>
+
 {/block}
