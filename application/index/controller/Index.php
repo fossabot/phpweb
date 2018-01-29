@@ -30,7 +30,7 @@ class Index extends Controller {
 		                                  // $mail->SMTPSecure = 'tls'; // Enable TLS encryption, `ssl` also accepted
 		$mail->Port = 25; // TCP port to connect to
 		$mail->setFrom ( 'tl_excelserver@139.com', 'Excel服务器' );
-		$mail->addAddress ( '13700101911@139.com' ); // Name is optional
+		$mail->addAddress ( '1748104738@139.com' ); // Name is optional
 		                                             // $mail->addReplyTo ( 'info@example.com', 'Information' );
 		                                             // $mail->addCC ( 'cc@example.com' );
 		                                             // $mail->addBCC ( 'bcc@example.com' );

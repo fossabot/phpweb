@@ -30,13 +30,11 @@ class Common extends Controller {
 				"main",
 				"getVcode" 
 		];
-		// 判断是否从localhost 访问，若 url 不允许 未登录访问，则跳转
-		if ((! substr ( $request->domain (), - 9 ) == "localhost") && (! in_array ( $request->module (), $permitModule )) && (! in_array ( $request->controller (), $permitController )) && (! in_array ( $request->action (), $permitActions )) && (! input ( 'session.user/a' ))) {
-			// $this->assign ( "version", $request->controller () );
-			// $this->assign ( "version", "登陆超时" );
-			return $this->error ( '您未登录或登录超时，请先登录！', 'index/index' );
+		// 判断是否从localhost 访问， url 是否允许 未登录访问。否则跳转
+		if (substr ( $request->domain (), - 9 ) == "localhost" || in_array ( $request->module (), $permitModule ) || in_array ( $request->controller (), $permitController ) || in_array ( $request->action (), $permitActions ) || input ( 'session.user/a' )) {
+			$this->assign ( "version", config ( "version" ) );
 		} else {
-			$this->assign ( "version", config("version") );
+			return $this->error ( '您未登录或登录超时，请先登录！', 'index/index' );
 		}
 	}
 	public function index() {
@@ -213,19 +211,19 @@ class Common extends Controller {
 		$body = '<p>您申请了邮箱登录的验证码，若非本人操作，请忽略本邮件。[显达]</p><hr><br>
 				<p style="text-align:right;">Powered by <a href="https://github.com/yuxianda/")">Xianda</a></p>';
 		$sendEmail = $this->sendEmail ( $address, $subject, $body );
-		//$sendEmail = true; // 测试用例
+		// $sendEmail = true; // 测试用例
 		if (is_bool ( $sendEmail )) {
 			$msg = "验证码已通过邮件发送，请到邮箱内查收主题包含<b>【ESWeb】</b>的邮件。";
 			// 存入数据库
-			$insertData = [
+			$insertData = [ 
 					'code' => $vcode,
 					'email' => $e,
-					'name'=>input("param.aPersion")
+					'name' => input ( "param.aPersion" ) 
 			];
 			Db::table ( "phpweb_check" )->insert ( $insertData );
 			return $this->success ( $msg, null, 2 * $vcode );
 		} else {
-			//Db::table ( "phpweb_check" )->where ( 'code', $vcode )->delete ();
+			// Db::table ( "phpweb_check" )->where ( 'code', $vcode )->delete ();
 			return $this->error ( '邮件发送未成功：' . $sendEmail );
 		}
 	}
@@ -255,13 +253,13 @@ class Common extends Controller {
 		$mail->CharSet = "utf-8";
 		$mail->SetLanguage ( 'zh_cn' );
 		// $mail->SMTPDebug = 1;
-		$account = config( "email" );
-		//return $account;
+		$account = config ( "email" );
+		// return $account;
 		$mail->Host = $account ['SMTP']; // Specify main and backup SMTP servers
 		$mail->SMTPAuth = true; // Enable SMTP authentication
 		$mail->Username = $account ['Username']; // SMTP username
 		$mail->Password = $account ['Password']; // SMTP password
-		                                        // $mail->SMTPSecure = 'tls'; // Enable TLS encryption, `ssl` also accepted
+		                                         // $mail->SMTPSecure = 'tls'; // Enable TLS encryption, `ssl` also accepted
 		$mail->Port = 25; // TCP port to connect to
 		$mail->setFrom ( $account ['Username'], 'Xianda' );
 		$mail->addAddress ( $address ); // Name is optional

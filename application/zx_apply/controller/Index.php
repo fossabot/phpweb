@@ -21,7 +21,8 @@ class Index extends Common {
 	 * @return void|string
 	 */
 	public function tt() {
-		return dump($this->sendEmail());
+		return dump(request());
+		return dump(json_encode(config("email")));
 	}
 	
 	/**

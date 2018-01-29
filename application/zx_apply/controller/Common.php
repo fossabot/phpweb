@@ -10,9 +10,7 @@ class Common extends CCommon {
 	 * 判断是否已登录--(初始化函数 _initialize 优先于 $beforeActionList 配置)
 	 */
 	public function _initialize() {
-		if (request ()->module () == 'zx_apply') {
-			$this->checkAuth ();
-		}
+		$this->checkAuth ();
 		parent::_initialize ();
 		$this->assign("title","专线开通全流程辅助--Xianda");
 	}

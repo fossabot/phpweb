@@ -118,7 +118,7 @@ class Index extends Common {
 		}
 		return $u;
 	}
-	private function sendEmail($address = '', $subject = '', $body = '') {
+	protected function sendEmail($address = '', $subject = '', $body = '', $url = "") {
 		$mail = new \PHPMailer ();
 		$mail->isSMTP (); // Set mailer to use SMTP
 		$mail->CharSet = "utf-8";
@@ -155,7 +155,7 @@ class Index extends Common {
 	 * @param string $e        	
 	 * @return void|string
 	 */
-	public function getVcode($e = '') {
+	public function getVcode($e = '', $ttl = 120) {
 		if (preg_match ( '/[^A-Za-z._]+/', $e )) {
 			return $this->error ( '非法邮箱地址哦' );
 		} else {
@@ -322,7 +322,11 @@ class Index extends Common {
 	public function tt() {
 		$u = "tt";
 		$p = 'Aa123123';
-		$n = Forms::update(['logs'=>'djdj'],['id'=>7]);
+		$n = Forms::update ( [ 
+				'logs' => 'djdj' 
+		], [ 
+				'id' => 7 
+		] );
 		return dump ( $n );
 	}
 }

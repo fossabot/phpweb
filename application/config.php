@@ -11,9 +11,9 @@
 
 return [
 		'email' => [
-				'SMTP' => 'smtp.139.com',
-				'Username' => '1748104738@139.com',
-				'Password' => 'q595636177',
+				'SMTP' => 'smtp.qq.com',
+				'Username' => 'yxd9721@vip.qq.com',
+				'Password' => 'tatjowlynmnwbcah',
 				'Port' => 25
 		],
     // +----------------------------------------------------------------------
