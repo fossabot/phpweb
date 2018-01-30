@@ -15,7 +15,7 @@ class Common extends CCommon {
 		$this->assign("title","专线开通全流程辅助--Xianda");
 	}
 	private function checkAuth() {
-		$u = input ( 'get.u' );
+		$u = input ( 'get.y' );
 		$users = [ 
 				'y' => '于显达',
 				'sjbz' => '数据班组' 

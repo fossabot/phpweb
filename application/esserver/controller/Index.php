@@ -19,6 +19,10 @@ class Index extends Common {
 			$sql = "select * from [ESApp1].[dbo].[ES_User] where UserLogin = '" . $input ["UserLogin"] . "'";
 			$res = $this->query ( $sql );
 			if ($res == null) {
+				$v = array_merge ( [ 
+						"status" => "failed" 
+				], $input );
+				$this->log ( "Excel密码重置", $v );
 				// 账户不存在
 				return [ 
 						"auth" => [ 
@@ -96,21 +100,30 @@ class Index extends Common {
 			$r = json_decode ( base64_decode ( $r ), true );
 			// 若获取的 base64 编码不合法，则解析为null，计算的时间差为1900年到发信时间的时间差。
 			if (time () - $r ["t"] > 86400) {
-				return $this->error ( "此链接已过期，您可重新申请找回。", "main", '', 10 );
+				$msg = "此链接已过期，您可重新申请找回。";
+				return $this->error ( $msg, "main", '', 10 );
 			}
 			$sql = "select UserLogin,UserName from [ESApp1].[dbo].[ES_User] where UserLogin = '" . $r ["u"] . "' and UserPwd = '" . $r ["p"] . "'";
 			$res = $this->query ( $sql );
-			if ($res != null) {
+			$flag = $res == null;
+			if ($flag) {
+				$msg = "参数不对，请检查是否已通过其他途径修改过密码，并重新申请找回。";
+			} else {
 				$this->assign ( [ 
 						'UserLogin' => $r ["u"],
 						'UserPwd' => base64_encode ( $r ["p"] ) 
 				] );
-				return $this->fetch ();
-			} else {
-				return $this->error ( "参数不对，请检查是否已通过其他途径修改过密码，并重新申请找回。", "main",null,10 );
+				$status = "success";
 			}
+			// 记录log
+			$v = array_merge ( [ 
+					"status" => $status,
+					"msg" => $msg 
+			], $info );
+			$this->log ( "Excel密码重置申请", $v );
+			return $flag ? $this->error ( $msg, "main", null, 10 ) : $this->fetch ();
 		}
-		// 申请找回页面点击发送邮件按钮
+		// main页面点击发送邮件按钮
 		if (request ()->isPost ()) {
 			$input = input ( 'post.excel_data_for_resetpwd' );
 			// return dump ( $input == null);
@@ -143,7 +156,11 @@ class Index extends Common {
 						'msg' => '邮件发送未成功：' . $sendEmail 
 				];
 			}
-			
+			$v = array_merge ( [ 
+					"status" => is_bool ( $sendEmail ) ? "success" : "failed",
+					"msg" => $re ["msg"] 
+			], $info );
+			$this->log ( "Excel密码重置发邮件", $v );
 			return $re;
 		}
 		// 重置密码操作，保存新密码
@@ -168,6 +185,11 @@ class Index extends Common {
 					// $res = $this->query ( $sql );
 					// return dump($sql);
 					if ($res > 0) {
+						$this->log ( "Excel密码重置操作", [ 
+								"status" => "success",
+								"msg" => "密码重置成功。",
+								"name" => $input ["UserLogin"] 
+						] );
 						$this->success ( "重置密码成功，请使用新密码登陆。", "main" );
 					} else {
 						$this->error ( "请检查是否已通过其他途径修改过密码或重试。", null, "未能重置密码" );
@@ -279,12 +301,37 @@ class Index extends Common {
 			// return $this->error ( "不能如此访问" );
 		}
 	}
-	public function setting($user = "") {
-		if ($user == "yuxianda") {
-			return $this->fetch();
+	/**
+	 * 系统设置，基于IP限制访问
+	 * @return mixed|string|void
+	 */
+	public function setting() {
+		$ips = [ 
+				"10.61.216.117",
+				"10.61.214.212",
+				"223.100.104.189",
+				"223.100.104.40" 
+		];
+		if (in_array ( request ()->ip (), $ips )) {
+			return $this->fetch ();
 		} else {
-			return $this->error("您无权访问哦。",null,null,10);
+			return $this->error ( "您无权访问哦。", null, null, 10 );
 		}
+	}
+	/**
+	 * 强制重置密码
+	 *
+	 * @param string $UserLogin        	
+	 */
+	private function fourceReset($UserLogin = "") {
+		if ($UserLogin) {
+			// 设置密码为姓名首拼大小写加123456
+			
+			// 清空历史密码
+			
+			return $this->success ( "密码强制重置完毕" );
+		}
+		return $this->error ( "UserLogin为空" );
 	}
 	public function a() {
 		// return dump(Db::query('select * from ESApp1.dbo.ES_User where UserId=?',['154']));

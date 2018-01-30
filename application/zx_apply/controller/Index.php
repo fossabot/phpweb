@@ -21,8 +21,8 @@ class Index extends Common {
 	 * @return void|string
 	 */
 	public function tt() {
-		return dump(request());
-		return dump(json_encode(config("email")));
+		return dump ( request ()->ip ( 1 ) );
+		return dump ( json_encode ( config ( "email" ) ) );
 	}
 	
 	/**
@@ -31,11 +31,51 @@ class Index extends Common {
 	 * @return mixed|string|void
 	 */
 	public function index() {
-		if(request()->isGet()){
-			return $this->fetch ();	
+		if (request ()->isGet ()) {
+			return $this->fetch ();
 		}
-		if(request()->isPost()){
-			
+		if (request ()->isPost ()) {
+			// post请求 验证登陆
+			$user = Db::table ( "phpweb_check" )->where ( 'email', input ( "post.email" ) )->order ( "time desc" )->find ();
+			$msg = "";
+			if ($user & $user ["code"] != input ( "post.code" )) {
+				$msg = "验证码验证错误";
+			} else {
+				// 验证码正确，继续验证申请人姓名
+				if ($user ["name"] != input ( "post.name" )) {
+					$msg = "申请人姓名与申请时不一致<br />申请时为：<b>" . $user ["name"] . "</b><br />申请时间：" . $user ["time"];
+				}
+			}
+			if ($msg) {
+				$this->log ( "登陆", [ 
+						"status" => "failed",
+						"msg" => $msg,
+						"name" => input ( "post.name" ),
+						"email" => input ( "post.email" ) 
+				] );
+				return $this->error ( $msg, null, input ( "post." ) );
+			} else if (time () - strtotime ( $user ["time"] ) > 3600 * 24 * 15) {
+				$msg = "登陆超时，请重新获取验证码。";
+				$this->log ( "登陆", [ 
+						"status" => "failed",
+						"msg" => $msg,
+						"name" => input ( "post.name" ),
+						"email" => input ( "post.email" ) 
+				] );
+				unset ( $user ["code"] );
+				return $this->error ( $msg, "index", $user );
+			} else {
+				session ( "user", $user );
+				$msg = "欢迎回来，" . $user ["name"] . "。";
+				$this->log ( "登陆", [ 
+						"status" => "success",
+						"msg" => $msg,
+						"name" => input ( "post.name" ),
+						"email" => input ( "post.email" ) 
+				] );
+				$url = session ( "to_url" ) ? session ( "to_url" ) : "query";
+				return $this->success ( $msg, $url, $user );
+			}
 		}
 	}
 	

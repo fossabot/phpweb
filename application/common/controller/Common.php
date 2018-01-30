@@ -28,13 +28,14 @@ class Common extends Controller {
 		$permitActions = [ 
 				"index",
 				"main",
-				"getVcode" 
+				"getvcode" 
 		];
 		// 判断是否从localhost 访问， url 是否允许 未登录访问。否则跳转
 		if (substr ( $request->domain (), - 9 ) == "localhost" || in_array ( $request->module (), $permitModule ) || in_array ( $request->controller (), $permitController ) || in_array ( $request->action (), $permitActions ) || input ( 'session.user/a' )) {
 			$this->assign ( "version", config ( "version" ) );
 		} else {
-			return $this->error ( '您未登录或登录超时，请先登录！', 'index/index' );
+			session("to_url",request()->baseUrl());
+			return $this->error ( '您未登录或登录超时，请先登录！', 'index/index#' . $request->controller () . "/" . $request->action () );
 		}
 	}
 	public function index() {
@@ -44,8 +45,12 @@ class Common extends Controller {
 	 * 退出登录
 	 */
 	public function loginout() {
+		$this->log ( "注销登陆", [ 
+				"stauts" => "success",
+				"name" => session ( "user.name" ) 
+		] );
 		Session::delete ( "user" );
-		return $this->success ( "已注销登录", "index", "", 1 );
+		return $this->success ( "已注销登录", "index#logout", "", 1 );
 	}
 	/**
 	 * php 数组 转成 Grid 组件需要的 json 格式
@@ -180,12 +185,12 @@ class Common extends Controller {
 	 * @param number $ttl        	
 	 */
 	public function getVcode($e = '', $ttl = '120') {
-		if (preg_match ( '/[^A-Za-z.@_]+/', $e )) {
+		if (preg_match ( '/[^A-Za-z0-9.@_]+/', $e )) {
 			return $this->error ( '非法邮箱地址哦' );
 		} else {
 			$e = strtolower ( $e );
 		}
-		// 限制系统每小时最多发送6封邮件。
+		// 限制系统每小时最多发送6封邮件。（超2小时code可重复）
 		$data = Db::table ( "phpweb_check" )->whereTime ( 'time', '-2 hours' )->select ();
 		if (count ( $data ) > 12) {
 			return $this->success ( "单位时间发送邮件数超限。请根据页面下方与管理员联系。" );
@@ -218,14 +223,21 @@ class Common extends Controller {
 			$insertData = [ 
 					'code' => $vcode,
 					'email' => $e,
-					'name' => input ( "param.aPersion" ) 
+					'name' => input ( "param.name" ) 
 			];
 			Db::table ( "phpweb_check" )->insert ( $insertData );
 			return $this->success ( $msg, null, 2 * $vcode );
 		} else {
 			// Db::table ( "phpweb_check" )->where ( 'code', $vcode )->delete ();
-			return $this->error ( '邮件发送未成功：' . $sendEmail );
+			$msg = "邮件发送未成功：" . $sendEmail;
+			return $this->error ( $msg );
 		}
+		$this->log ( "获取验证码", [ 
+				"status" => is_bool ( $sendEmail ) ? "success" : "failed",
+				"msg" => $msg,
+				"name" => input ( "param.name" ),
+				"email" => $e 
+		] );
 	}
 	/**
 	 * 获取参数
@@ -247,7 +259,22 @@ class Common extends Controller {
 			// return $this->success("");
 		}
 	}
-	protected function sendEmail($address = '', $subject = '', $body = '', $url = []) {
+	/**
+	 * 记录系统log
+	 *
+	 * @param unknown $k        	
+	 * @param unknown $v        	
+	 * @param unknown $time        	
+	 */
+	protected function log($k = "", $v = []) {
+		Db::table ( "phpweb_log" )->insert ( [ 
+				"k" => $k,
+				"v" => json_encode ( $v, JSON_UNESCAPED_UNICODE ),
+				"module" => Request::instance ()->module (),
+				"ip" => request ()->ip ( 1 ) 
+		] );
+	}
+	protected function sendEmail($address = '', $subject = '', $body = '', $url = ["null"]) {
 		$mail = new \PHPMailer ();
 		$mail->isSMTP (); // Set mailer to use SMTP
 		$mail->CharSet = "utf-8";

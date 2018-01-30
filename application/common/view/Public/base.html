@@ -150,72 +150,72 @@
 		</div>
 		<div class="footer">
 			<ul>
-				<li>系统版本：{$version|default="null"}</li>
+				<li>系统版本：{$version|default="dev"}</li>
 				<li style="color: #98c0ee;">|</li>
 				<li>版权：铁岭移动公司 于显达</li>
 				<li style="color: #98c0ee;">|</li>
-				<li>联系方式：610671。yuxianda@ln.chinamobile.com</li>
+				<li>联系方式：610671。yuxianda.tl@ln.chinamobile.com</li>
 			</ul>
 		</div>
 	</div>
-	<script>
-		var resizePageHeight;
-		var dhxWins = new dhtmlXWindows();
-		var resizePage;
-		function _resize_page() {
-			_htmlHeight = document.documentElement ? document.documentElement.clientHeight
-					: document.body.clientHeight;
-			_htmlWidth = document.documentElement ? document.documentElement.clientWidth
-					: document.body.clientWidth;
-			if (_htmlHeight < 400 || _htmlWidth < 1320) {
-				dhtmlx.message({
-					text : "窗口过小，或显示不全，建议调整窗口大小。『当前页面大小：" + _htmlWidth + "*"
-							+ _htmlHeight + "』"
-				});
-			}
-			if (_htmlHeight < 400) {
-				_htmlHeight = 400;
-			}
-			resizePage();
+</body>
+<script>
+	var resizePageHeight;
+	var dhxWins = new dhtmlXWindows();
+	var resizePage;
+	function _resize_page() {
+		_htmlHeight = document.documentElement ? document.documentElement.clientHeight
+				: document.body.clientHeight;
+		_htmlWidth = document.documentElement ? document.documentElement.clientWidth
+				: document.body.clientWidth;
+		if (_htmlHeight < 400 || _htmlWidth < 1320) {
 			dhtmlx.message({
-				type : "error",
-				text : "调整窗口大小可能会影响页面布局。建议刷新本页面。"
-			});
-			$(".dhtmlx_message_area").removeAttr("style").css({
-				"right" : "50px",
-				"bottom" : "40px"
+				text : "窗口过小，或显示不全，建议调整窗口大小。『当前页面大小：" + _htmlWidth + "*"
+						+ _htmlHeight + "』"
 			});
 		}
-		/*window.addEventListener("resize", function(event) {
-			throttle(_resize_page, null, 500, null, 1000);//函数节流、在common.html 
-			//_resize_page();
-		});*/
-		$(function() {
-			$(window).bind('resize', function() {
-				throttle(_resize_page, null, 500, null, 1500);
-			});
-			dhxWins.attachViewportTo("winVP"); //窗口可在全屏内活动
-			resizePage = function() {
-				$(".menuleft").css("height", _htmlHeight - 70 + "px");
-				$(".main").css("height", _htmlHeight - 70 + "px");
-				$(".main .content").css("height", _htmlHeight - 70 - 20 + "px");
-				$(".main").css("width", _htmlWidth - 150 + "px");
-			};
-			//var mypath = "{$Request.path}";
-			//mypath = mypath.substr(mypath.lastIndexOf("/") + 1, mypath.length);
-			var cur_page = $(".leftmenu ul li a[href='{$Request.action}.html']");
-			document.title = cur_page.text() + "-";
-			cur_page.parent().addClass("active");
-			//禁用<li>标签click事件
-			$(".leftmenu ul li.disabled").on("click", function() {
-				return false;
-			});
-			//拯救 dhtmlx Layout组件导致的body over-flow:hidden 失效的问题
-			$("body").removeClass("dhxwins_vp_auto");
-			resizePage();
+		if (_htmlHeight < 400) {
+			_htmlHeight = 400;
+		}
+		resizePage();
+		dhtmlx.message({
+			type : "error",
+			text : "调整窗口大小可能会影响页面布局。建议刷新本页面。"
 		});
-	</script>
-</body>
+		$(".dhtmlx_message_area").removeAttr("style").css({
+			"right" : "50px",
+			"bottom" : "40px"
+		});
+	}
+	/*window.addEventListener("resize", function(event) {
+		throttle(_resize_page, null, 500, null, 1000);//函数节流、在common.html 
+		//_resize_page();
+	});*/
+	$(function() {
+		$(window).bind('resize', function() {
+			throttle(_resize_page, null, 500, null, 1500);
+		});
+		dhxWins.attachViewportTo("winVP"); //窗口可在全屏内活动
+		resizePage = function() {
+			$(".menuleft").css("height", _htmlHeight - 70 + "px");
+			$(".main").css("height", _htmlHeight - 70 + "px");
+			$(".main .content").css("height", _htmlHeight - 70 - 20 + "px");
+			$(".main").css("width", _htmlWidth - 150 + "px");
+		};
+		//var mypath = "{$Request.path}";
+		//mypath = mypath.substr(mypath.lastIndexOf("/") + 1, mypath.length);
+		var cur_page = $(".leftmenu ul li a[href='{$Request.action}.html']");
+		document.title = cur_page.text() + "-";
+		cur_page.parent().addClass("active");
+		//禁用<li>标签click事件
+		$(".leftmenu ul li.disabled").on("click", function() {
+			return false;
+		});
+		//拯救 dhtmlx Layout组件导致的body over-flow:hidden 失效的问题
+		$("body").removeClass("dhxwins_vp_auto");
+		resizePage();
+	});
+</script>
 {block name="script"} {/block}
 </html>
 
