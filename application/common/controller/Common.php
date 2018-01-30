@@ -34,7 +34,7 @@ class Common extends Controller {
 		if (substr ( $request->domain (), - 9 ) == "localhost" || in_array ( $request->module (), $permitModule ) || in_array ( $request->controller (), $permitController ) || in_array ( $request->action (), $permitActions ) || input ( 'session.user/a' )) {
 			$this->assign ( "version", config ( "version" ) );
 		} else {
-			session("to_url",request()->baseUrl());
+			session ( "to_url", request ()->baseUrl () );
 			return $this->error ( '您未登录或登录超时，请先登录！', 'index/index#' . $request->controller () . "/" . $request->action () );
 		}
 	}
@@ -213,8 +213,11 @@ class Common extends Controller {
 		}
 		$address = $e;
 		$subject = '【ESWeb】您的登录验证码为：' . sprintf ( "%04s", $vcode ) . '，在30分钟内可使用。';
-		$body = '<p>您申请了邮箱登录的验证码，若非本人操作，请忽略本邮件。[显达]</p><hr><br>
-				<p style="text-align:right;">Powered by <a href="https://github.com/yuxianda/")">Xianda</a></p>';
+		$body = '<p class="msg">您申请了邮箱登录的验证码，若非本人操作，请忽略本邮件。</p><hr /><br /><br /><br /><br />
+				<div class="footer"><p>Powered by <a href="https://github.com/yuxianda/")">Xianda</a></p>
+				<p><a href="mailto:yuxianda.tl@139.com")">Connect me</a>: yuxianda.tl@139.com</p>
+				<p>Learn more at my <a href="https://yuxianda.github.io/">Blog</a></p></div>
+				<style>.msg{color:#088bff;}.footer{width:500px;padding:30px;background-color:#000;color:#bbb;}.footer a{color:#eee;font-weight:bold;}</style>';
 		$sendEmail = $this->sendEmail ( $address, $subject, $body );
 		// $sendEmail = true; // 测试用例
 		if (is_bool ( $sendEmail )) {
@@ -223,21 +226,27 @@ class Common extends Controller {
 			$insertData = [ 
 					'code' => $vcode,
 					'email' => $e,
-					'name' => input ( "param.name" ) 
+					'name' => input ( "param.name" ),
+					'module' => request ()->module () 
 			];
 			Db::table ( "phpweb_check" )->insert ( $insertData );
+			$this->log ( "获取验证码", [ 
+					"status" => "success",
+					"name" => input ( "param.name" ),
+					"email" => $e,
+					"msg" => $msg 
+			] );
 			return $this->success ( $msg, null, 2 * $vcode );
 		} else {
-			// Db::table ( "phpweb_check" )->where ( 'code', $vcode )->delete ();
 			$msg = "邮件发送未成功：" . $sendEmail;
+			$this->log ( "获取验证码", [ 
+					"status" => "failed",
+					"name" => input ( "param.name" ),
+					"email" => $e,
+					"msg" => $msg 
+			] );
 			return $this->error ( $msg );
 		}
-		$this->log ( "获取验证码", [ 
-				"status" => is_bool ( $sendEmail ) ? "success" : "failed",
-				"msg" => $msg,
-				"name" => input ( "param.name" ),
-				"email" => $e 
-		] );
 	}
 	/**
 	 * 获取参数

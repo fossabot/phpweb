@@ -47,38 +47,30 @@ class Index extends Common {
 				}
 			}
 			if ($msg) {
-				$this->log ( "登陆", [ 
-						"status" => "failed",
-						"msg" => $msg,
-						"name" => input ( "post.name" ),
-						"email" => input ( "post.email" ) 
-				] );
+				$this->writeLog ( "登陆", "failed", $msg );
 				return $this->error ( $msg, null, input ( "post." ) );
 			} else if (time () - strtotime ( $user ["time"] ) > 3600 * 24 * 15) {
 				$msg = "登陆超时，请重新获取验证码。";
-				$this->log ( "登陆", [ 
-						"status" => "failed",
-						"msg" => $msg,
-						"name" => input ( "post.name" ),
-						"email" => input ( "post.email" ) 
-				] );
+				$this->writeLog ( "登陆", "failed", $msg );
 				unset ( $user ["code"] );
 				return $this->error ( $msg, "index", $user );
 			} else {
 				session ( "user", $user );
 				$msg = "欢迎回来，" . $user ["name"] . "。";
-				$this->log ( "登陆", [ 
-						"status" => "success",
-						"msg" => $msg,
-						"name" => input ( "post.name" ),
-						"email" => input ( "post.email" ) 
-				] );
+				$this->writeLog ( "登陆", "success", $msg );
 				$url = session ( "to_url" ) ? session ( "to_url" ) : "query";
 				return $this->success ( $msg, $url, $user );
 			}
 		}
 	}
-	
+	protected function writeLog($k, $status, $msg) {
+		$this->log ( $k, [ 
+				"status" => $status,
+				"name" => input ( "post.name" ),
+				"email" => input ( "post.email" ),
+				"msg" => $msg 
+		] );
+	}
 	/**
 	 * get:加载数据到handsontable并验证,
 	 * post:上传,后台处理入库

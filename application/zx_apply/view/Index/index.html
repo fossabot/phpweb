@@ -148,7 +148,7 @@ function getVcode(formData){
 	$.get("getVcode/"+formData.email+"/",formData,function(data){
 		console.log(data);
 		if(data.code==1){
-			dhtmlx.alert({type:"alert",title:" ",text:data.msg,width:"400px"});
+			dhtmlx.alert({type:"alert",title:" ",text:data.msg,width:"500px"});
 			setTimeout(function(){
 				if($(".dhtmlx_popup_button div")[0]){
 					$(".dhtmlx_popup_button div")[0].click()
