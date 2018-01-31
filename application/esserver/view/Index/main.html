@@ -109,14 +109,11 @@ file="common@c/ie8warning" /}
 		var formData = myForm.getFormData();
 		var reportData = {};
 		reportData['UserLogin'] = formData['UserLogin'];
-		reportData['str'] = '';
-		for (var i in formData){
-			reportData['str'] += i+": \""+formData[i]+"\".\n";
-		}
-		reportData['str'] += '反馈时间: "' + (new Date()).toLocaleString() + '"';
+		formData['createTime'] = (new Date()).toLocaleString();
+		reportData['str'] = JSON.stringify(formData);
 		$("#dhtmlxMsg p").html("<br><br><br><br><h2>处理中，请稍等...</h2>");
 		$.post("reportLog.html", reportData, function(data) {
-			dhtmlx.alert({title:data['title'],text:data['msg'],width:"400px",callback:function(){
+			dhtmlx.alert({type:data['type'],title:data['title'],text:data['msg'],width:"400px",callback:function(){
 				$("#dhtmlxMsg").hide();
 			}});
 		});

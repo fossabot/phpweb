@@ -2,8 +2,8 @@
 
 namespace app\esserver\controller;
 
-use think\Db;
 use app\common\controller\Common;
+use think\Db;
 
 class Index extends Common {
 	public function index() {
@@ -107,6 +107,7 @@ class Index extends Common {
 			$res = $this->query ( $sql );
 			$flag = $res == null;
 			if ($flag) {
+				$status = "failed";
 				$msg = "参数不对，请检查是否已通过其他途径修改过密码，并重新申请找回。";
 			} else {
 				$this->assign ( [ 
@@ -114,13 +115,16 @@ class Index extends Common {
 						'UserPwd' => base64_encode ( $r ["p"] ) 
 				] );
 				$status = "success";
+				$msg = "通过邮件链接访问";
 			}
 			// 记录log
-			$v = array_merge ( [ 
+			$v = [ 
 					"status" => $status,
+					"UserLogin" => $r ["u"],
+					"e" => $r ["e"],
 					"msg" => $msg 
-			], $info );
-			$this->log ( "Excel密码重置申请", $v );
+			];
+			$this->writeLog ( "Excel密码重置申请", $v );
 			return $flag ? $this->error ( $msg, "main", null, 10 ) : $this->fetch ();
 		}
 		// main页面点击发送邮件按钮
@@ -128,7 +132,7 @@ class Index extends Common {
 			$input = input ( 'post.excel_data_for_resetpwd' );
 			// return dump ( $input == null);
 			if ($input == null) {
-				// return dump($this->sendEmail ( "yuxianda.tl@ln.chinamobile.com", "测试主题" . time (), "正文" . time (), 'url' ));
+				// return dump($this->sendEmail ( "yuxianda.tl@ln.chinamobile.com", "测试主题" . time (), "正文" . time ());
 				// 若没有传值，则直接访问。
 				return $this->fetch ();
 			}
@@ -185,14 +189,21 @@ class Index extends Common {
 					// $res = $this->query ( $sql );
 					// return dump($sql);
 					if ($res > 0) {
-						$this->log ( "Excel密码重置操作", [ 
+						$msg = "密码重置成功。";
+						$this->writeLog ( "Excel密码重置操作", [ 
 								"status" => "success",
-								"msg" => "密码重置成功。",
+								"msg" => $msg,
 								"name" => $input ["UserLogin"] 
 						] );
-						$this->success ( "重置密码成功，请使用新密码登陆。", "main" );
+						$this->success ( $msg, "main" );
 					} else {
-						$this->error ( "请检查是否已通过其他途径修改过密码或重试。", null, "未能重置密码" );
+						$msg = "请检查是否已通过其他途径修改过密码或重试。";
+						$this->writeLog ( "Excel密码重置操作", [ 
+								"status" => "failed",
+								"msg" => $msg,
+								"name" => $input ["UserLogin"] 
+						] );
+						$this->error ( $msg, null, "未能重置密码" );
 					}
 				}
 			}
@@ -250,42 +261,34 @@ class Index extends Common {
 			if (! input ( "?param.UserLogin" ) || ! input ( "?param.str" )) {
 				return $this->error ( "参数无效。" );
 			}
-			$logData = [ 
-					'k' => "找回密码一键反馈-" . input ( "param.UserLogin" ),
-					'v' => input ( "param.str" ) 
-				/*
-			 * 'v' => json_encode ( [
-			 * 'str' => input ( "param.str" ),
-			 * 'time' => input ( "param.time" )
-			 * ], JSON_UNESCAPED_UNICODE )
-			 */
-			];
-			$log = db ( "log", 'logDatabase', false )->where ( "k", $logData ['k'] )->find ();
+			$where = '{"UserLogin":"' . input ( "param.UserLogin" ) . '"%';
+			$log = db ( "log", 'logDatabase', false )->where ( "v", "like", $where )->find ();
 			if ($log == null) {
 				// 不存在记录（从未反馈过）
-				$id = db ( "log", 'logDatabase', false )->insertGetId ( $logData );
-				$log = db ( "log", 'logDatabase', false )->find ( $id );
-				
-				$sendEmail = $this->sendEmail ( "13700101911@139.com", "Excel服务器账户重置密码反馈-" . input ( "param.UserLogin" ), "提交信息如下：<br><pre>" . input ( "param.str" ) . "</pre>" );
+				$logData = json_decode ( htmlspecialchars_decode ( input ( "param.str" ) ), 256 );
+				$this->writeLog ( "找回密码一键反馈", $logData );
+				$sendEmail = $this->sendEmail ( "13700101911@139.com", "Excel服务器账户重置密码反馈-" . input ( "param.UserLogin" ), "提交信息如下：<br>" . dump ( $logData ), false );
 				if (is_bool ( $sendEmail )) {
 					$re = [ 
+							'type' => 'alert',
 							'title' => '已成功反馈',
 							'msg' => '有进展会通过邮件回复你。感谢配合。' 
 					];
 				} else {
 					$re = [ 
+							'type' => 'alert-error',
 							'title' => '反馈操作异常，请通过其他方式反馈',
 							'msg' => '通知邮件自动发送未成功：' . $sendEmail 
 					];
 				}
 			} else {
 				// 已有记录（点击过一键反馈按钮）
-				$logArray = explode ( "\n", $log ['v'] );
-				$time = $logArray [count ( $logArray ) - 1];
+				$time = $log ["time"];
 				// $time = json_decode ( $log ['v'], true ) ['time'];
 				$re = [ 
+						'type' => 'alert-warning',
 						'title' => '不要重复反馈',
-						'msg' => '之前反馈过下面账户的找回密码的情况<br><b>' . input ( "param.UserLogin" ) . "</b><br>" . $time . '<br>请勿重复操作。' 
+						'msg' => '之前反馈过下面账户的找回密码的情况<br><b>' . input ( "param.UserLogin" ) . "</b><br>反馈时间：" . $time . '<br>请勿重复操作。' 
 				];
 			}
 			return $re;
@@ -303,6 +306,7 @@ class Index extends Common {
 	}
 	/**
 	 * 系统设置，基于IP限制访问
+	 *
 	 * @return mixed|string|void
 	 */
 	public function setting() {
@@ -317,6 +321,21 @@ class Index extends Common {
 		} else {
 			return $this->error ( "您无权访问哦。", null, null, 10 );
 		}
+	}
+	/**
+	 * 记录log
+	 *
+	 * @param string $k        	
+	 * @param array $v        	
+	 */
+	private function writeLog($k = "", $v = []) {
+		$logData = [ 
+				"k" => $k,
+				"v" => json_encode ( $v, 256 ),
+				'module' => request ()->module (),
+				'ip' => request ()->ip ( 1 ) 
+		];
+		db ( "log", 'logDatabase', false )->insert ( $logData );
 	}
 	/**
 	 * 强制重置密码

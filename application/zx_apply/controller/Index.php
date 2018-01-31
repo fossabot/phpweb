@@ -21,7 +21,9 @@ class Index extends Common {
 	 * @return void|string
 	 */
 	public function tt() {
-		return dump ( request ()->ip ( 1 ) );
+		echo "<pre>";
+		var_export(["a"=>1,"b"=>2,"c"=>["c1"=>"c11","C2"=>"c222"]]);
+		echo "</pre>";
 		return dump ( json_encode ( config ( "email" ) ) );
 	}
 	
