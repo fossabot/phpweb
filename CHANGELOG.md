@@ -1,8 +1,15 @@
+### v0.3.2(2018-01-31)
+
+- 更新dhtmlx组件到5.1.0
+- 修复excel服务器账号密码找回bug
+- 添加系统log记录功能
+- zx_apply模块需登陆后使用
+
 ### v0.2.2.0108(2018-01-08)
 
 - 补充`/docs/_posts/2017-12-21-handsontable-usage-notes.md`内容
 
-> 总结的自己脑袋都乱了。这个[docs](https://docs.handsontable.com)真的一点也不友好。
+> 总结的自己脑袋都乱了。官网这个[docs](https://docs.handsontable.com)真的一点也不友好。
 
 ### v0.2.2.0107(2018-01-07)
 

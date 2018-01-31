@@ -47,7 +47,7 @@ file="c/leftmenu_zx_apply_index" /} {/block}{block name="main"}
 			dhtmlx.message({text:"你还没有粘贴数据。。。"});
 			$("#inp_area textarea").focus();
 		}else if(items.length<70){
-			dhtmlx.message({text:"内容有点儿少吧。。。"});
+			dhtmlx.message({text:"<b>内容有点儿少吧</b>。。。"});
 			dhtmlx.message({text:"重新编辑一下？"});
 		}else{
 			confirmTable();
@@ -60,8 +60,13 @@ file="c/leftmenu_zx_apply_index" /} {/block}{block name="main"}
 			type:"alert-warning",
 			callback:function(){
 				$("#inp_area textarea").select();
-			},
+			}
 		});
+		setTimeout(function(){
+			if($(".dhtmlx_popup_button div")){
+				$(".dhtmlx_popup_button div")[0].click();
+			}
+		},4000);
 	});
 	function AsyncLoad(V_tag,V_src) {
 		if (V_tag == "script") {
