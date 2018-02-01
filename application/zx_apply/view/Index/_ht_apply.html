@@ -51,16 +51,16 @@
 		return _url;
 	})(zxInfoTitle);
 	//var applyData = " , , , , , , , , , , , , , , , , , , ";
-	var colWidthsData = "115,114,90,50,73,92,270,231,473,50,135,121,121,195,105,114,195,73,176";
+	var colWidthsData = "115,114,90,50,73,92,270,231,473,50,135,121,121,195,105,114,195,73,176,80,80,80,133,108,63,63,77,105,66";
 	var zxTypeData = "互联网,营业厅,平安校园,点对点,卫生网,教育网,IMS,其他";
 	var aStationData = "柴河局,西丰新局,西丰老局,昌图新局,昌图老局,开原老局,开原新局,清河,调兵山新局,铁岭县,银州区";
 	var neFactoryData = "华为,中兴";
+	var extraSeq = "19,20,21,22,23,24,25,26,27,28";
 	var colHeaderData = [];
 	var container = document.getElementById('inp_area');
 	var infoData = []; // 用于保存hot的初始数据
 	var hot;
 	// 1. 获取列名
-
 	$.get(_url, {
 		t : Date.now()
 	}, function(data) {
@@ -84,16 +84,16 @@
 				correctFormat : true,
 				validator : "date"
 			}, {
-
+				// 实例标识
 				type : 'numeric'
 			}, {
-
+				// 专线类型
 				editor : 'select',
 				selectOptions : zxTypeData.split(","),
 			}, {
 
 			}, {
-
+				// 网元厂家
 				editor : 'select',
 				selectOptions : neFactoryData.split(","),
 			}, {
@@ -107,9 +107,11 @@
 			}, {
 
 			}, {
-				type : 'numeric', //  vlan
+				//  vlan
+				type : 'numeric',
 
 			}, {
+				// ip
 				validator : ipValidatorRegexp,
 			}, {
 
@@ -127,18 +129,47 @@
 
 			}, {
 
+			}, {
+				//1
+				type : 'numeric',
+			}, {
+				//2
+				type : 'numeric',
+			}, {
+				//3
+				type : 'numeric',
+			}, {
+				//4
+				type : 'numeric',
+			}, {
+				//5
+			}, {
+				//6
+				type : 'numeric',
+			}, {
+				//7
+				type : 'numeric',
+			}, {
+				//8
+				type : 'numeric',
+			}, {
+				//9
+				type : 'numeric',
+			}, {
+				//10
 			} ],
 			contextMenu: {
 				callback: function (key, options) {
 					if (key === 'about') {
 						setTimeout(function () {
 							// timeout is used to make sure the menu collapsed before alert is shown
-							parent.dhtmlx.alert("本菜单由 Xianda 汉化。感谢Xianda");
+							parent.dhtmlx.alert({title:"特别鸣谢",text:"本菜单由 Xianda 汉化。感谢Xianda"});
 						}, 100);
 					}
 				},
 				items: {
-					"about": {name: "关于本菜单"},
+					"about": {name: "*Power by Xianda*"},
+					"hsep1": "---------",
 					"row_above": {name: "在上面插入一行"},
 					"row_below": {name: "在下面插入一行"},
 					"hsep1": "---------",
@@ -161,24 +192,27 @@
 	$(function($) {
 
 	});
+	// 从sessionStorage获取数据
 	function loadDataFromStorage(colHeaders) {
 		var Param_t = getQueryString("t");
 		var data = [];
 		if (Param_t) {
-			console.log("loadDataFromStorage:YES");
+			console.log("loadDataFromStorage: success");
 			var items = sessionStorage.getItem(Param_t);
 			if (items) {
 				items = items.split("\n");
 				for (i in items) {
 					//对于每一行数据
-					var itemAttr = items[i].split("\t");
+					var itemArr = items[i].split("\t");
 					/*var _data = [];
 					for ( var j in itemAttr) { // j一定是数字，且从0自增
 						_data[colHeaders[j]] = itemAttr[j];
 					}*/
-					data.push(itemAttr);
+					data.push(itemArr);
 				}
 			}
+		}else {
+			console.info("loadDataFromStorage: failed");
 		}
 		return data;
 	}
@@ -201,6 +235,7 @@
 		var _data = {
 			data : ht_data,
 			zxInfoTitle : JSON.stringify(zxInfoTitle),
+			type: "import",
 		};
 		// 页面滚动到左上角位置
 		pageScroll();

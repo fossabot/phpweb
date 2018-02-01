@@ -6,13 +6,14 @@ use think\Model;
 
 class Iptables extends Model {
 	public static function createIp($zxType = "", $ip = "", $mask = "255.255.255.255") {
+		$iptables = new static();
 		$data = [ 
 				"ipType" => $zxType,
 				"ip" => ip2long ( $ip ),
 				"mask" => ip2long ( $mask ),
 				"ifUse" => 1 
 		];
-		$this->isUpdate ( false )->save ( $data );
+		$iptables->isUpdate ( false )->allowField ( true )->save ( $data );
 	}
 	public static function generateIP($zxType = "互联网") {
 		Db::name ( "iptables" )->where ( "ipType", $zxType )->colnum ( "ip" );

@@ -21,10 +21,7 @@ class Index extends Common {
 	 * @return void|string
 	 */
 	public function tt() {
-		echo "<pre>";
-		var_export(["a"=>1,"b"=>2,"c"=>["c1"=>"c11","C2"=>"c222"]]);
-		echo "</pre>";
-		return dump ( json_encode ( config ( "email" ) ) );
+		return dump ( config ( "aStation" ) );
 	}
 	
 	/**
@@ -88,6 +85,7 @@ class Index extends Common {
 	public function _ht_apply() {
 		if (request ()->isPost ()) {
 			$postData = input ( "post.data" );
+			// return dump($postData);
 			$type = input ( "post.type" );
 			$zxInfoTitle = input ( "post.zxInfoTitle", null, null );
 			$zxInfoTitle = json_decode ( $zxInfoTitle, JSON_UNESCAPED_UNICODE );
@@ -97,14 +95,18 @@ class Index extends Common {
 			// 根据列名和数据转成php数组
 			// $postData = substr ( $postData, 3 ); // 莫名奇妙的前三个字节是垃圾数据。3天才研究出来，只能这样解决！！！
 			$data = $this->csv_to_array ( $dataHeader, $postData );
+			// return dump($data);
 			// 获取额外的字段
 			$extraHeader = config ( "extraInfo" );
 			foreach ( $data as $k => $v ) {
 				$temp = [ ];
-				foreach ( $extraHeader as $eH ) {
-					$temp [$eh] = $data [$k] [$eH];
+				foreach ( $extraHeader as $kk => $vv ) {
+					$temp [$kk] = $v [$vv];
 				}
-				$data [$k] ["extra"] = json_encode ( $temp );
+				$data [$k] ["extra"] = $temp;
+				if ($v ["aStation"] == "柴河局") {
+					$data [$k] ["aStation"] .= "-" . $data [$k] ["neFactory"];
+				}
 			}
 			// 若导入，ip/vlan信息要单独存储。
 			$result = Infotables::createInfo ( $data, $type );
@@ -127,7 +129,7 @@ class Index extends Common {
 		// $zxInfoTitle = Db::table("phpweb_sysinfo")->field("value,option")->where("label","zxInfoTitle")->select();
 		$zxInfoTitle = [ 
 				"label" => "zx_apply-223-rb",
-				"order" => "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18" 
+				"order" => "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,30,31,32,33,34,35,36,37,38,39" 
 		];
 		$this->assign ( 'zxInfoTitle', json_encode ( $zxInfoTitle, 256 ) );
 		return $this->fetch ();
@@ -135,6 +137,7 @@ class Index extends Common {
 	
 	/**
 	 * 根据label、order 获取表格的 header
+	 * $v为false，获取option(default)；为ture，获取value
 	 *
 	 * @param String $label        	
 	 * @param String $order        	

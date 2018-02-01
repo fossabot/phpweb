@@ -8,7 +8,7 @@ class Infotables extends Model {
 	protected $autoWriteTimestamp = true;
 	protected $type = [ 
 			"aDate" => "date",
-			"extal" => "array" 
+			"extra" => "array" 
 	];
 	public function setIpAttr($value) {
 		return ip2long ( $value );
@@ -64,7 +64,8 @@ class Infotables extends Model {
 				unset ( $data [$k] ["ip"] );
 				unset ( $data [$k] ["vlan"] );
 			}
-			$result [] = $this->isUpdate ( false )->allowField ( true )->save ( $data [$k] );
+			$infotables = new static();
+			$result [] = $infotables->isUpdate ( false )->allowField ( true )->save ( $data [$k] );
 		}
 		return $result;
 	}

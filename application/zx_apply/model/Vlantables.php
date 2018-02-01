@@ -13,20 +13,24 @@ class Vlantables extends Model {
 	 * @param string $vlan        	
 	 * @param string $cName        	
 	 */
-	public static function createVlan($aStation = "", $vlan = "", $cName = "") {
-		$devices = json_decode ( config ( "device9312" ), true );
-		
-		$date = [ 
-				"deviceName" => $devices [config ( "aStation" ) [$aStation]],
-				"vlan" => $vlan,
-				"description" => $cName 
-		];
-		$this->isUpdate ( false )->save ( $date );
+	public static function createVlan($aStation = "", $vlan = "", $description = "") {
+		$vlantables = new static ();
+		$deviceConf = config ( "aStation" );
+		if (array_key_exists( $aStation, $deviceConf )) {
+			// 根据a端匹配到9312名，则保存vlan
+			$data = [ 
+					"deviceName" => $deviceConf [$aStation],
+					"vlan" => $vlan,
+					"description" => $description 
+			];
+			$vlantables->isUpdate ( false )->allowField ( true )->save ( $data );
+		}
 	}
 	/**
 	 * 自动预分配vlan
-	 * @param string $aStation
-	 * @param string $cName
+	 *
+	 * @param string $aStation        	
+	 * @param string $cName        	
 	 * @return number|string
 	 */
 	public static function generateVlan($aStation = "", $cName = "") {
