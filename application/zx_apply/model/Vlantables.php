@@ -16,7 +16,7 @@ class Vlantables extends Model {
 	public static function createVlan($aStation = "", $vlan = "", $description = "") {
 		$vlantables = new static ();
 		$deviceConf = config ( "aStation" );
-		if (array_key_exists( $aStation, $deviceConf )) {
+		if (array_key_exists ( $aStation, $deviceConf )) {
 			// 根据a端匹配到9312名，则保存vlan
 			$data = [ 
 					"deviceName" => $deviceConf [$aStation],
@@ -49,11 +49,11 @@ class Vlantables extends Model {
 	}
 	/**
 	 * 导入更新已使用vlan
-	 *
-	 * @param string $str        	
+	 * @param string $aStation
+	 * @param string $str
 	 * @return void|string
 	 */
-	public static function importUsedVlan($aStation, $str = "") {
+	public static function importUsedVlan($aStation = "", $str = "") {
 		$str = str_replace ( "vlan batch", "", $str );
 		$str = str_replace ( "\r\n", "", $str );
 		$array = explode ( " ", $str );

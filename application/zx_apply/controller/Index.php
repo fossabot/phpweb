@@ -21,7 +21,9 @@ class Index extends Common {
 	 * @return void|string
 	 */
 	public function tt() {
-		return dump ( config ( "aStation" ) );
+		echo "<a href='tt.html'>tt</a><br />";
+		echo request ()->action () . "<br>" . request ()->header ( "referer" );
+		return dump ( strpos ( request ()->header ( "referer" ), request ()->action () ) );
 	}
 	
 	/**
@@ -171,7 +173,12 @@ class Index extends Common {
 	 * 专线制作数据合成 script.html
 	 */
 	// public function script()
-	
+	public function settings() {
+		if (! strpos ( request ()->header ( "referer" ), request ()->action () )) {
+			session ( "settings_back_url", request ()->header ( "referer" ) );
+		}
+		return $this->fetch ();
+	}
 	/**
 	 * 空方法 _empty 直接 fetch 对应的view
 	 *

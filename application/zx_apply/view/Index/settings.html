@@ -1,21 +1,22 @@
-{extend name="common@Public/base" /} {block name="leftmenu"} {include
-file="c/leftmenu_zx_apply_index" /} {/block}{block name="main"}
+{extend name="common@Public/base" /} {block name="leftmenu"}
+<ul id="leftMenu" class="nav nav-stacked nav-pills">
+	<li><a href="{$Think.session.settings_back_url}"><span class="glyphicon glyphicon-chevron-left"></span>返回</a></li>
+	<li><a href="settings.html">系统设置</a></li>
+	<li><a href="#vlan">已使用vlan</a></li>
+</ul>
+{/block}{block name="main"}
 <div class="htmltitle">
 	<h2>系统设置</h2>
 </div>
-
+<pre>
 更新最后一次分配的IP：（专线类别，ip） 
 
 手动更新已使用vlan记录：（设备名，vlan，标记为手动标记已用）
 
-更新9312信息，请修改源码：zx_apply/model/vlantables.php {/block} {block
-name="script"}
+相关配置均在 applpcation/zx_apply/config.php 中 
+</pre>
+{/block} {block name="script"}
 <script>
-	//$(function($) {
-		var str = '<li><a href="javascript:history.go(-1)"><span class="glyphicon glyphicon-chevron-left"></span>返回</a></li>'
-				+ '<li><a href="settings.html">系统设置</a></li>'
-				+ '<li><a href="#vlan">已使用vlan</a></li>';
-		$("#leftMenu").html(str);
-	//});
+
 </script>
 {/block}
