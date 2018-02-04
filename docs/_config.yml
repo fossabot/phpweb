@@ -6,7 +6,8 @@ description: "phpweb项目文档"
 baseurl:     "/phpweb"
 url:         ""
 date_format: "%Y 年 %m 月 %d 日 %H:%M"
-lang: zh #the language of your site
+#the language of your site
+lang: zh 
 timezone: Asia/Shanghai
 header_pages:
  - about.md
@@ -85,8 +86,8 @@ share_hackernews: false
 
 text:
   pagination:
-    newer: '下一页'
-    older: '上一页'
+    newer: '上一页'
+    older: '下一页'
   share_buttons:
     text:         'Share this post!'
     facebook:     'Share on Facebook'
@@ -121,7 +122,7 @@ markdown:     kramdown
 redcarpet:
   extensions: ['smart', 'tables', 'with_toc_data']
 permalink:    none
-paginate:     4
+paginate:     8
 sass:
   style: compressed
 plugins:

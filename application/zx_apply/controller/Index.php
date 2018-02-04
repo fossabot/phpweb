@@ -161,36 +161,16 @@ class Index extends Common {
 		}
 		return implode ( ",", $headerArr );
 	}
-	
 	/**
 	 * 信息查询
 	 */
 	public function query() {
-		return $this->fetch ();
-	}
-	
-	/**
-	 * 专线制作数据合成 script.html
-	 */
-	// public function script()
-	public function settings() {
-		if (! strpos ( request ()->header ( "referer" ), request ()->action () )) {
-			session ( "settings_back_url", request ()->header ( "referer" ) );
-		}
-		return $this->fetch ();
+		return $this->fetch ( "index/query" );
 	}
 	/**
-	 * 空方法 _empty 直接 fetch 对应的view
-	 *
-	 * @return mixed|string|void
+	 * 更新信息
 	 */
-	public function _empty() {
-		$request = Request::instance ();
-		$dir = APP_PATH . $request->module () . DS . "view" . DS . $request->controller () . DS . $request->action () . "." . config ( 'template.view_suffix' );
-		if (file_exists ( $dir ))
-			return $this->fetch ( $request->action () );
-		else {
-			return $this->error ( "请求未找到，将返回上一页...<b>(zx_apply/controller/index.php->_empty())</b>" );
-		}
+	public function update() {
+		return $this->fetch ( "index/update" );
 	}
 }

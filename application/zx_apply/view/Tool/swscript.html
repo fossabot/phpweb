@@ -1,0 +1,155 @@
+{extend name="common@Public/base" /} {block name="leftmenu"} {include
+file="c/leftmenu_zx_apply_tool" /} {/block}{block name="main"}
+<style>
+#layoutObj {
+	position: absolute;
+	top: 100px;
+	left: 0;
+	bottom: 0;
+	right: 0;
+}
+pre#resultPre {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+}
+</style>
+<div class="htmltitle">
+	<h2>交换机脚本批量生成</h2>
+</div>
+
+<div>
+	<p>输入相关信息，生成执行脚本</p>
+	<pre style="position: absolute; top: 50px; left: 450px;">本页面在IE9显示完美，FireFox/Chrome不是很友好(pre标签\r\n的问题)</pre>
+</div>
+<div class="layoutObj">
+	<div id="layoutObj"></div>
+</div>
+<pre id="resultPre" spellcheck="false" contenteditable="true" style="display: none;"></pre>
+<script>
+	window.console = window.console
+			|| (function() {
+				var c = {};
+				c.log = c.warn = c.debug = c.info = c.error = c.time = c.dir = c.profile = c.clear = c.exception = c.trace = c.assert = function() {
+				};
+				return c;
+			})();
+
+var myLayout = new dhtmlXLayoutObject({
+    parent: "layoutObj",
+    pattern: "2U",
+	cells: [
+		{
+			id: "a",
+			text: "基本信息",
+			width: 330,
+		},
+		{
+			id: "b",
+			text: "生成的脚本",
+			height: "*",
+		},
+	]
+});
+
+
+var formData = [
+	{type:"settings",labelWidth:80,inputWidth:200},
+	{type:"block",inputWidth:"auto",blockOffset:"0",list:[			
+		{type:"block",inputWidth:"auto",blockOffset:"15",list:[
+			{type:"combo",name:"portName",label:"端口名称",required:true},
+			{type:"combo",name:"startPort",label:"起始端口",required:true},
+			{type:"input",name:"stopPort",label:"终止端口",value:23,required:true},
+			{type:"input",name:"exceptPort",label:"排除的端口",note:{"text":"用“,”分割"}},
+			{type:"input",name:"order",label:"执行的命令",value:"",rows:4,required:true},
+		]},
+		{type:"block",inputWidth:"auto",blockOffset:"15",list:[
+			//{type:"label",label:"生成",labelWidth:100,list:[
+				{type:"block",inputWidth:"auto",blockOffset:"30",list:[
+					{type:"button",name:"ok",value:"确定"},
+					{type:"newcolumn"},
+					//{type:"button",name:"net01",value:"bas01脚本"},
+				]}
+			//]}
+		]},	
+	]}
+];
+
+var myForm = myLayout.cells("a").attachForm(formData);
+var portNameOptions = ["interface GigabitEthernet","interface Ethernet"];
+var startPortOption = ["0/0/0","0/0/1","0/1","0/0"];
+myForm.getCombo("portName").load(createComboOption(portNameOptions));
+myForm.getCombo("startPort").load(createComboOption(startPortOption));
+
+function createComboOption(optionArray){
+	var str = [];
+	for(var i = 0; i<optionArray.length; i++){
+		str[i] ={ value: optionArray[i], text: optionArray[i]};
+	}
+	str[str.length-1]['selected'] = true;
+	return {options:str};
+}
+myForm.attachEvent("onButtonClick", function(id){
+	if(id=='ok'){
+		if(!myForm.validate()){
+			dhtmlx.alert({
+				title: "无效请求",
+				ok: "知道了",
+				text: "请将信息填写完整再试",
+			});
+			return false;
+		}
+		var name = $("input[name='portName']").val();
+		var a = $("input[name='startPort']").val();
+		var b = parseInt($("input[name='stopPort']").val());
+		var except = myForm.getItemValue("exceptPort");
+		var orders = myForm.getItemValue("order");
+		$("#resultPre").text(createScript(name, a, b, except, orders));
+		myLayout.cells("b").attachObject("resultPre");
+		//showRes(name, a, b, except, orders);
+	}else{
+	    alert("Button with name "+id+" was clicked");
+	}
+});
+function showRes(name, a, b, except, orders){
+	/*var s = a.substr(a.length-1);
+	var rows = (except.length==0?(b-s+1):b-s+1-except.split(",").length)*2+1;
+	var resData = [
+		{type:"settings",labelWidth:"auto",inputWidth:"800"},
+		{type:"input",name:"res",rows: 37}
+	];
+	var resForm = myLayout.cells("b").attachForm();
+	resForm.loadStruct(resData);
+	$("textarea[name='res']").attr("spellcheck",false);
+	resForm.setItemValue("res",createScript(name, a, b, except, orders));
+	resForm.getInput("res").select();*/
+	var str = '<pre id="resultPre">'+createScript(name, a, b, except, orders)+'</pre>';
+	myLayout.cells("b").attachHTMLString(str);
+}
+
+function createScript(name, a, b, except, orders){
+	// name 形如 “interface Ethernet”
+	// a 形如 “0/0/18”
+	name = name + a.substr(0,a.lastIndexOf("/")+1);	// name 形如 “interface Ethernet 0/0/”
+	a = parseInt(a.substr(a.lastIndexOf("/")+1));	// a 形如  (int)18
+	except = except.length==0?[parseInt(b)+1]:except.split(",");
+	var pointer = 0;	// 数组 except 的指针，手动推动
+	var pre_str = "";
+	var d = "\n";
+	for(var i = a; i<=b; i++){
+		if(i!=except[pointer]){
+			pre_str += name + i + d
+				+ orders + d;
+		}else if(pointer < except.length){
+			pointer++;
+		}
+	}
+	pre_str += d;
+	return pre_str;
+}
+
+</script>
+
+
+{/block}

@@ -23,7 +23,7 @@ class Common extends Controller {
 				"esserver" 
 		];
 		$permitController = [ 
-				"Tool" 
+				//"Tool" 
 		];
 		$permitActions = [ 
 				"index",
