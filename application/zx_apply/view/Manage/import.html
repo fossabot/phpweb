@@ -88,7 +88,7 @@ file="c/leftmenu_zx_apply_manage" /} {/block}{block name="main"}
 	function confirmTable(){
 		//AsyncLoad("css","__STATIC__/handsontable-pro/handsontable.full.min.css");
 		//AsyncLoad("script","__STATIC__/handsontable-pro/handsontable.full.min.js");
-		var ss = {k:Date.now(),v:$("#inp_area textarea").val().trim().replace(/ /g,"")};
+		var ss = {k:Date.now(),v:$("#inp_area textarea").val().trim().replace(/ /g,"").replace(/,/g,"，")};
 		// 使用 sessionStorage 传递 textarea 数据
 		var t = btoa("appInputVal_"+ss["k"]);
 		sessionStorage.setItem(t,ss["v"]);

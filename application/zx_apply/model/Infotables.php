@@ -17,11 +17,12 @@ class Infotables extends Model {
 		return long2ip ( $value );
 	}
 	public function setNeFactoryAttr($value) {
-		return array_search ( $value, [ 
+		$ne = array_search ( $value, [ 
 				"华为",
 				"中兴",
 				"OLT" 
 		] );
+		return $ne ? $ne : null;
 	}
 	public function getNeFactoryAttr($value) {
 		$zx_nefactory = [ 
@@ -44,7 +45,7 @@ class Infotables extends Model {
 	}
 	/**
 	 * 新增Info，type可选导入、申请
-	 * 
+	 *
 	 * @param string $data        	
 	 * @param string $type        	
 	 * @return number[]|\think\false[]
@@ -64,7 +65,7 @@ class Infotables extends Model {
 				unset ( $data [$k] ["ip"] );
 				unset ( $data [$k] ["vlan"] );
 			}
-			$infotables = new static();
+			$infotables = new static ();
 			$result [] = $infotables->isUpdate ( false )->allowField ( true )->save ( $data [$k] );
 		}
 		return $result;

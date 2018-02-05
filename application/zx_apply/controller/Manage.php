@@ -6,7 +6,7 @@ use think\Controller;
 
 class Manage extends Index {
 	public function index() {
-		return $this->redirect( "todo" );
+		return $this->redirect ( "todo" );
 	}
 	/**
 	 * ip、vlan申请
@@ -17,9 +17,10 @@ class Manage extends Index {
 		return $this->apply ();
 	}
 	/**
-	 * 专线制作数据合成 script.html
+	 * 系统设置
+	 *
+	 * @return mixed|string
 	 */
-	// public function script()
 	public function settings() {
 		if (! strpos ( request ()->header ( "referer" ), request ()->action () )) {
 			session ( "settings_back_url", request ()->header ( "referer" ) );

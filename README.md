@@ -39,6 +39,7 @@ composer 的安装及使用请查看： [composer 中文网](http://www.phpcompo
    ```sh
    gem install jekyll
    ```
+   安装出错请参考[这里](https://yuxianda.github.io/notes/create-blog-by-using-jekyll.html#%E5%AE%89%E8%A3%85jekyll)。
 
  3. 安装 bundler
 
