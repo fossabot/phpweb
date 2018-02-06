@@ -21,12 +21,7 @@ class Index extends Common {
 	 * @return void|string
 	 */
 	public function tt() {
-		$t = array_search ( "", [ 
-				"华为",
-				"中兴",
-				"OLT" 
-		] );
-		return dump ( $t ? $t : null );
+		return dump ( session ( "user.email" ) );
 	}
 	
 	/**
@@ -84,6 +79,8 @@ class Index extends Common {
 				"label" => "zx_apply-new-rb",
 				"order" => "1,2,3,4,5,6,7,8,12,13,14,15,16,17,18,20,21,30,31,32,33,34,35,36,37,38,39" 
 		];
+		$this->assign ( 'zxInfoTitle', json_encode ( $zxInfoTitle, 256 ) );
+		return $this->fetch ();
 	}
 	/**
 	 * 根据label、order 获取表格的 header

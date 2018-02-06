@@ -16,7 +16,7 @@ class Manage extends Index {
 	 * 2.带post参数type=import,视为旧信息导入,
 	 * 生成ip表（全）和vlan表信息（不全）。直接入库，并标记tags:导入
 	 * 3.为了新增字段不修改数据库，将新增字段用json保存到一列。
-	 * 在csv转数组时，需要获取额外的字段
+	 * 在csv_to_array时，需要获取额外的字段
 	 *
 	 * @return void|string|mixed|string
 	 */
@@ -64,7 +64,8 @@ class Manage extends Index {
 	 * @return mixed|string
 	 */
 	public function import() {
-		// $zxInfoTitle = Db::table("phpweb_sysinfo")->field("value,option")->where("label","zxInfoTitle")->select();
+		// 前端根据参数自动获取title并组织好数据显示。
+		// 发送_ht_apply给服务器cvs格式，php根据title和csv处理成可以如数据库的array格式。
 		$zxInfoTitle = [ 
 				"label" => "zx_apply-new-rb",
 				"order" => "0,1,2,3,4,5,6,7,8,9,10,12,13,14,15,16,17,18,19,30,31,32,33,34,35,36,37,38,39" 

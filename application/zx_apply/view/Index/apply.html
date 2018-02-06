@@ -40,17 +40,20 @@ var formStructure = [
 		]},
 	]}
 ];
-var formData = [// 好丑~！~
-    {type:"label", label: "Settings"},
-    {type: "btn2state", label:"Auto-update the app",checked:true,
-       info:true,required:true},
-    {type: "btn2state", label: "Configure privacy settings", list:[
-        {type: "btn2state", label: "Start when I start Windows"},
-        {type: "btn2state", label: "Allow to be shown on the web"},
-        {type: "btn2state", label: "Accept browser cookies", checked:true}
-    ]}
+var formStructure = [// 好丑~！~
+	{type:"settings",labelWidth:100,inputWidth:250},
+	{type: "label", label: "专线基本信息",labelWidth:200,list:[
+		{type:"block",inputWidth:"auto",blockOffset:"0",list:[
+			{type:"input",name:"name",label:"申请人姓名",required:true},
+			{type:"combo",name:"email",label:"申请人邮箱",validate:"ValidEmail",required:true},
+			//{type:"input",name:"fe_code",label:"验证码",required:true},
+		]}
+	]},
+    {type: "checkbox", name: "ifOnu",label: "是否走onu", position: "label-right",list:[
+        {type:"input", name:"oltName", label:"olt名称"},
+    ]},
 ];
-var myForm = new dhtmlXForm("form_container",formData);
+var myForm = new dhtmlXForm("form_container", formStructure);
 
 </script>
 {/block}
