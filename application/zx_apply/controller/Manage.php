@@ -68,7 +68,7 @@ class Manage extends Index {
 		// 发送_ht_apply给服务器cvs格式，php根据title和csv处理成可以如数据库的array格式。
 		$zxInfoTitle = [ 
 				"label" => "zx_apply-new-rb",
-				"order" => "0,1,2,3,4,5,6,7,8,9,10,12,13,14,15,16,17,18,19,30,31,32,33,34,35,36,37,38,39" 
+				"order" => "0,1,2,3,4,5,6,7,8,9,10,12,13,14,15,16,17,18,19,30,31,32,33,34,35,36,37,38" 
 		];
 		$this->assign ( 'zxInfoTitle', json_encode ( $zxInfoTitle, 256 ) );
 		return $this->fetch ();
