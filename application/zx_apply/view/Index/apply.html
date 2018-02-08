@@ -2,7 +2,7 @@
 file="c/leftmenu_zx_apply_index" /} {/block}{block name="head"}
 <style>
 #form_container {
-	width: 1200px;
+	width: 900px;
 }
 </style>
 {/block}{block name="main"}
@@ -17,45 +17,23 @@ file="c/leftmenu_zx_apply_index" /} {/block}{block name="head"}
 {block name="script"}
 <script>
 var formStructure = [
-	{type:"settings",labelWidth:80,inputWidth:250},
-	{type:"block",inputWidth:"auto",blockOffset:"0",list:[			
-		{type: "label", label: "申请IP前请先登记身份",labelWidth:200,list:[
-			{type:"block",inputWidth:"auto",blockOffset:"0",list:[
-				{type:"input",name:"name",label:"申请人姓名",required:true},
-				{type:"combo",name:"email",label:"申请人邮箱",validate:"ValidEmail",required:true},
-				//{type:"input",name:"fe_code",label:"验证码",required:true},
-			]}
-		]},
-		{type:"label",label:"确认以上信息",labelWidth:200,list:[
-			{type:"block",inputWidth:"auto",blockOffset:"0",list:[
-				{type:"input",name:"code",label:"验证码",validate:"ValidInteger"},
-			]},
-			{type:"block",inputWidth:"auto",blockOffset:"0",list:[
-				{type:"button",name:"getVcode",value:"获取验证码"},
-				{type:"newcolumn"},
-				{type:"button",name:"verification",value:"验证并继续",disabled:true},
-			]},
-		]},
-	]}
-];
-var formStructure = [// 好丑~！~
-	{type:"settings",labelWidth:100,inputWidth:300},
-	{type:"fieldset",label:"专线基本信息",width:450,offsetLeft:15,list:[
-		{type:"input",name:"instanceId",label:"产品实例标识",validate:"",required:true},
+	{type:"settings",labelWidth:100,inputWidth:200},
+	{type:"fieldset",label:"专线基本信息",width:350,offsetLeft:15,list:[
+		{type:"input",name:"instanceId",label:"产品实例标识",validate:"^[0-9]{11}$",required:true},
 		{type:"select",name:"zxType",label:"专线类别",required:true},
-		{type:"input",name:"bandWidth",label:"带宽",required:true},
+		{type:"input",name:"bandWidth",label:"带宽",validate:"^[0-9Mm]+$"},
 		{type:"select",name:"neFactory",label:"网元厂家",required:true},
 		{type:"combo",name:"aStation",label:"A端基站",required:true},
-		{type:"input",name:"cName",label:"客户名",required:true},
-		{type:"input",name:"cAddress",label:"客户地址",required:true},
-		{type:"input",name:"cNeeds",label:"客户需求",required:true},
-		{type:"input",name:"cPersion",label:"客户联系人姓名",required:true},
-		{type:"input",name:"cPhone",label:"客户联系人电话",required:true},
+		{type:"input",name:"cName",label:"客户名",maxLength:30,required:true},
+		{type:"input",name:"cAddress",label:"客户地址",rows:2,required:true},
+		{type:"input",name:"cNeeds",label:"客户需求",maxLength:150,rows:3},
+		{type:"input",name:"cPersion",label:"客户联系人姓名",maxLength:5,required:true},
+		{type:"input",name:"cPhone",label:"客户联系人电话",maxLength:12,required:true},
 		{type:"input",name:"cEmail",label:"客户联系人邮箱",validate:"ValidEmail",required:true},
-		{type:"input",name:"mPerson",label:"客户经理姓名",required:true},
-		{type:"input",name:"mPhone",label:"客户经理电话",required:true},
+		{type:"input",name:"mPerson",label:"客户经理姓名",maxLength:5,required:true},
+		{type:"input",name:"mPhone",label:"客户经理电话",maxLength:12,required:true},
 		{type:"input",name:"mEmail",label:"客户经理邮箱",validate:"ValidEmail",required:true},
-		{type:"input",name:"marks",label:"备注",rows:3,required:true},
+		{type:"input",name:"marks",label:"备注"},
 	]},
 	{type:"block",inputWidth:"auto",offsetLeft:100,list:[
 		{type:"button",name:"commit",value:"提交"},
@@ -63,14 +41,14 @@ var formStructure = [// 好丑~！~
 		{type:"button",name:"cancel",value:"重置",offsetLeft:60},
 	]},
 	{type:"newcolumn"},
-	{type:"fieldset",label:"专线附加信息",width:420,offsetLeft:15,list:[
+	{type:"fieldset",label:"IP备案附加信息",width:420,offsetLeft:15,list:[
 	    {type:"checkbox",name:"ifOnu",label:"onu业务",labelWidth:70,labelAlign:"center",position:"label-right",offsetLeft:20,list:[
 	    	{type:"settings",labelWidth:130,inputWidth:200},
-	        {type:"combo",name:"oltName",label:"olt名称",note:{text:"如果下拉菜单搜不到请直接输入。"}},
+	        {type:"combo",name:"oltName",label:"olt名称",note:{text:"如果下拉菜单搜不到请直接输入。"},required:true},
 	    ]},
 	    {type:"settings",labelWidth:130,inputWidth:200},
 	    {type:"block",inputWidth:"auto",offsetLeft:0,list:[
-			{type:"input",name:"aPerson",label:"信息申请人",value:"{$Think.session.user.name}",readonly:true,required:true},
+	    	{type:"input",name:"aPerson",label:"信息申请人",value:"{$Think.session.user.name}",readonly:true,required:true},
 			{type:"input",name:"aEmail",label:"信息申请人邮箱",value:"{$Think.session.user.email}",readonly:true,required:true},
 			{type:"combo",name:"unitProperty",label:"单位性质id",required:true},
 			{type:"combo",name:"unitCategory",label:"单位分类id",required:true},
@@ -85,6 +63,7 @@ var formStructure = [// 好丑~！~
 	]},
 ];
 var myForm = new dhtmlXForm("form_container", formStructure);
+myForm.enableLiveValidation(true);
 var config = [];
 config['default']={
 	'zxType': [
@@ -122,100 +101,100 @@ config['default']={
 config["muticolumn"] = {
 	// 单位性质
 	"unitProperty": [
-		{value:1,text:{idd:1,mc:"军队"}},
-		{value:2,text:{idd:2,mc:"政府机关"}},
-		{value:3,text:{idd:3,mc:"事业单位"}},
-		{value:4,text:{idd:4,mc:"企业"}},
-		{value:5,text:{idd:5,mc:"个人"},selected:true},
-		{value:6,text:{idd:6,mc:"社会团体"}},
-		{value:7,text:{idd:7,mc:"国瑞"}},
-		{value:8,text:{idd:8,mc:"个体工商户"}},
-		{value:9,text:{idd:9,mc:"民办非企业"}},
-		{value:10,text:{idd:10,mc:"基金会"}},
-		{value:11,text:{idd:11,mc:"律师事务所"}},
-		{value:12,text:{idd:12,mc:"外国文化中心"}},
-		{value:99,text:{idd:99,mc:"未知"}}
+		{value:"1",text:{id:"1",MC:"军队"}},
+		{value:"2",text:{id:"2",MC:"政府机关"}},
+		{value:"3",text:{id:"3",MC:"事业单位"}},
+		{value:"4",text:{id:"4",MC:"企业"}},
+		{value:"5",text:{id:"5",MC:"个人"},selected:true},
+		{value:"6",text:{id:"6",MC:"社会团体"}},
+		{value:"7",text:{id:"7",MC:"国瑞"}},
+		{value:"8",text:{id:"8",MC:"个体工商户"}},
+		{value:"9",text:{id:"9",MC:"民办非企业"}},
+		{value:"10",text:{id:"10",MC:"基金会"}},
+		{value:"11",text:{id:"11",MC:"律师事务所"}},
+		{value:"12",text:{id:"12",MC:"外国文化中心"}},
+		{value:"99",text:{id:"99",MC:"未知"}},
 	],
 	// 单位分类
 	"unitCategory": [
-		{value:1,text:{idd:1,mc:"ISP"}},
-		{value:2,text:{idd:2,mc:"IDC"},selected:true},
-		{value:3,text:{idd:3,mc:"ISP和iddC"}},
-		{value:4,text:{idd:4,mc:"公益性互联网络单位"}},
-		{value:5,text:{idd:5,mc:"其他"}},
-		{value:11,text:{idd:11,mc:"电信业务经营者"}},
-		{value:12,text:{idd:12,mc:"公益性互联网络单位"}},
-		{value:14,text:{idd:14,mc:"管局单位"}},
-		{value:15,text:{idd:15,mc:"前置单位"}},
-		{value:999,text:{idd:999,mc:"未知"}},
+		{value:"1",text:{id:"1",MC:"ISP"}},
+		{value:"2",text:{id:"2",MC:"IDC"},selected:true},
+		{value:"3",text:{id:"3",MC:"ISP和IDC"}},
+		{value:"4",text:{id:"4",MC:"公益性互联网络单位"}},
+		{value:"5",text:{id:"5",MC:"其他"}},
+		{value:"11",text:{id:"11",MC:"电信业务经营者"}},
+		{value:"12",text:{id:"12",MC:"公益性互联网络单位"}},
+		{value:"14",text:{id:"14",MC:"管局单位"}},
+		{value:"15",text:{id:"15",MC:"前置单位"}},
+		{value:"999",text:{id:"999",MC:"未知"}},
 	],
 	// 行业分类
 	"industryCategory": [
-		{value:1,text:{idd:1,mc:"农、林、牧、渔业"}},
-		{value:2,text:{idd:2,mc:"采矿业"}},
-		{value:3,text:{idd:3,mc:"制造业"}},
-		{value:4,text:{idd:4,mc:"电力、燃气及水的生产和供应业"}},
-		{value:5,text:{idd:5,mc:"建筑业"}},
-		{value:6,text:{idd:6,mc:"交通运输、仓储和邮政业"}},
-		{value:7,text:{idd:7,mc:"信息传输、计算机服务和软件业"}},
-		{value:8,text:{idd:8,mc:"批发和零售业"}},
-		{value:9,text:{idd:9,mc:"住宿和餐饮业"}},
-		{value:10,text:{idd:10,mc:"金融业"}},
-		{value:11,text:{idd:11,mc:"房地产业"}},
-		{value:12,text:{idd:12,mc:"租赁和商务服务业"}},
-		{value:13,text:{idd:13,mc:"科学研究、技术服务和地质勘查业"}},
-		{value:14,text:{idd:14,mc:"水利、环境和公共设施管理业"}},
-		{value:15,text:{idd:15,mc:"居民服务和其他服务业"}},
-		{value:16,text:{idd:16,mc:"教育"}},
-		{value:17,text:{idd:17,mc:"卫生、社会保障和社会福利业"}},
-		{value:18,text:{idd:18,mc:"文化、体育和娱乐业"}},
-		{value:19,text:{idd:19,mc:"公共管理与社会组织"}},
-		{value:20,text:{idd:20,mc:"国际组织"}},
-		{value:21,text:{idd:21,mc:"example"}},
-		{value:999,text:{idd:999,mc:"未知"}},
+		{value:"1",text:{id:"1",MC:"农、林、牧、渔业"}},
+		{value:"2",text:{id:"2",MC:"采矿业"}},
+		{value:"3",text:{id:"3",MC:"制造业"}},
+		{value:"4",text:{id:"4",MC:"电力、燃气及水的生产和供应业"}},
+		{value:"5",text:{id:"5",MC:"建筑业"}},
+		{value:"6",text:{id:"6",MC:"交通运输、仓储和邮政业"}},
+		{value:"7",text:{id:"7",MC:"信息传输、计算机服务和软件业"}},
+		{value:"8",text:{id:"8",MC:"批发和零售业"}},
+		{value:"9",text:{id:"9",MC:"住宿和餐饮业"}},
+		{value:"10",text:{id:"10",MC:"金融业"}},
+		{value:"11",text:{id:"11",MC:"房地产业"}},
+		{value:"12",text:{id:"12",MC:"租赁和商务服务业"}},
+		{value:"13",text:{id:"13",MC:"科学研究、技术服务和地质勘查业"}},
+		{value:"14",text:{id:"14",MC:"水利、环境和公共设施管理业"}},
+		{value:"15",text:{id:"15",MC:"居民服务和其他服务业"}},
+		{value:"16",text:{id:"16",MC:"教育"}},
+		{value:"17",text:{id:"17",MC:"卫生、社会保障和社会福利业"}},
+		{value:"18",text:{id:"18",MC:"文化、体育和娱乐业"}},
+		{value:"19",text:{id:"19",MC:"公共管理与社会组织"}},
+		{value:"20",text:{id:"20",MC:"国际组织"}},
+		{value:"21",text:{id:"21",MC:"example"}},
+		{value:"999",text:{id:"999",MC:"未知"}},
 	],
 	// 使用单位证件类型
 	"credential": [
-		{value:1,text:{idd:1,mc:"工商营业执照"}},
-		{value:2,text:{idd:2,mc:"身份证"}},
-		{value:3,text:{idd:3,mc:"组织机构代码证书"}},
-		{value:4,text:{idd:4,mc:"事业法人证书"}},
-		{value:5,text:{idd:5,mc:"军队代号"}},
-		{value:6,text:{idd:6,mc:"社团法人证书"}},
-		{value:7,text:{idd:7,mc:"护照"}},
-		{value:8,text:{idd:8,mc:"军官证"}},
-		{value:11,text:{idd:11,mc:"台胞证"}},
-		{value:13,text:{idd:13,mc:"统一社会信用代码证书"}},
-		{value:14,text:{idd:14,mc:"港澳居民来往内地通行证"}},
-		{value:17,text:{idd:17,mc:"民办非企业单位登记证书"}},
-		{value:19,text:{idd:19,mc:"基金会法人登记证书"}},
-		{value:21,text:{idd:21,mc:"律师事务所执业许可证"}},
+		{value:"1",text:{id:"1",MC:"工商营业执照"}},
+		{value:"2",text:{id:"2",MC:"身份证"}},
+		{value:"3",text:{id:"3",MC:"组织机构代码证书"},selected:true},
+		{value:"4",text:{id:"4",MC:"事业法人证书"}},
+		{value:"5",text:{id:"5",MC:"军队代号"}},
+		{value:"6",text:{id:"6",MC:"社团法人证书"}},
+		{value:"7",text:{id:"7",MC:"护照"}},
+		{value:"8",text:{id:"8",MC:"军官证"}},
+		{value:"11",text:{id:"11",MC:"台胞证"}},
+		{value:"13",text:{id:"13",MC:"统一社会信用代码证书"}},
+		{value:"14",text:{id:"14",MC:"港澳居民来往内地通行证"}},
+		{value:"17",text:{id:"17",MC:"民办非企业单位登记证书"}},
+		{value:"19",text:{id:"19",MC:"基金会法人登记证书"}},
+		{value:"21",text:{id:"21",MC:"律师事务所执业许可证"}},
 	],
 	"province": [
-		{value:210000,text:{idd:210000,mc:"辽宁省"}},
+		{value:"210000",text:{id:"210000",MC:"辽宁省"},selected:true},
 	],
 	"city": [
-		{value:211200,text:{idd:211200,mc:"铁岭市"}},
+		{value:"211200",text:{id:"211200",MC:"铁岭市"},selected:true},
 	],
 	"county": [
-		{value:211201,text:{idd:211201,mc:"市辖区"}},
-		{value:211202,text:{idd:211202,mc:"银州区"}},
-		{value:211204,text:{idd:211204,mc:"清河区"}},
-		{value:211221,text:{idd:211221,mc:"铁岭县"}},
-		{value:211223,text:{idd:211223,mc:"西丰县"}},
-		{value:211224,text:{idd:211224,mc:"昌图县"}},
-		{value:211281,text:{idd:211281,mc:"调兵山市"}},
-		{value:211282,text:{idd:211282,mc:"开原市"}},
+		{value:"211201",text:{id:"211201",MC:"市辖区"}},
+		{value:"211202",text:{id:"211202",MC:"银州区"},selected:true},
+		{value:"211204",text:{id:"211204",MC:"清河区"}},
+		{value:"211221",text:{id:"211221",MC:"铁岭县"}},
+		{value:"211223",text:{id:"211223",MC:"西丰县"}},
+		{value:"211224",text:{id:"211224",MC:"昌图县"}},
+		{value:"211281",text:{id:"211281",MC:"调兵山市"}},
+		{value:"211282",text:{id:"211282",MC:"开原市"}},
 	],
 	"appServType": [
-		{value:1,text:{idd:1,mc:"企事业单位专线接入"}},
-		{value:2,text:{idd:2,mc:"个人专线接入"}},
-		{value:3,text:{idd:3,mc:"固定宽带接入"}},
-		{value:4,text:{idd:4,mc:"移动网接入"}},
-		{value:5,text:{idd:5,mc:"网络设备"}},
-		{value:6,text:{idd:6,mc:"网站专线接入"}},
-		{value:7,text:{idd:7,mc:"IDC服务类"}},
-		{value:8,text:{idd:8,mc:"物联网 "}},
+		{value:"1",text:{id:"1",MC:"企事业单位专线接入"}},
+		{value:"2",text:{id:"2",MC:"个人专线接入"}},
+		{value:"3",text:{id:"3",MC:"固定宽带接入"}},
+		{value:"4",text:{id:"4",MC:"移动网接入"}},
+		{value:"5",text:{id:"5",MC:"网络设备"}},
+		{value:"6",text:{id:"6",MC:"网站专线接入"}},
+		{value:"7",text:{id:"7",MC:"IDC服务类"}},
+		{value:"8",text:{id:"8",MC:"物联网 "}},
 	]
 };
 initCombo();
@@ -225,58 +204,31 @@ function initCombo(){
 		myForm.reloadOptions(cfg_d,config["default"][cfg_d]);
 		myForm.getCombo(cfg_d) && myForm.getCombo(cfg_d).enableFilteringMode("between");
 	}
-	/*for (var cfg_m in config["muticolumn"]){
+	for (var cfg_m in config["muticolumn"]){
 		combo = myForm.getCombo(cfg_m);
 		combo.clearAll();
 		combo.setTemplate({
-			input:"#idd#,#mc#",
+			input:"#id#-#MC#",
 			//header:false,//if you want to hide header
 			columns:[
-				{header:"id",width:40,option:"#idd#"},
-				{header:"MC",width:130,option:"#mc#"}
+				{header:"id",width:60,option:"#id#"},
+				{header:"MC",width:180,option:"#MC#"}
 			]
 		});
 		combo.addOption(config["muticolumn"][cfg_m]);
 		combo.enableFilteringMode("between");
-	}*/
+	}
 }
+myForm.attachEvent("onButtonClick", function(id) {
+	if(id == "commit"){
+		if(myForm.validate()){
+			
+		}else{
+			dhtmlx.alert("请检查填写是否完整或格式类型是否正确。");
+		}
+	}
 
-////////////test start
-var combo = myForm.getCombo("unitProperty");
-combo.setTemplate({
-    input: "#capital#, #country#",
-    //header: false, // if you want to hide header
-    columns: [
-        {header: "Capital", width:  80, css: "capital", option: "#capital#"},
-        {header: "Country", width: 110, css: "country", option: "#country#"},
-        {header: "Proverb", width: 250, css: "proverb", option: "#proverb#"}
-    ]
 });
-combo.addOption([
-    {value: "1", text:
-        {country: "Austria", capital:"Vienna"}
-    },
-    {value: "2", text:
-        {country: "Belarus", capital:"Minsk"}
-    },
-    {value: "3", selected: 1, text:
-        {country: "Cameroon", capital: "Yaoundé"}
-    },
-    {value: "4", text:
-        {country: "Canada", capital: "Ottawa"}
-    }
-]);
-
-combo.setTemplate({
-	input:"#id#,#MC#",
-	columns:[
-		{header:"id",width:40,option:"#idd#"},
-		{header:"MC",width:130,option:"#mc#"}
-	]
-});
-combo.addOption(config["muticolumn"]["zxType"]);
-//////////test end
-
 
 </script>
 {/block}
