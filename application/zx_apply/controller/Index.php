@@ -6,6 +6,7 @@ use think\Controller;
 use think\Request;
 use think\Db;
 use app\zx_apply\model\Infotables;
+use app\zx_apply\model\Vlantables;
 
 class Index extends Common {
 	
@@ -21,7 +22,7 @@ class Index extends Common {
 	 * @return void|string
 	 */
 	public function tt() {
-		return dump ( session ( "user.email" ) );
+		return dump(Vlantables::generateVlan("XF-10","ttttest"));
 	}
 	
 	/**
@@ -54,10 +55,17 @@ class Index extends Common {
 				unset ( $user ["code"] );
 				return $this->error ( $msg, "index", $user );
 			} else {
+				$e = explode ( "@", $user ["email"] );
+				if ($e [1] == "ln.chinamobile.com" && in_array ( $e [0], config ( "manageEmails" ) )) {
+					$user ["role"] = "manage";
+				} else {
+					$user ["role"] = "index";
+				}
 				session ( "user", $user );
 				$msg = "欢迎回来，" . $user ["name"] . "。";
 				$this->writeLog ( "登陆", "success", $msg );
-				$url = session ( "to_url" ) ? session ( "to_url" ) : "query";
+				$url = session ( "to_url" ) ? session ( "to_url" ) : session ( "user.role" ) . "/query";
+				session ( "to_url", null );
 				return $this->success ( $msg, $url, $user );
 			}
 		}
@@ -75,11 +83,13 @@ class Index extends Common {
 	 * 数据专线申请开通
 	 */
 	public function apply() {
-		$zxInfoTitle = [ 
-				"label" => "zx_apply-new-rb",
-				"order" => "1,2,3,4,5,6,7,8,12,13,14,15,16,17,18,20,21,30,31,32,33,34,35,36,37,38" 
-		];
-		$this->assign ( 'zxInfoTitle', json_encode ( $zxInfoTitle, 256 ) );
+		/*
+		 * $zxInfoTitle = [
+		 * "label" => "zx_apply-new-rb",
+		 * "order" => "1,2,3,4,5,6,7,8,12,13,14,15,16,17,18,20,21,30,31,32,33,34,35,36,37,38"
+		 * ];
+		 * $this->assign ( 'zxInfoTitle', json_encode ( $zxInfoTitle, 256 ) );
+		 */
 		return $this->fetch ();
 	}
 	/**
@@ -110,7 +120,7 @@ class Index extends Common {
 	 * 信息查询
 	 */
 	public function query() {
-		return $this->fetch ( "index/query" );
+		return $this->fetch ();
 	}
 	/**
 	 * 更新信息

@@ -3,12 +3,13 @@
 namespace app\zx_apply\controller;
 
 use think\Controller;
+use app\zx_apply\model\Vlantables;
 
 class Manage extends Index {
 	public function index() {
 		return $this->redirect ( "todo" );
 	}
-		/**
+	/**
 	 * get:加载数据到handsontable并验证,
 	 * post:上传,后台处理入库
 	 * 1.默认post为新申请,移除ip、vlan信息再保存,
@@ -79,9 +80,18 @@ class Manage extends Index {
 	 * @return mixed|string
 	 */
 	public function settings() {
-		if (! strpos ( request ()->header ( "referer" ), request ()->action () )) {
-			session ( "settings_back_url", request ()->header ( "referer" ) );
+		if (request ()->isGet ()) {
+			if (! strpos ( request ()->header ( "referer" ), request ()->action () )) {
+				session ( "settings_back_url", request ()->header ( "referer" ) );
+			}
+			return $this->fetch ();
+		} else if(request()->isPost()) {
+			if(input("post.exec")=="ok_ip"){
+				
+			}
+			if(input("post.exec")=="ok_vlan"){
+				return Vlantables::importUsedVlan(input("post.device"),input("post.vlanImport"));
+			}
 		}
-		return $this->fetch ();
 	}
 }

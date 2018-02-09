@@ -21,7 +21,7 @@ var formStructure = [
 	{type:"fieldset",label:"专线基本信息",width:350,offsetLeft:15,list:[
 		{type:"input",name:"instanceId",label:"产品实例标识",validate:"^[0-9]{11}$",required:true},
 		{type:"select",name:"zxType",label:"专线类别",required:true},
-		{type:"input",name:"bandWidth",label:"带宽",validate:"^[0-9Mm]+$"},
+		{type:"input",name:"bandWidth",label:"带宽",value:"10M",validate:"^[0-9Mm]+$"},
 		{type:"select",name:"neFactory",label:"网元厂家",required:true},
 		{type:"combo",name:"aStation",label:"A端基站",required:true},
 		{type:"input",name:"cName",label:"客户名",maxLength:30,required:true},
@@ -40,9 +40,10 @@ var formStructure = [
 		{type:"newcolumn"},
 		{type:"button",name:"cancel",value:"重置",offsetLeft:60},
 	]},
-	{type:"newcolumn"},
-	{type:"fieldset",label:"IP备案附加信息",width:420,offsetLeft:15,list:[
-	    {type:"checkbox",name:"ifOnu",label:"onu业务",labelWidth:70,labelAlign:"center",position:"label-right",offsetLeft:20,list:[
+	{type:"newcolumn",offset:15},
+	{type:"fieldset",label:"IP备案附加信息",width:420,list:[
+		{type:"label",label:"说明：表中数据为推荐值，均可修改<br><br><br><br><br>",labelWidth:230,offsetLeft:20,offsetTop:17,readonly:true},
+	    {type:"checkbox",name:"ifOnu",label:"onu带的业务",labelWidth:80,labelAlign:"right",position:"label-right",offsetLeft:20,list:[
 	    	{type:"settings",labelWidth:130,inputWidth:200},
 	        {type:"combo",name:"oltName",label:"olt名称",note:{text:"如果下拉菜单搜不到请直接输入。"},required:true},
 	    ]},
@@ -64,139 +65,9 @@ var formStructure = [
 ];
 var myForm = new dhtmlXForm("form_container", formStructure);
 myForm.enableLiveValidation(true);
-var config = [];
-config['default']={
-	'zxType': [
-		{value:'互联网',text:'互联网',selected:true},
-		{value:'营业厅',text:'营业厅'},
-		{value:'平安校园',text:'平安校园'},
-		{value:'点对点',text:'点对点'},
-		{value:'卫生网',text:'卫生网'},
-		{value:'教育网',text:'教育网'},
-		{value:'IMS',text:'IMS'},
-		{value:'其他',text:'其他'},
-	],
-	'neFactory': [
-		{value:0,text:'华为',selected:true},
-		{value:1,text:'中兴'},
-	],
-	'aStation': [
-		{value:'柴河局-华为',text:'柴河局-华为',selected:true},
-		{value:'柴河局-中兴',text:'柴河局-中兴'},
-		{value:'昌图新局',text:'昌图新局'},
-		{value:'昌图老局',text:'昌图老局'},
-		{value:'西丰新局',text:'西丰新局'},
-		{value:'西丰老局',text:'西丰老局'},
-		{value:'开原老局',text:'开原老局'},
-		{value:'开原新局',text:'开原新局'},
-		{value:'清河',text:'清河'},
-		{value:'调兵山老局',text:'调兵山老局'},
-		{value:'调兵山新局',text:'调兵山新局'},
-		{value:'铁岭县',text:'铁岭县'},
-		{value:'新台子',text:'新台子'},
-		{value:'银州区',text:'银州区'},
-		{value:'柴河局09',text:'柴河局09'},
-	],
-};
-config["muticolumn"] = {
-	// 单位性质
-	"unitProperty": [
-		{value:"1",text:{id:"1",MC:"军队"}},
-		{value:"2",text:{id:"2",MC:"政府机关"}},
-		{value:"3",text:{id:"3",MC:"事业单位"}},
-		{value:"4",text:{id:"4",MC:"企业"}},
-		{value:"5",text:{id:"5",MC:"个人"},selected:true},
-		{value:"6",text:{id:"6",MC:"社会团体"}},
-		{value:"7",text:{id:"7",MC:"国瑞"}},
-		{value:"8",text:{id:"8",MC:"个体工商户"}},
-		{value:"9",text:{id:"9",MC:"民办非企业"}},
-		{value:"10",text:{id:"10",MC:"基金会"}},
-		{value:"11",text:{id:"11",MC:"律师事务所"}},
-		{value:"12",text:{id:"12",MC:"外国文化中心"}},
-		{value:"99",text:{id:"99",MC:"未知"}},
-	],
-	// 单位分类
-	"unitCategory": [
-		{value:"1",text:{id:"1",MC:"ISP"}},
-		{value:"2",text:{id:"2",MC:"IDC"},selected:true},
-		{value:"3",text:{id:"3",MC:"ISP和IDC"}},
-		{value:"4",text:{id:"4",MC:"公益性互联网络单位"}},
-		{value:"5",text:{id:"5",MC:"其他"}},
-		{value:"11",text:{id:"11",MC:"电信业务经营者"}},
-		{value:"12",text:{id:"12",MC:"公益性互联网络单位"}},
-		{value:"14",text:{id:"14",MC:"管局单位"}},
-		{value:"15",text:{id:"15",MC:"前置单位"}},
-		{value:"999",text:{id:"999",MC:"未知"}},
-	],
-	// 行业分类
-	"industryCategory": [
-		{value:"1",text:{id:"1",MC:"农、林、牧、渔业"}},
-		{value:"2",text:{id:"2",MC:"采矿业"}},
-		{value:"3",text:{id:"3",MC:"制造业"}},
-		{value:"4",text:{id:"4",MC:"电力、燃气及水的生产和供应业"}},
-		{value:"5",text:{id:"5",MC:"建筑业"}},
-		{value:"6",text:{id:"6",MC:"交通运输、仓储和邮政业"}},
-		{value:"7",text:{id:"7",MC:"信息传输、计算机服务和软件业"}},
-		{value:"8",text:{id:"8",MC:"批发和零售业"}},
-		{value:"9",text:{id:"9",MC:"住宿和餐饮业"}},
-		{value:"10",text:{id:"10",MC:"金融业"}},
-		{value:"11",text:{id:"11",MC:"房地产业"}},
-		{value:"12",text:{id:"12",MC:"租赁和商务服务业"}},
-		{value:"13",text:{id:"13",MC:"科学研究、技术服务和地质勘查业"}},
-		{value:"14",text:{id:"14",MC:"水利、环境和公共设施管理业"}},
-		{value:"15",text:{id:"15",MC:"居民服务和其他服务业"}},
-		{value:"16",text:{id:"16",MC:"教育"}},
-		{value:"17",text:{id:"17",MC:"卫生、社会保障和社会福利业"}},
-		{value:"18",text:{id:"18",MC:"文化、体育和娱乐业"}},
-		{value:"19",text:{id:"19",MC:"公共管理与社会组织"}},
-		{value:"20",text:{id:"20",MC:"国际组织"}},
-		{value:"21",text:{id:"21",MC:"example"}},
-		{value:"999",text:{id:"999",MC:"未知"}},
-	],
-	// 使用单位证件类型
-	"credential": [
-		{value:"1",text:{id:"1",MC:"工商营业执照"}},
-		{value:"2",text:{id:"2",MC:"身份证"}},
-		{value:"3",text:{id:"3",MC:"组织机构代码证书"},selected:true},
-		{value:"4",text:{id:"4",MC:"事业法人证书"}},
-		{value:"5",text:{id:"5",MC:"军队代号"}},
-		{value:"6",text:{id:"6",MC:"社团法人证书"}},
-		{value:"7",text:{id:"7",MC:"护照"}},
-		{value:"8",text:{id:"8",MC:"军官证"}},
-		{value:"11",text:{id:"11",MC:"台胞证"}},
-		{value:"13",text:{id:"13",MC:"统一社会信用代码证书"}},
-		{value:"14",text:{id:"14",MC:"港澳居民来往内地通行证"}},
-		{value:"17",text:{id:"17",MC:"民办非企业单位登记证书"}},
-		{value:"19",text:{id:"19",MC:"基金会法人登记证书"}},
-		{value:"21",text:{id:"21",MC:"律师事务所执业许可证"}},
-	],
-	"province": [
-		{value:"210000",text:{id:"210000",MC:"辽宁省"},selected:true},
-	],
-	"city": [
-		{value:"211200",text:{id:"211200",MC:"铁岭市"},selected:true},
-	],
-	"county": [
-		{value:"211201",text:{id:"211201",MC:"市辖区"}},
-		{value:"211202",text:{id:"211202",MC:"银州区"},selected:true},
-		{value:"211204",text:{id:"211204",MC:"清河区"}},
-		{value:"211221",text:{id:"211221",MC:"铁岭县"}},
-		{value:"211223",text:{id:"211223",MC:"西丰县"}},
-		{value:"211224",text:{id:"211224",MC:"昌图县"}},
-		{value:"211281",text:{id:"211281",MC:"调兵山市"}},
-		{value:"211282",text:{id:"211282",MC:"开原市"}},
-	],
-	"appServType": [
-		{value:"1",text:{id:"1",MC:"企事业单位专线接入"}},
-		{value:"2",text:{id:"2",MC:"个人专线接入"}},
-		{value:"3",text:{id:"3",MC:"固定宽带接入"}},
-		{value:"4",text:{id:"4",MC:"移动网接入"}},
-		{value:"5",text:{id:"5",MC:"网络设备"}},
-		{value:"6",text:{id:"6",MC:"网站专线接入"}},
-		{value:"7",text:{id:"7",MC:"IDC服务类"}},
-		{value:"8",text:{id:"8",MC:"物联网 "}},
-	]
-};
+</script>
+{include file="c/_formConfig" /}
+<script>
 initCombo();
 function initCombo(){
 	var combo;
@@ -206,6 +77,9 @@ function initCombo(){
 	}
 	for (var cfg_m in config["muticolumn"]){
 		combo = myForm.getCombo(cfg_m);
+		if(null == combo){
+			continue;
+		}
 		combo.clearAll();
 		combo.setTemplate({
 			input:"#id#-#MC#",
@@ -222,9 +96,10 @@ function initCombo(){
 myForm.attachEvent("onButtonClick", function(id) {
 	if(id == "commit"){
 		if(myForm.validate()){
+			var data = myForm.getFormData();
 			
 		}else{
-			dhtmlx.alert("请检查填写是否完整或格式类型是否正确。");
+			dhtmlx.alert({type:"alert-error",title:"数据验证有误",text:"请检查填写是否完整或格式类型是否正确。"});
 		}
 	}
 

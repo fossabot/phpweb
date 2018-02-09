@@ -1,0 +1,54 @@
+{extend name="common@Public/base" /} {block name="head"}
+<link rel="STYLESHEET" type="text/css"
+	href="__STATIC__/handsontable-pro/handsontable.full.min.css">
+<script src="__STATIC__/handsontable-pro/handsontable.full.min.js"></script>
+{/block} {block name="leftmenu"} {include
+file="c/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
+<div class="htmltitle">
+	<h2>信息查询</h2>
+</div>
+<div></div>
+<div id='example'></div>
+<div id='example1'></div>
+
+11
+{/block} {block name="script"}
+<script>
+$(function($){
+	$(".wtHolder")[0].style.height="";	//修复wtHolder层height过大。
+});
+var data;
+/*$.get("/static/demo-data.csv",function(_data){
+	data = _data;
+	var header = "申请时间,产品实例标识,专线类别,带宽,网元厂家,A端基站,客户名,客户地址,客户需求,ipId,vlanId,客户联系人姓名,客户联系人电话,客户联系人邮箱,客户经理姓名,客户经理电话,客户经理邮箱,单位性质,备注";
+	var container = document.getElementById('example');
+	var hot = new Handsontable(container, {
+	  data: data,
+	  rowHeaders: true,
+	  colHeaders: header.split(","),
+	  filters: true,
+	  dropdownMenu: true,
+	});
+});*/
+	// ******************
+	  var
+	    data1 = [
+	      ['', 'Tesla', 'Nissan', 'Toyota', 'Honda', 'Mazda', 'Ford', 'Tesla','Honda', 'Mazda', 'Ford', 'Tesla', 'Nissan', 'Toyota', 'Honda', 'Mazda', 'Ford', 'ffffffffffff'],
+	      ['2017', 10, 11, 12, 13, 15, 16],
+	      ['2018', 10, 11, 12, 13, 15, 16],
+	      ['2019', 10, 11, 12, 13, 15, 16],
+	      ['2020', 10, 11, 12, 13, 15, 16],
+	      ['2021', 10, 11, 12, 13, 15, 16]
+	    ],
+	    container1 = document.getElementById('example1'),
+	    settings1 = {
+	      data: data1,
+	      
+	    },
+	    hot1;
+
+	  hot1 = new Handsontable(container1, settings1);
+	  data1[0][1] = 'Forddddd';  // change "Kia" to "Ford" programmatically
+	 // hot1.render();
+</script>
+{/block}

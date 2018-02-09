@@ -213,11 +213,11 @@ class Common extends Controller {
 		}
 		$address = $e;
 		$subject = '【ESWeb】您的登录验证码为：' . sprintf ( "%04s", $vcode ) . '，在30分钟内可使用。';
-		$body = '<p class="msg">您申请了邮箱登录的验证码，若非本人操作，请忽略本邮件。</p><hr /><br /><br /><br /><br />
-				<div class="footer"><p>Powered by <a href="https://github.com/yuxianda/")">Xianda</a></p>
+		$body = '<p class="xianda-msg">您申请了邮箱登录的验证码，若非本人操作，请忽略本邮件。</p><hr /><br /><br /><br /><br />
+				<div class="xianda-footer"><p>Powered by <a href="https://github.com/yuxianda/")">Xianda</a></p>
 				<p><a href="mailto:yuxianda.tl@139.com")">Connect me</a>: yuxianda.tl@139.com</p>
 				<p>Learn more at my <a href="https://yuxianda.github.io/">Blog</a></p></div>
-				<style>.msg{color:#088bff;}.footer{width:500px;padding:30px;background-color:#000;color:#bbb;}.footer a{color:#eee;font-weight:bold;}</style>';
+				<style>.xianda-msg{color:#088bff;}.xianda-footer{width:500px;padding:30px;background-color:#000;color:#bbb;}.xianda-footer a{color:#eee;font-weight:bold;}</style>';
 		$sendEmail = $this->sendEmail ( $address, $subject, $body );
 		// $sendEmail = true; // 测试用例
 		if (is_bool ( $sendEmail )) {
