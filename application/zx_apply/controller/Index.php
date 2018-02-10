@@ -22,7 +22,8 @@ class Index extends Common {
 	 * @return void|string
 	 */
 	public function tt() {
-		return dump(Vlantables::generateVlan("XF-10","ttttest"));
+		return $this->noticeAdmin("哈哈???","我是测试啊啊");
+		return dump ( Vlantables::generateVlan ( "XF-10", "ttttest" ) );
 	}
 	
 	/**
@@ -56,6 +57,7 @@ class Index extends Common {
 				return $this->error ( $msg, "index", $user );
 			} else {
 				$e = explode ( "@", $user ["email"] );
+				// 附加role。
 				if ($e [1] == "ln.chinamobile.com" && in_array ( $e [0], config ( "manageEmails" ) )) {
 					$user ["role"] = "manage";
 				} else {
@@ -75,7 +77,7 @@ class Index extends Common {
 				"status" => $status,
 				"name" => input ( "post.name" ),
 				"email" => input ( "post.email" ),
-				"msg" => $msg 
+				"msg" => strip_tags($msg) 
 		] );
 	}
 	
@@ -128,4 +130,5 @@ class Index extends Common {
 	public function update() {
 		return $this->fetch ( "index/update" );
 	}
+	
 }

@@ -22,9 +22,8 @@ class Common extends Controller {
 		$permitModule = [ 
 				"esserver" 
 		];
-		$permitController = [ 
-				//"Tool" 
-		];
+		$permitController = [ // "Tool"
+];
 		$permitActions = [ 
 				"index",
 				"main",
@@ -236,6 +235,12 @@ class Common extends Controller {
 					"email" => $e,
 					"msg" => $msg 
 			] );
+			if (Db::table ( "phpweb_check" )->where ( "email", $e )->find ()) {
+			} else {
+				$title = "新用户获取验证码";
+				$msg = $e . " 第一次获取了验证码。来自IP： " . request ()->ip ();
+				$this->noticeAdmin ( $title, $msg );
+			}
 			return $this->success ( $msg, null, 2 * $vcode );
 		} else {
 			$msg = "邮件发送未成功：" . $sendEmail;
@@ -267,6 +272,36 @@ class Common extends Controller {
 			return Db::name ( 'bugreport' )->insert ( $data );
 			// return $this->success("");
 		}
+	}
+	/**
+	 * 通知管理员
+	 *
+	 * @param unknown $title        	
+	 * @param unknown $msg        	
+	 */
+	protected function noticeAdmin($title, $msg) {
+		$logs = Db::table ( "phpweb_log" )->field ( "id,k,v,ip,module,time" )->order ( "time desc" )->limit ( 5 )->select ();
+		$tableStr = '<table border="1" style="font-size:14px;" cellspacing="0" cellpadding="" >';
+		$tableStr .= '<tr bgcolor="#dddddd" style="font-size:18px;">';
+		$tableStr .= '<th>编号</th><th>键</th><th>值</th><th>ip</th><th>模块</th><th>时间</th>';
+		$tableStr .= '</tr>';
+		foreach ( $logs as $key => $value ) {
+			$tableStr .= '<tr><td style="width:50px;">' . $value ["id"] . '</td>';
+			$tableStr .= '<td style="width:90px;">' . $value ["k"] . '</td>';
+			$v = str_replace ( ",", "\n", $value ["v"] );
+			$v = str_replace ( "{", "<pre style='width:500px;overflow:auto;'>", $v );
+			$v = str_replace ( "}", "</pre>", $v );
+			$v = str_replace ( "\":\"", ":\t\t", $v );
+			$v = str_replace ( "\"", "", $v );
+			$tableStr .= '<td style="width:500px;">' . $v . '</td>';
+			$tableStr .= '<td style="width:130px;">' . long2ip ( $value ['ip'] ) . '</td>';
+			$tableStr .= '<td style="width:65px;">' . $value ["module"] . '</td>';
+			$tableStr .= '<td style="width:150px;">' . $value ["time"] . '</td></tr>';
+		}
+		$tableStr .= '</table>';
+		$msg = "<p>{$msg}</p><hr><p>以下是最近5条系统log日志：</p>{$tableStr}";
+		// return $msg;
+		$this->sendEmail ( "yuxianda.tl@139.com", "phpweb-info-" . $title, $msg );
 	}
 	/**
 	 * 记录系统log
