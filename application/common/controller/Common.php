@@ -33,6 +33,7 @@ class Common extends Controller {
 		if (substr ( $request->domain (), - 9 ) == "localhost" || in_array ( $request->module (), $permitModule ) || in_array ( $request->controller (), $permitController ) || in_array ( $request->action (), $permitActions ) || input ( 'session.user/a' )) {
 			$this->assign ( "version", config ( "version" ) );
 		} else {
+			// session 保存 to_url
 			session ( "to_url", request ()->baseUrl () );
 			return $this->error ( '您未登录或登录超时，请先登录！', 'index/index#' . $request->controller () . "/" . $request->action () );
 		}

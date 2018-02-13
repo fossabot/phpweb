@@ -3,6 +3,7 @@
 namespace app\zx_apply\controller;
 
 use app\common\controller\Common as CCommon;
+use think\Session;
 
 class Common extends CCommon {
 	
@@ -27,6 +28,17 @@ class Common extends CCommon {
 				] );
 			}
 		}
+	}
+	/**
+	 * 退出登录
+	 */
+	public function loginout() {
+		$this->log ( "注销登陆", [
+				"stauts" => "success",
+				"name" => session ( "user.name" )
+		] );
+		Session::delete ( "user" );
+		return $this->success ( "已注销登录", "index/index#logout", "", 1 );
 	}
 	public function _empty() {
 		$dir = APP_PATH . request()->module () . DS . "view" . DS . request()->controller () . DS . request()->action () . "." . config ( 'template.view_suffix' );

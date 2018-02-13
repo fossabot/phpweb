@@ -40,9 +40,8 @@ class Manage extends Index {
 			foreach ( $data as $k => $v ) {
 				$temp = [ ];
 				foreach ( $extraHeader as $kk => $vv ) {
-					$temp [$kk] = $v [$vv];
+					$data [$k] ["extra"] [$vv] = $v [$vv];
 				}
-				$data [$k] ["extra"] = $temp;
 				if ($v ["aStation"] == "柴河局") {
 					$data [$k] ["aStation"] .= "-" . $data [$k] ["neFactory"];
 				}
@@ -85,12 +84,11 @@ class Manage extends Index {
 				session ( "settings_back_url", request ()->header ( "referer" ) );
 			}
 			return $this->fetch ();
-		} else if(request()->isPost()) {
-			if(input("post.exec")=="ok_ip"){
-				
+		} else if (request ()->isPost ()) {
+			if (input ( "post.exec" ) == "ok_ip") {
 			}
-			if(input("post.exec")=="ok_vlan"){
-				return Vlantables::importUsedVlan(input("post.device"),input("post.vlanImport"));
+			if (input ( "post.exec" ) == "ok_vlan") {
+				return Vlantables::importUsedVlan ( input ( "post.device" ), input ( "post.vlanImport" ) );
 			}
 		}
 	}

@@ -27,7 +27,7 @@ var formStructure = [
 		{type:"input",name:"cName",label:"客户名",maxLength:30,required:true},
 		{type:"input",name:"cAddress",label:"客户地址",rows:2,required:true},
 		{type:"input",name:"cNeeds",label:"客户需求",maxLength:150,rows:3},
-		{type:"input",name:"cPersion",label:"客户联系人姓名",maxLength:5,required:true},
+		{type:"input",name:"cPerson",label:"客户联系人姓名",maxLength:5,required:true},
 		{type:"input",name:"cPhone",label:"客户联系人电话",maxLength:12,required:true},
 		{type:"input",name:"cEmail",label:"客户联系人邮箱",validate:"ValidEmail",required:true},
 		{type:"input",name:"mPerson",label:"客户经理姓名",maxLength:5,required:true},
@@ -61,6 +61,9 @@ var formStructure = [
 			{type:"combo",name:"county",label:"所在县区id",required:true},
 			{type:"combo",name:"appServType",label:"应用服务类型id",required:true},
 		]},
+	]},
+	{type:"block",inputWidth:"auto",offsetLeft:100,list:[
+		{type:"button",name:"test",value:"测试数据"},
 	]},
 ];
 var myForm = new dhtmlXForm("form_container", formStructure);
@@ -96,11 +99,25 @@ function initCombo(){
 myForm.attachEvent("onButtonClick", function(id) {
 	if(id == "commit"){
 		if(myForm.validate()){
-			var data = myForm.getFormData();
-			
+			var myData = myForm.getFormData();
+			$.post("",myData,function(data){
+				data.code == 1 && dhtmlx.alert({
+					title:"&nbsp;",
+					text:"提交成功。",
+					callback:function(){
+						location.href = "query.html";
+					},
+				});
+				data.code == 0 && dhtmlx.alert({type:"alert-error",title:"提交失败",text:"请重试或联系管理员。"});
+			});
 		}else{
 			dhtmlx.alert({type:"alert-error",title:"数据验证有误",text:"请检查填写是否完整或格式类型是否正确。"});
 		}
+	}
+	if(id == "test"){
+		myForm.setFormData({
+			instanceId:"91001234567",cName:"cName",cAddress:"cAddress",cNeeds:"cNeeds",cPerson:"cPersion",cPhone:1,cEmail:"1@1.com",mPerson:"mPersion",mPhone:2,mEmail:"2@2.com",unitCategory:2,industryCategory:3,credential:3,credentialnum:"112345zzz6789",county:211202,appServType:4
+		});
 	}
 
 });

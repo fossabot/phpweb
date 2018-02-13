@@ -5,8 +5,8 @@ namespace app\zx_apply\controller;
 use think\Controller;
 use think\Request;
 use think\Db;
-use app\zx_apply\model\Infotables;
 use app\zx_apply\model\Vlantables;
+use app\zx_apply\model\Infotables;
 
 class Index extends Common {
 	
@@ -22,7 +22,7 @@ class Index extends Common {
 	 * @return void|string
 	 */
 	public function tt() {
-		return $this->noticeAdmin("哈哈???","我是测试啊啊");
+		return $this->noticeAdmin ( "哈哈???", "我是测试啊啊" );
 		return dump ( Vlantables::generateVlan ( "XF-10", "ttttest" ) );
 	}
 	
@@ -39,8 +39,13 @@ class Index extends Common {
 			// post请求 验证登陆
 			$user = Db::table ( "phpweb_check" )->where ( 'email', input ( "post.email" ) )->order ( "time desc" )->find ();
 			$msg = "";
-			if ($user & $user ["code"] != input ( "post.code" )) {
-				$msg = "验证码验证错误";
+			if (! $user) {
+				return $this->result ( [ 
+						"code" => 0 
+				], 0, "该邮箱还未申请验证码" );
+			}
+			if ($user ["code"] != input ( "post.code" )) {
+				$msg = "验证码错误";
 			} else {
 				// 验证码正确，继续验证申请人姓名
 				if ($user ["name"] != input ( "post.name" )) {
@@ -77,7 +82,7 @@ class Index extends Common {
 				"status" => $status,
 				"name" => input ( "post.name" ),
 				"email" => input ( "post.email" ),
-				"msg" => strip_tags($msg) 
+				"msg" => strip_tags ( $msg ) 
 		] );
 	}
 	
@@ -85,14 +90,19 @@ class Index extends Common {
 	 * 数据专线申请开通
 	 */
 	public function apply() {
-		/*
-		 * $zxInfoTitle = [
-		 * "label" => "zx_apply-new-rb",
-		 * "order" => "1,2,3,4,5,6,7,8,12,13,14,15,16,17,18,20,21,30,31,32,33,34,35,36,37,38"
-		 * ];
-		 * $this->assign ( 'zxInfoTitle', json_encode ( $zxInfoTitle, 256 ) );
-		 */
-		return $this->fetch ();
+		if (request ()->isGet ()) {
+			return $this->fetch ();
+		} else if (request ()->isPost ()) {
+			$data = input ( "post." );
+			$extraHeader = config ( "extraInfo" );
+			foreach ( $extraHeader as $k => $v ) {
+				$data ["extra"] [$v] = $data [$v];
+				unset ( $data [$v] );
+			}
+			$result = Infotables::createInfo ( $data, "apply" );
+			return $this->result ( null, $result );
+			// return json_encode ( $data, 256 );
+		}
 	}
 	/**
 	 * 根据label、order 获取表格的 header
@@ -130,5 +140,4 @@ class Index extends Common {
 	public function update() {
 		return $this->fetch ( "index/update" );
 	}
-	
 }
