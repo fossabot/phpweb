@@ -17,7 +17,9 @@ class Infotables extends Model {
 		return long2ip ( $value );
 	}
 	public function setNeFactoryAttr($value) {
-		if (strlen ( $value ) == 1 && is_int ( $value )) {
+		// if (preg_match_all ( "/[0-9]/", $tt ) == strlen ( $tt )) {
+		if (is_numeric ( $value ) && floor ( $value ) == $value) {
+			// 是数字，且是整数
 			return $value;
 		} else {
 			$ne = array_search ( $value, [ 
@@ -60,7 +62,8 @@ class Infotables extends Model {
 		if ($type == "import") {
 			foreach ( $data as $k => $d ) {
 				$data [$k] = array_merge ( [ 
-						"tags" => "导入" 
+						"tags" => "导入",
+						"status" => 9 
 				], $data [$k] );
 				Iptables::createIp ( $data [$k] ["zxType"], $data [$k] ["ip"] );
 				Vlantables::createVlan ( $data [$k] ["aStation"], $data [$k] ["vlan"], $data [$k] ["cName"] );
@@ -68,9 +71,7 @@ class Infotables extends Model {
 			}
 		}
 		if ($type == "apply") {
-			$data = array_merge ( [
-					"tags" => "申请"
-			], $data );
+			$data ["tags"] = "申请";
 			$data ["status"] = 0;
 			$result = $infotables->isUpdate ( false )->allowField ( true )->save ( $data );
 		}

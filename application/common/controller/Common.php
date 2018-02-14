@@ -104,7 +104,6 @@ class Common extends Controller {
 			}
 		} else {
 			$headers = explode ( ",", $header );
-			
 			foreach ( $array as $val ) {
 				for($i = 0; $i < count ( $headers ); $i ++) {
 					if ($i < count ( $headers ))
@@ -142,10 +141,14 @@ class Common extends Controller {
 		return $result;
 	}
 	/**
-	 * 根据列名、表名查询非重复数据。
-	 *
-	 * @param string $column        	
+	 * 根据列名、表名查询非重复数据
+	 * 
 	 * @param string $table        	
+	 * @param array $field        	
+	 * @param array $where        	
+	 * @param string $distinct        	
+	 * @param string $order        	
+	 * @return string|\think\Collection|\think\db\false|PDOStatement|string
 	 */
 	public static function get_combo_options($table = '', $field = [], $where = [], $distinct = true, $order = "id") {
 		$table = input ( "param.table" );

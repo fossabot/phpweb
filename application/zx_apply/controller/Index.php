@@ -5,7 +5,6 @@ namespace app\zx_apply\controller;
 use think\Controller;
 use think\Request;
 use think\Db;
-use app\zx_apply\model\Vlantables;
 use app\zx_apply\model\Infotables;
 
 class Index extends Common {
@@ -22,8 +21,7 @@ class Index extends Common {
 	 * @return void|string
 	 */
 	public function tt() {
-		return $this->noticeAdmin ( "哈哈???", "我是测试啊啊" );
-		return dump ( Vlantables::generateVlan ( "XF-10", "ttttest" ) );
+		return dump ( Infotables::get ( 1 )->toArray () );
 	}
 	
 	/**
