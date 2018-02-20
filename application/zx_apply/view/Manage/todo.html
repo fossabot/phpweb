@@ -1,11 +1,96 @@
 {extend name="common@Public/base" /} {block name="leftmenu"} {include
-file="c/leftmenu_zx_apply_manage" /} {/block}{block name="main"}
+file="Common/leftmenu_zx_apply_manage" /} {/block}{block name="main"}
 <div class="htmltitle">
-	<h2>待办</h2>
+	<h2>领用审批</h2>
+	<div>
+		<p>点击待审批列表，查看明细，并进行审批操作。</p>
+	</div>
 </div>
-空.
-{/block}
-{block name="script"}
 
+<div id="list_container"
+	style="float: left; width: 250px; border-right: 1px solid #666"></div>
+<div id="form_container" style="float: left;"></div>
 
-{/block}
+<div id="myForm_tip" style="display: none;">
+	<p style="color: blue; padding: 50px 50px;">点击左侧列表查看详细信息</p>
+</div>
+<script>
+	$("#list_container").css("height",
+			$(".main").height() - $(".htmltitle").height() - 30 - 10 + "px");
+	//h2的margin、底部预留10
+	var myList = new dhtmlXList(
+			{
+				container : "list_container",
+				type : {
+					template : "<b style='color:blue;'>#cName#</b><br/>#create_time#&nbsp;&nbsp;#aPerson#<br/><span style='color:#9c49f5'>#instanceId#&nbsp;&nbsp;#zxType#&nbsp;&nbsp;#aStation#</span>",
+					height : 70
+				},
+				select: true,
+			});
+	var dataList = {data:{$list}};	//此形式便于 myList.parse()使用
+	myList.parse(dataList,"json");
+	//myList.define("select",true);	//单选模式。（multiselect为多选）
+	$("#myForm").html($("#myForm_tip").html());
+	var myForm,evId;
+	// 绑定点击 list Item 事件
+	myList.attachEvent("onAfterSelect", function(id) {
+		dhtmlx.message({text:id});
+		var index = myList.indexById(id);
+		var formData = dataList['data'][index];
+		form_init(formData);	//初始化
+		$.post("",{"id":id,"req":"getDetail"},function(dData){
+			//loadDetail(dData);	//加载 detail 内容
+			form_init(dData);
+		});
+	});
+
+/**
+ * 初始化 领用申请单
+ */
+function form_init(formData){
+	$("#form_container").html("");
+	$.get("Common/_formStructure.html",function(data){
+		$("body").append(data);
+	});
+	$.get("Common/_formConfig.html",function(data){
+		$("body").append(data);
+	});
+	myForm = null;
+	myForm = new dhtmlXForm('form_container',formStructure);
+	myForm.loadStruct({data: formData});	//加载数据
+	formStructure = null;
+	
+	
+	if( evId != null )
+		myForm.detachEvent("evId");
+	evId = myForm.attachEvent("onButtonClick", function(id){
+		var mainId = myList.getSelected();
+		if(id=="yes"||id=="no"){
+			// 点击 同意/不同意 的处理
+			$.post("?r=r",{
+				id: myForm.getItemValue("id"),
+				req: id,
+				form_type: myForm.getItemValue("form_type"),
+				from_store: myForm.getItemValue("from_store"),
+			},function(dData){
+				myList.clearAll();
+				dataList={data:JSON.parse(dData)};
+				myList.parse(dataList,"json");
+				$("#myForm").html($("#myForm_tip").html());
+			});
+		} else if(id){
+			alert(id+",Error!");
+		}
+	});
+}
+/**
+ * 加载deteil内容
+ */
+function loadDetail(dData){
+	$("#myForm").html("");
+	
+
+}
+</script>
+
+{/block} {block name="script"} {/block}

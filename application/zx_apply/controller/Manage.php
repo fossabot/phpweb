@@ -4,10 +4,38 @@ namespace app\zx_apply\controller;
 
 use think\Controller;
 use app\zx_apply\model\Vlantables;
+use app\zx_apply\model\Infotables;
 
 class Manage extends Index {
 	public function index() {
 		return $this->redirect ( "todo" );
+	}
+	/**
+	 * 待办
+	 *
+	 * @return mixed|string
+	 */
+	public function todo() {
+		if (request ()->isGet ()) {
+			$this->assign ( "list", $this->refleshTodoList () );
+			return $this->fetch ();
+		}
+		if (request ()->isPost ()) {
+			$req = input ( "post.req" );
+			// $input = input ( "post." );
+			if ($req == "getDetail") {
+				return json ( Infotables::get ( input ( "post.id" ) ) );
+			}
+		}
+	}
+	protected function refleshTodoList() {
+		$where = [ 
+				"status" => 0 
+		];
+		$field = "id,cName,create_time,aPerson,instanceId,zxType,aStation";
+		// $info = new Infotables();
+		$data = Infotables::where ( $where )->field ( $field )->select (); // explode(",", $field)
+		return json_encode ( $data, 256 );
 	}
 	/**
 	 * get:加载数据到handsontable并验证,

@@ -1,5 +1,5 @@
 {extend name="common@Public/base" /} {block name="leftmenu"} {include
-file="c/leftmenu_zx_apply_index" /} {/block}{block name="head"}
+file="Common/leftmenu_zx_apply_index" /} {/block}{block name="head"}
 <style>
 #form_container {
 	width: 900px;
@@ -15,62 +15,11 @@ file="c/leftmenu_zx_apply_index" /} {/block}{block name="head"}
 </div>
 {/block}
 {block name="script"}
+{include file="Common/_formStructure" /}
+{include file="Common/_formConfig" /}
 <script>
-var formStructure = [
-	{type:"settings",labelWidth:100,inputWidth:200},
-	{type:"fieldset",label:"专线基本信息",width:350,offsetLeft:15,list:[
-		{type:"input",name:"instanceId",label:"产品实例标识",validate:"^[0-9]{11}$",required:true},
-		{type:"select",name:"zxType",label:"专线类别",required:true},
-		{type:"input",name:"bandWidth",label:"带宽",value:"10M",validate:"^[0-9Mm]+$"},
-		{type:"select",name:"neFactory",label:"网元厂家",required:true},
-		{type:"combo",name:"aStation",label:"A端基站",required:true},
-		{type:"input",name:"cName",label:"客户名",maxLength:30,required:true},
-		{type:"input",name:"cAddress",label:"客户地址",rows:2,required:true},
-		{type:"input",name:"cNeeds",label:"客户需求",maxLength:150,rows:3},
-		{type:"input",name:"cPerson",label:"客户联系人姓名",maxLength:5,required:true},
-		{type:"input",name:"cPhone",label:"客户联系人电话",maxLength:12,required:true},
-		{type:"input",name:"cEmail",label:"客户联系人邮箱",validate:"ValidEmail",required:true},
-		{type:"input",name:"mPerson",label:"客户经理姓名",maxLength:5,required:true},
-		{type:"input",name:"mPhone",label:"客户经理电话",maxLength:12,required:true},
-		{type:"input",name:"mEmail",label:"客户经理邮箱",validate:"ValidEmail",required:true},
-		{type:"input",name:"marks",label:"备注"},
-	]},
-	{type:"block",inputWidth:"auto",offsetLeft:100,list:[
-		{type:"button",name:"commit",value:"提交"},
-		{type:"newcolumn"},
-		{type:"button",name:"cancel",value:"重置",offsetLeft:60},
-	]},
-	{type:"newcolumn",offset:15},
-	{type:"fieldset",label:"IP备案附加信息",width:420,list:[
-		{type:"label",label:"说明：表中数据为推荐值，均可修改<br><br><br><br><br>",labelWidth:230,offsetLeft:20,offsetTop:17,readonly:true},
-	    {type:"checkbox",name:"ifOnu",label:"onu带的业务",labelWidth:80,labelAlign:"right",position:"label-right",offsetLeft:20,list:[
-	    	{type:"settings",labelWidth:130,inputWidth:200},
-	        {type:"combo",name:"oltName",label:"olt名称",note:{text:"如果下拉菜单搜不到请直接输入。"},required:true},
-	    ]},
-	    {type:"settings",labelWidth:130,inputWidth:200},
-	    {type:"block",inputWidth:"auto",offsetLeft:0,list:[
-	    	{type:"input",name:"aPerson",label:"信息申请人",value:"{$Think.session.user.name}",readonly:true,required:true},
-			{type:"input",name:"aEmail",label:"信息申请人邮箱",value:"{$Think.session.user.email}",readonly:true,required:true},
-			{type:"combo",name:"unitProperty",label:"单位性质id",required:true},
-			{type:"combo",name:"unitCategory",label:"单位分类id",required:true},
-			{type:"combo",name:"industryCategory",label:"行业分类id",required:true},
-			{type:"combo",name:"credential",label:"使用单位证件类型id",required:true},
-			{type:"input",name:"credentialnum",label:"使用单位证件号",required:true},
-			{type:"combo",name:"province",label:"所在省id",required:true},
-			{type:"combo",name:"city",label:"所在市id",required:true},
-			{type:"combo",name:"county",label:"所在县区id",required:true},
-			{type:"combo",name:"appServType",label:"应用服务类型id",required:true},
-		]},
-	]},
-	{type:"block",inputWidth:"auto",offsetLeft:100,list:[
-		{type:"button",name:"test",value:"测试数据"},
-	]},
-];
 var myForm = new dhtmlXForm("form_container", formStructure);
 myForm.enableLiveValidation(true);
-</script>
-{include file="c/_formConfig" /}
-<script>
 initCombo();
 function initCombo(){
 	var combo;
