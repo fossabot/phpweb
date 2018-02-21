@@ -24,7 +24,13 @@ class Manage extends Index {
 			$req = input ( "post.req" );
 			// $input = input ( "post." );
 			if ($req == "getDetail") {
-				return json ( Infotables::get ( input ( "post.id" ) ) );
+				$detail = Infotables::get ( input ( "post.id" ) )->getData ();
+				$extra = json_decode ( $detail ["extra"], true );
+				foreach ( $extra as $k => $v ) {
+					$detail [$k] = $v;
+				}
+				unset ( $detail ["extra"] );
+				return json ( $detail );
 			}
 		}
 	}

@@ -25,7 +25,7 @@ var formStructure = [
 	]},
 	{type:"newcolumn",offset:15},
 	{type:"fieldset",label:"IP备案附加信息",width:420,list:[
-		{type:"label",label:"说明：表中数据为推荐值，均可修改<br><br><br><br><br>",labelWidth:230,offsetLeft:20,offsetTop:17,readonly:true},
+		{type:"label",name:"readme",label:"说明：表中数据为推荐值，均可修改<br><br><br><br><br>",labelWidth:230,offsetLeft:20,offsetTop:17,readonly:true},
 	    {type:"checkbox",name:"ifOnu",label:"onu带的业务",labelWidth:80,labelAlign:"right",position:"label-right",offsetLeft:20,list:[
 	    	{type:"settings",labelWidth:130,inputWidth:200},
 	        {type:"combo",name:"oltName",label:"olt名称",note:{text:"如果下拉菜单搜不到请直接输入。"},required:true},
@@ -49,4 +49,29 @@ var formStructure = [
 		{type:"button",name:"test",value:"测试数据"},
 	]},
 ];
+
+function initCombo(){
+	var combo;
+	for (var cfg_d in config["default"]){
+		myForm.reloadOptions(cfg_d,config["default"][cfg_d]);
+		myForm.getCombo(cfg_d) && myForm.getCombo(cfg_d).enableFilteringMode("between");
+	}
+	for (var cfg_m in config["muticolumn"]){
+		combo = myForm.getCombo(cfg_m);
+		if(null == combo){
+			continue;
+		}
+		combo.clearAll();
+		combo.setTemplate({
+			input:"#id#-#MC#",
+			//header:false,//if you want to hide header
+			columns:[
+				{header:"id",width:60,option:"#id#"},
+				{header:"MC",width:180,option:"#MC#"}
+			]
+		});
+		combo.addOption(config["muticolumn"][cfg_m]);
+		combo.enableFilteringMode("between");
+	}
+}
 </script>

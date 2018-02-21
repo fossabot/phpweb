@@ -21,30 +21,6 @@ file="Common/leftmenu_zx_apply_index" /} {/block}{block name="head"}
 var myForm = new dhtmlXForm("form_container", formStructure);
 myForm.enableLiveValidation(true);
 initCombo();
-function initCombo(){
-	var combo;
-	for (var cfg_d in config["default"]){
-		myForm.reloadOptions(cfg_d,config["default"][cfg_d]);
-		myForm.getCombo(cfg_d) && myForm.getCombo(cfg_d).enableFilteringMode("between");
-	}
-	for (var cfg_m in config["muticolumn"]){
-		combo = myForm.getCombo(cfg_m);
-		if(null == combo){
-			continue;
-		}
-		combo.clearAll();
-		combo.setTemplate({
-			input:"#id#-#MC#",
-			//header:false,//if you want to hide header
-			columns:[
-				{header:"id",width:60,option:"#id#"},
-				{header:"MC",width:180,option:"#MC#"}
-			]
-		});
-		combo.addOption(config["muticolumn"][cfg_m]);
-		combo.enableFilteringMode("between");
-	}
-}
 myForm.attachEvent("onButtonClick", function(id) {
 	if(id == "commit"){
 		if(myForm.validate()){

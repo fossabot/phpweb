@@ -1,15 +1,30 @@
 {extend name="common@Public/base" /} {block name="leftmenu"} {include
-file="Common/leftmenu_zx_apply_manage" /} {/block}{block name="main"}
+file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="head"}
+<style>
+#list_container {
+	width: 250px;
+	border-right: 1px solid #666
+}
+
+#form_container {
+	position: absolute;
+	top: 10px;
+	left: 250px;
+	width: 900px;
+	height: auto;
+	/*border: 1px solid #f00;*/
+}
+</style>
+{/block} {block name="main"}
 <div class="htmltitle">
-	<h2>领用审批</h2>
+	<h2>待办工作</h2>
 	<div>
-		<p>点击待审批列表，查看明细，并进行审批操作。</p>
+		<p>点击列表，查看明细，并进行操作。</p>
 	</div>
 </div>
 
-<div id="list_container"
-	style="float: left; width: 250px; border-right: 1px solid #666"></div>
-<div id="form_container" style="float: left;"></div>
+<div id="list_container"></div>
+<div id="form_container"></div>
 
 <div id="myForm_tip" style="display: none;">
 	<p style="color: blue; padding: 50px 50px;">点击左侧列表查看详细信息</p>
@@ -34,33 +49,40 @@ file="Common/leftmenu_zx_apply_manage" /} {/block}{block name="main"}
 	var myForm,evId;
 	// 绑定点击 list Item 事件
 	myList.attachEvent("onAfterSelect", function(id) {
-		dhtmlx.message({text:id});
+		dhtmlx.message({text:"申请单号："+id});
 		var index = myList.indexById(id);
 		var formData = dataList['data'][index];
-		form_init(formData);	//初始化
+		//form_init(formData);	//初始化
+		
 		$.post("",{"id":id,"req":"getDetail"},function(dData){
 			//loadDetail(dData);	//加载 detail 内容
-			form_init(dData);
+			if(typeof _formAjax != "undefined"){
+				form_init(dData);
+			}else{
+				$.get("../Common/_formStructure.html",function(data1){
+					$("body").append(data1);
+					$.get("../Common/_formConfig.html",function(data2){
+						$("body").append(data2);
+						window._formAjax=1;
+						form_init(dData);
+					});
+				});
+			}
 		});
 	});
 
 /**
- * 初始化 领用申请单
+ * 初始化 表单
  */
 function form_init(formData){
 	$("#form_container").html("");
-	$.get("Common/_formStructure.html",function(data){
-		$("body").append(data);
-	});
-	$.get("Common/_formConfig.html",function(data){
-		$("body").append(data);
-	});
+	//formStructure;
 	myForm = null;
 	myForm = new dhtmlXForm('form_container',formStructure);
+	myForm.enableLiveValidation(true);
+	initCombo();
 	myForm.loadStruct({data: formData});	//加载数据
-	formStructure = null;
-	
-	
+	//formStructure = null;
 	if( evId != null )
 		myForm.detachEvent("evId");
 	evId = myForm.attachEvent("onButtonClick", function(id){

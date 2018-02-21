@@ -14,7 +14,7 @@ class Infotables extends Model {
 		return ip2long ( $value );
 	}
 	public function getIpAttr($value) {
-		return long2ip ( $value );
+		return is_null ( $value ) ? null : long2ip ( $value );
 	}
 	public function setNeFactoryAttr($value) {
 		// if (preg_match_all ( "/[0-9]/", $tt ) == strlen ( $tt )) {
