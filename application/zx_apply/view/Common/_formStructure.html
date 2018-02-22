@@ -24,7 +24,7 @@ var formStructure = [
 		{type:"button",name:"cancel",value:"重置",offsetLeft:60},
 	]},
 	{type:"newcolumn",offset:15},
-	{type:"fieldset",label:"IP备案附加信息",width:420,list:[
+	{type:"fieldset",name:"ip_bak",label:"IP备案附加信息",width:420,list:[
 		{type:"label",name:"readme",label:"说明：表中数据为推荐值，均可修改<br><br><br><br><br>",labelWidth:230,offsetLeft:20,offsetTop:17,readonly:true},
 	    {type:"checkbox",name:"ifOnu",label:"onu带的业务",labelWidth:80,labelAlign:"right",position:"label-right",offsetLeft:20,list:[
 	    	{type:"settings",labelWidth:130,inputWidth:200},
@@ -73,5 +73,8 @@ function initCombo(){
 		combo.addOption(config["muticolumn"][cfg_m]);
 		combo.enableFilteringMode("between");
 	}
+	/* myForm.attachEvent("onButtonClick", function(id){
+		
+	}*/
 }
 </script>

@@ -10,7 +10,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="head"}
 	position: absolute;
 	top: 10px;
 	left: 250px;
-	width: 900px;
+	width: 800px;
 	height: auto;
 	/*border: 1px solid #f00;*/
 }
@@ -54,13 +54,13 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="head"}
 		var formData = dataList['data'][index];
 		//form_init(formData);	//初始化
 		
-		$.post("",{"id":id,"req":"getDetail"},function(dData){
+		$.post("?req=getDetail",{"id":id},function(dData){
 			//loadDetail(dData);	//加载 detail 内容
 			if(typeof _formAjax != "undefined"){
 				form_init(dData);
 			}else{
 				$.get("../Common/_formStructure.html",function(data1){
-					$("body").append(data1);
+					$("body").after(data1);
 					$.get("../Common/_formConfig.html",function(data2){
 						$("body").append(data2);
 						window._formAjax=1;
@@ -70,7 +70,11 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="head"}
 			}
 		});
 	});
-
+	var ipStructure = {type:"label",label:"填写分配信息",list:[
+		{type:"input",label:"vlan",name:"vlan",validate:"^[2-3][0-9]{3}$",required:true},
+		{type:"input",label:"互联ip",name:"ip",required:true},
+		{type:"input",label:"业务ip",name:"ipb"}
+	]};
 /**
  * 初始化 表单
  */
@@ -79,6 +83,11 @@ function form_init(formData){
 	//formStructure;
 	myForm = null;
 	myForm = new dhtmlXForm('form_container',formStructure);
+	//for(var i=0;i<ipStructure.length;i++){
+		myForm.addItem("ip_bak",ipStructure,0,0);
+	//}
+	myForm.removeItem("readme");
+	//myForm.setItemLabel("readme","填写分配信息");
 	myForm.enableLiveValidation(true);
 	initCombo();
 	myForm.loadStruct({data: formData});	//加载数据
@@ -87,20 +96,29 @@ function form_init(formData){
 		myForm.detachEvent("evId");
 	evId = myForm.attachEvent("onButtonClick", function(id){
 		var mainId = myList.getSelected();
-		if(id=="yes"||id=="no"){
-			// 点击 同意/不同意 的处理
-			$.post("?r=r",{
-				id: myForm.getItemValue("id"),
-				req: id,
-				form_type: myForm.getItemValue("form_type"),
-				from_store: myForm.getItemValue("from_store"),
-			},function(dData){
-				myList.clearAll();
-				dataList={data:JSON.parse(dData)};
-				myList.parse(dataList,"json");
-				$("#myForm").html($("#myForm_tip").html());
-			});
+		if(id=="commit"){
+			if(myForm.validate()){
+				var myData = myForm.getFormData();
+				//myData["req"]="distribution";
+				myForm.send("?req=distribution","post",function(data){
+					console.log(data);
+				});
+				/*$.post("",myData,function(data){
+					data.code == 1 && dhtmlx.alert({
+						title:"&nbsp;",
+						text:"提交成功。",
+						callback:function(){
+							location.href = "query.html";
+						},
+					});
+					data.code == 0 && dhtmlx.alert({type:"alert-error",title:"提交失败",text:"请重试或联系管理员。"});
+				});*/
+			}else{
+				dhtmlx.alert({type:"alert-error",title:"数据验证有误",text:"请检查填写是否完整或格式类型是否正确。"});
+			}
+			
 		} else if(id){
+			console.info(id);
 			alert(id+",Error!");
 		}
 	});

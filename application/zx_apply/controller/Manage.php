@@ -21,7 +21,7 @@ class Manage extends Index {
 			return $this->fetch ();
 		}
 		if (request ()->isPost ()) {
-			$req = input ( "post.req" );
+			$req = input ( "get.req" );
 			// $input = input ( "post." );
 			if ($req == "getDetail") {
 				$detail = Infotables::get ( input ( "post.id" ) )->getData ();
@@ -31,6 +31,9 @@ class Manage extends Index {
 				}
 				unset ( $detail ["extra"] );
 				return json ( $detail );
+			}
+			if($req == "distribution"){
+				return dump(input("post."));
 			}
 		}
 	}
