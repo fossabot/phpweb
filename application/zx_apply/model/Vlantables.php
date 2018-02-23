@@ -63,48 +63,69 @@ class Vlantables extends Model {
 	/**
 	 * 导入更新已使用vlan
 	 *
-	 * @param string $device        	
+	 * @param string $deviceName        	
 	 * @param string $str        	
 	 * @return void|string
 	 */
-	public static function importUsedVlan($device = "", $str = "") {
-		$str = str_replace ( "vlan batch", "", $str );
-		$str = str_replace ( "\r\n", "", $str );
+	public static function importUsedVlan($deviceName = "", $str = "") {
+		preg_match_all ( '/vlan batch ([\S ]+)/', $str, $str ); // 匹配后结果输出到$str
+		$str = implode ( " ", $str [1] );
+		// $str = str_replace ( 'vlan batch ', '', $str );
+		// $str = preg_replace ( '/[\r\n]/', '', $str );
 		$array = explode ( " ", $str );
 		$result = [ ];
-		for($i = 0; $i < count ( $array );) {
-			// 移除空值和范围之外的vlan
-			if ((! $array [$i]) || $array [$i] < 2000 || $array [$i] > 3000) {
+		$count = count ( $array );
+		for($i = 0; $i < $count;) {
+			// 遍历数组，替换to，补充连续的vlan
+			if ($array [$i] == "to") {
 				array_splice ( $array, $i, 1 );
-			} else {
-				// 替换 "to"
-				if ($array [$i] == "to") {
-					array_splice ( $array, $i, 1 );
-					// 补充连续的vlan
-					for($j = $array [$i - 1] + 1; $j < $array [$i]; $j ++) {
-						$array [] = $j;
-					}
+				// 补充连续的vlan
+				for($j = $array [$i - 1] + 1; $j < $array [$i]; $j ++) {
+					$array [] = $j;
 				}
-				$array [$i] = ( int ) $array [$i];
-				$i ++;
 			}
+			$array [$i] = ( int ) $array [$i]; // 前端获取的默认是string类型
+			$i ++;
 		}
-		sort ( $array, SORT_NUMERIC );
+		sort ( $array, SORT_NUMERIC ); // 排序
+		$validation = 0;
 		foreach ( $array as $v ) {
+			if ($array [$i] < 2000 || $array [$i] > 3000) {
+				// 范围之外的vlan，无操作
+				continue;
+			}
 			// 已有，则放弃
 			$vlanInfo = Db::name ( "vlantables" )->where ( [ 
-					"deviceName" => $device,
+					"deviceName" => $deviceName,
 					"vlan" => $v 
 			] )->select ();
 			if (! $vlanInfo) {
 				// 无信息，则insert
 				$vlanInfo = Db::name ( "vlantables" )->insert ( [ 
-						"deviceName" => $device,
+						"deviceName" => $deviceName,
 						"vlan" => $v,
 						"description" => "手动导入-" . date ( "Y-m-d h:i:s", time () ) 
 				] );
+				$validation ++;
 			}
 		}
-		return dump ( $array );
+		return [ 
+				"count" => count ( $array ),
+				"validation" => $validation 
+		];
+	}
+	/**
+	 * 检查vlan是否已分配
+	 *
+	 * @param string $device        	
+	 * @param number $vlan        	
+	 * @return array
+	 */
+	public static function check($deviceName = "", $vlan = 0) {
+		$data = Db::name ( "vlantables" )->where ( [ 
+				"deviceName" => $deviceName,
+				"vlan" => $vlan 
+		] )->column ( "description" );
+		return $data;
 	}
 }

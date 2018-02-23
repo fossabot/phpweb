@@ -6,6 +6,7 @@ use think\Controller;
 use think\Request;
 use think\Db;
 use app\zx_apply\model\Infotables;
+use app\zx_apply\model\Vlantables;
 
 class Index extends Common {
 	
@@ -21,7 +22,7 @@ class Index extends Common {
 	 * @return void|string
 	 */
 	public function tt() {
-		return dump ( Infotables::get ( 1 )->toArray () );
+		return dump (Vlantables::check("XF-10",2040));
 	}
 	
 	/**

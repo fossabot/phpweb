@@ -55,7 +55,9 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="head"}
 		//form_init(formData);	//初始化
 		
 		$.post("?req=getDetail",{"id":id},function(dData){
-			//loadDetail(dData);	//加载 detail 内容
+			if(dData.url){
+				dhtmlx.alert({text:"登陆超时！",callback:function(){location.href=dData.url;}});
+			}
 			if(typeof _formAjax != "undefined"){
 				form_init(dData);
 			}else{
@@ -73,7 +75,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="head"}
 	var ipStructure = {type:"label",label:"填写分配信息",list:[
 		{type:"input",label:"vlan",name:"vlan",validate:"^[2-3][0-9]{3}$",required:true},
 		{type:"input",label:"互联ip",name:"ip",required:true},
-		{type:"input",label:"业务ip",name:"ipb"}
+		{type:"input",label:"业务ip",name:"ipB"}
 	]};
 /**
  * 初始化 表单
@@ -101,7 +103,8 @@ function form_init(formData){
 				var myData = myForm.getFormData();
 				//myData["req"]="distribution";
 				myForm.send("?req=distribution","post",function(data){
-					console.log(data);
+					var result = data.xmlDoc.response;
+					console.log(data.xmlDoc.response);
 				});
 				/*$.post("",myData,function(data){
 					data.code == 1 && dhtmlx.alert({

@@ -40,7 +40,7 @@ var updateLastIP_formStructure = [
 	]},
 	{type:"fieldset",name:"updateUsedVlans",label:"3.更新已分配vlan记录",width:950,offsetLeft:15,list:[
 		{type:"combo",name:"device",label:"设备名",required:true},
-		{type:"input",name:"vlanImport",label:"vlan信息",inputWidth:800,validate:"",rows:6,required:true},
+		{type:"input",name:"vlanImport",label:"全局配置",inputWidth:800,validate:"",rows:6,required:true},
 		{type:"block",inputWidth:"auto",offsetLeft:300,list:[
 			{type:"button",name:"ok_vlan",value:"确定"},
 			{type:"newcolumn"},
@@ -91,8 +91,8 @@ myForm.attachEvent("onButtonClick", function(id) {
 			var data = myForm.getFormData();
 			data["exec"] = id;
 			$.post("",data,function(d){
-				console.log(d);
-				dhtmlx.alert("ok");
+				var text = "成功识别有效 vlan："+d.count+"<br>成功导入："+d.validation+"，已存在："+(d.count-d.validation);
+				dhtmlx.alert({title:"操作成功",text:text});
 			});
 		}else{
 			dhtmlx.alert({type:"alert-error",title:"数据验证有误",text:"请检查填写是否完整或格式类型是否正确。"});

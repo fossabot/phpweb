@@ -14,7 +14,13 @@ class Infotables extends Model {
 		return ip2long ( $value );
 	}
 	public function getIpAttr($value) {
-		return is_null ( $value ) ? null : long2ip ( $value );
+		return $value ? long2ip ( $value ) : null;
+	}
+	public function setIpBAttr($value) {
+		return ip2long ( $value );
+	}
+	public function getIpBAttr($value) {
+		return $value ? long2ip ( $value ) : null;
 	}
 	public function setNeFactoryAttr($value) {
 		// if (preg_match_all ( "/[0-9]/", $tt ) == strlen ( $tt )) {
@@ -76,5 +82,22 @@ class Infotables extends Model {
 			$result = $infotables->isUpdate ( false )->allowField ( true )->save ( $data );
 		}
 		return $result;
+	}
+	
+	public static function updateInfo($data = ""){
+		
+		
+		
+		$extraHeader = config ( "extraInfo" );
+		foreach ( $extraHeader as $k => $v ) {
+			$data ["extra"] [$v] = $data [$v];
+			unset ( $data [$v] );
+		}
+		$result = Infotables::update ( $data ); // 更新单条数据
+		
+		
+		
+		return $result;
+		
 	}
 }

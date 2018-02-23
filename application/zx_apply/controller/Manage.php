@@ -24,16 +24,26 @@ class Manage extends Index {
 			$req = input ( "get.req" );
 			// $input = input ( "post." );
 			if ($req == "getDetail") {
-				$detail = Infotables::get ( input ( "post.id" ) )->getData ();
+				$infotables = new Infotables ();
+				$data = $infotables->get ( input ( "post.id" ) ); // 获取器数据
+				$detail = $data->getData (); // 原始数据
 				$extra = json_decode ( $detail ["extra"], true );
 				foreach ( $extra as $k => $v ) {
 					$detail [$k] = $v;
 				}
+				$detail ["ip"] = $data ["ip"]; // 更正ip
+				$detail ["ipB"] = $data ["ipB"]; // 更正ipB
 				unset ( $detail ["extra"] );
-				return json ( $detail );
+				return json ( $detail ); // 返回单条数据
 			}
-			if($req == "distribution"){
-				return dump(input("post."));
+			if ($req == "distribution") {
+				$data = input ( "post." );
+				$result = Infotables::updateInfo($data);
+				if ($result) {
+					return $this->success ( "成功", null, $this->refleshTodoList () );
+				} else {
+					return $this->error ( "操作异常。请刷新重试" );
+				}
 			}
 		}
 	}
