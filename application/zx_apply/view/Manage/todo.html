@@ -42,7 +42,8 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="head"}
 				},
 				select: true,
 			});
-	var dataList = {data:{$list}};	//此形式便于 myList.parse()使用
+	//var dataList = {data:{$list}};	//此形式便于 myList.parse()使用
+	var dataList = {$list};
 	myList.parse(dataList,"json");
 	//myList.define("select",true);	//单选模式。（multiselect为多选）
 	$("#myForm").html($("#myForm_tip").html());
@@ -51,7 +52,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="head"}
 	myList.attachEvent("onAfterSelect", function(id) {
 		dhtmlx.message({text:"申请单号："+id});
 		var index = myList.indexById(id);
-		var formData = dataList['data'][index];
+		var formData = dataList[index];
 		//form_init(formData);	//初始化
 		
 		$.post("?req=getDetail",{"id":id},function(dData){
@@ -94,30 +95,33 @@ function form_init(formData){
 	initCombo();
 	myForm.loadStruct({data: formData});	//加载数据
 	//formStructure = null;
-	if( evId != null )
-		myForm.detachEvent("evId");
+	evId == null ||	myForm.detachEvent("evId");
 	evId = myForm.attachEvent("onButtonClick", function(id){
 		var mainId = myList.getSelected();
 		if(id=="commit"){
 			if(myForm.validate()){
 				var myData = myForm.getFormData();
 				//myData["req"]="distribution";
-				myForm.send("?req=distribution","post",function(data){
-					var result = data.xmlDoc.response;
-					console.log(data.xmlDoc.response);
-				});
-				/*$.post("",myData,function(data){
-					data.code == 1 && dhtmlx.alert({
-						title:"&nbsp;",
-						text:"提交成功。",
-						callback:function(){
-							location.href = "query.html";
+				$.post("?req=distribution",myData,function(data){
+					dhtmlx.alert({
+						type: data.code ? "alert" : "alert-error",
+						title: "&nbsp;",
+						text: data.msg,
+						callback: function(){
+							//location.href = "query.html";
+							myList.clearAll();
+							myList.parse(data.data,"json");
+							$("#form_container").html("");
 						},
 					});
-					data.code == 0 && dhtmlx.alert({type:"alert-error",title:"提交失败",text:"请重试或联系管理员。"});
-				});*/
+					setTimeout(function(){
+						if($(".dhtmlx_popup_button div")[0]){
+							$(".dhtmlx_popup_button div")[0].click()
+						}
+					},2000);
+				});
 			}else{
-				dhtmlx.alert({type:"alert-error",title:"数据验证有误",text:"请检查填写是否完整或格式类型是否正确。"});
+				dhtmlx.alert({type: "alert-error", title: "数据验证有误", text: "请检查填写是否完整或格式类型是否正确。"});
 			}
 			
 		} else if(id){
@@ -126,14 +130,6 @@ function form_init(formData){
 		}
 	});
 }
-/**
- * 加载deteil内容
- */
-function loadDetail(dData){
-	$("#myForm").html("");
-	
 
-}
 </script>
-
 {/block} {block name="script"} {/block}

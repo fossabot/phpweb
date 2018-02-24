@@ -55,7 +55,7 @@
 	var zxTypeData = "互联网,营业厅,平安校园,点对点,卫生网,教育网,IMS,其他";
 	var aStationData = "柴河局,西丰新局,西丰老局,昌图新局,昌图老局,开原老局,开原新局,清河,调兵山新局,铁岭县,银州区";
 	var neFactoryData = "华为,中兴";
-	var extraSeq = "19,20,21,22,23,24,25,26,27,28";
+	//var extraSeq = "19,20,21,22,23,24,25,26,27,28";
 	var colHeaderData = [];
 	var container = document.getElementById('inp_area');
 	var infoData = []; // 用于保存hot的初始数据
@@ -227,6 +227,8 @@
 	}
 	//	确认录入提交
 	$("#confirm-commit").on("click", function() {
+		
+		
 		var ht_data = hot.getPlugin("exportFile").exportAsString("csv");
 		// 导出的csv字符串会带有不可见的BOM，
 		// 在JavaScript中占一个单位，在php中占3个单位，

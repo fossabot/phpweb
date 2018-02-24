@@ -107,6 +107,20 @@ $('#example1').handsontable('setDataAtCell', 0, 0, 'new value');
 | `changes` | Array  | 2D array containing information about each of the edited cells `[[row, prop, oldVal, newVal], ...]`. |
 | `source`  | String | optionalString that identifies source of hook call([list of all available sources](http://docs.handsontable.com/tutorial-using-callbacks.html#page-source-definition)). |
 
+#### hook #event:afterValidate
+
+如果定义了validator函数，执行之后会触发该事件。并执行响应函数，函数的第一个参数是验证结果，用来确定是否验证通过。
+
+##### Parameters:
+
+| Name      | Type            | Description                                                  |
+| --------- | --------------- | ------------------------------------------------------------ |
+| `isValid` | Boolean         | `true` if valid, `false` if not.                             |
+| `value`   | *               | The value in question.                                       |
+| `row`     | Number          | Row index.                                                   |
+| `prop`    | String \|Number | Property name / column index.                                |
+| `source`  | String          | optionalString that identifies source of hook call([list of all available sources](http://docs.handsontable.com/tutorial-using-callbacks.html#page-source-definition)). |
+
 #### updateSettings
 
 在初始化之后，更新handsontable的设置

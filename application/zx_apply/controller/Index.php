@@ -54,7 +54,7 @@ class Index extends Common {
 			if ($msg) {
 				$this->writeLog ( "登陆", "failed", $msg );
 				return $this->error ( $msg, null, input ( "post." ) );
-			} else if (time () - strtotime ( $user ["time"] ) > 3600 * 24 * 15) {
+			} else if (time () - strtotime ( $user ["time"] ) > 3600 * 24 * 15) {	// 15天内可直接登陆
 				$msg = "登陆超时，请重新获取验证码。";
 				$this->writeLog ( "登陆", "failed", $msg );
 				unset ( $user ["code"] );

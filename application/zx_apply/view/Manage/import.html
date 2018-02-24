@@ -11,7 +11,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block}{block name="main"}
 	</p>
 	<div id="inp_area">
 		<textarea
-			style="width: 100%; height: 300px; font-size: 10px; font-family: Arial, sans-serif, '宋体'; color: #936;">粘贴到这里~</textarea>
+			style="width: 100%; height: 300px; font-size: 10px; font-family: Arial, sans-serif, '宋体'; color: #936;" placeholder="粘贴到这里~"></textarea>
 	</div>
 </div>
 <div id="fillInNotice">
@@ -30,7 +30,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block}{block name="main"}
 	$(function() {
 		//
 	});
-	var initDefaults = "粘贴到这里~";
+	/*var initDefaults = "粘贴到这里~";
 	$("#inp_area textarea").on("focus", function() {
 		if ($("#inp_area textarea").val() == initDefaults) {
 			$("#inp_area textarea").val('');
@@ -39,11 +39,11 @@ file="Common/leftmenu_zx_apply_manage" /} {/block}{block name="main"}
 		if ($("#inp_area textarea").val() == '') {
 			$("#inp_area textarea").val(initDefaults);
 		}
-	});
+	});*/
 	
 	$("#btn_submit").on("click", function() {
 		var items = $("#inp_area textarea").val().trim();
-		if(items == initDefaults){
+		if(items == ""){
 			dhtmlx.message({text:"你还没有粘贴数据。。。"});
 			$("#inp_area textarea").focus();
 		}else if(items.length<70){
