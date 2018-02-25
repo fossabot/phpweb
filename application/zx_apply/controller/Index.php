@@ -7,6 +7,7 @@ use think\Request;
 use think\Db;
 use app\zx_apply\model\Infotables;
 use app\zx_apply\model\Vlantables;
+use app\zx_apply\model\Iptables;
 
 class Index extends Common {
 	
@@ -22,7 +23,11 @@ class Index extends Common {
 	 * @return void|string
 	 */
 	public function tt() {
-		return dump (Vlantables::check("XF-10",2040));
+		$ip = Iptables::check("互联网","10.2.2.2");
+		if ($ip && $ip [0] == 1) {
+			return  "ip冲突，" ;
+		}
+		return dump ($ip);
 	}
 	
 	/**

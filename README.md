@@ -4,6 +4,8 @@
 
 基于ThinkPHP 5.0.x开发
 
+更新log可查看 [CHANGELOG](CHANGELOG.md)
+
 目前模块有：
 
 | 模块名       | 功能描述                                     |

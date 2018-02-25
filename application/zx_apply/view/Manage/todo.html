@@ -110,7 +110,7 @@ function form_init(formData){
 						callback: function(){
 							//location.href = "query.html";
 							myList.clearAll();
-							myList.parse(data.data,"json");
+							data.data && myList.parse(data.data,"json");
 							$("#form_container").html("");
 						},
 					});

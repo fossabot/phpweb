@@ -3,6 +3,7 @@
 namespace app\zx_apply\model;
 
 use think\Model;
+use think\Db;
 
 class Iptables extends Model {
 	public static function createIp($zxType = "", $ip = "", $mask = "255.255.255.255") {
@@ -18,13 +19,26 @@ class Iptables extends Model {
 	
 	/**
 	 * 自动预分配ip
-	 * 
+	 *
 	 * @param string $zxType        	
 	 */
 	public static function generateIP($zxType = "互联网") {
 		Db::name ( "iptables" )->where ( "ipType", $zxType )->colnum ( "ip" );
 	}
-	
+	/**
+	 * 是否已分配
+	 * 
+	 * @param unknown $zxType        	
+	 * @param unknown $ip        	
+	 * @return array
+	 */
+	public static function check($zxType, $ip) {
+		$data = Db::name ( "iptables" )->where ( [ 
+				"ipType" => $zxType,
+				"ip" => ip2long($ip) 
+		] )->column ( "ifUse" );
+		return $data;
+	}
 	/**
 	 * 判断ip是否可用
 	 *

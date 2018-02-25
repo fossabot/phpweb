@@ -5,6 +5,7 @@ namespace app\zx_apply\controller;
 use think\Controller;
 use app\zx_apply\model\Vlantables;
 use app\zx_apply\model\Infotables;
+use app\zx_apply\model\Iptables;
 
 class Manage extends Index {
 	protected $beforeActionList = [ 
@@ -46,9 +47,15 @@ class Manage extends Index {
 			}
 			if ($req == "distribution") {
 				$data = input ( "post." );
-				////////////////////////
-				////////////////////
-				
+				$ip = Iptables::check ( $data ["zxType"], $data ["ip"] );
+				if ($ip && $ip [0] == 1) {
+					return $this->error ( "ip冲突，" );
+				}
+				if ($data ["ipB"] == "") {
+					unset ( $data ["ipB"] );
+				}
+				// //////////////////////
+				// //////////////////
 				$data ["status"] = 1;
 				$result = Infotables::updateInfo ( $data );
 				if ($result) {
