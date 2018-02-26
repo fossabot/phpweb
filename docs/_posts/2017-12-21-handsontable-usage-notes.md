@@ -1006,12 +1006,16 @@ var
 ### 获取自动调整的宽度
 
 ```javascript
-...
+// ...
 hot.updateSettings({autoColumnSize:true}); 
-...
+// ...
 // Access to plugin instance:
 var colSizePlugin = hot.getPlugin('autoColumnSize');
-console.log(colSizePlugin.getColumnWidth(4));
+var result="";
+for(var ii=0;ii<30;ii++){
+    result+=colSizePlugin.getColumnWidth(ii)+",";
+}
+console.info(result);
 ```
 
 ### 导出到文件

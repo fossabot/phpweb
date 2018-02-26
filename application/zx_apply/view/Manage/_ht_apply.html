@@ -18,7 +18,8 @@
 	right: 0;
 	overflow: hidden;
 }
-#notice{
+
+#notice {
 	padding: 10px;
 }
 </style>
@@ -42,7 +43,7 @@
 	// 0. 初始化
 	var zxInfoTitle = JSON.parse(sessionStorage
 			.getItem(getQueryString("zxInfoTitle")));
-	//var zxInfoTitle = JSON.parse(sessionStorage.getItem("zxInfoTitle"));
+	// zxInfoTitle 配置在 Controler/Manage->import 函数
 	var _url = (function(data) {
 		var _url = "getHeader";
 		for ( var d in data) {
@@ -50,12 +51,11 @@
 		}
 		return _url;
 	})(zxInfoTitle);
-	//var applyData = " , , , , , , , , , , , , , , , , , , ";
-	var colWidthsData = "115,114,90,50,73,92,270,231,473,50,135,121,121,195,105,114,195,73,176,80,80,80,133,108,63,63,77,105,66";
+	var colWidthsData = "98,96,65,50,65,100,180,220,450,50,116,107,107,164,93,96,164,50,75,76,76,76,132,107,62,62,76,104";
 	var zxTypeData = "互联网,营业厅,平安校园,点对点,卫生网,教育网,IMS,其他";
-	var aStationData = "柴河局,西丰新局,西丰老局,昌图新局,昌图老局,开原老局,开原新局,清河,调兵山新局,铁岭县,银州区";
+	//var aStationData = "柴河局,西丰新局,西丰老局,昌图新局,昌图老局,开原老局,开原新局,清河,调兵山新局,铁岭县,银州区";
+	var aStationData = "{$aStation}";
 	var neFactoryData = "华为,中兴";
-	//var extraSeq = "19,20,21,22,23,24,25,26,27,28";
 	var colHeaderData = [];
 	var container = document.getElementById('inp_area');
 	var infoData = []; // 用于保存hot的初始数据
@@ -142,7 +142,7 @@
 				//4
 				type : 'numeric',
 			}, {
-				//5
+			//5
 			}, {
 				//6
 				type : 'numeric',
@@ -155,35 +155,58 @@
 			}, {
 				//9
 				type : 'numeric',
-			}, {
-				//10
 			} ],
-			contextMenu: {
-				callback: function (key, options) {
+			contextMenu : {
+				callback : function(key, options) {
 					if (key === 'about') {
-						setTimeout(function () {
+						setTimeout(function() {
 							// timeout is used to make sure the menu collapsed before alert is shown
-							parent.dhtmlx.alert({title:"特别鸣谢",text:"本菜单由 Xianda 汉化。感谢Xianda"});
+							parent.dhtmlx.alert({
+								title : "特别鸣谢",
+								text : "本菜单由 Xianda 汉化。感谢Xianda"
+							});
 						}, 100);
 					}
 				},
-				items: {
-					"about": {name: "*Power by Xianda*"},
-					"hsep1": "---------",
-					"row_above": {name: "在上面插入一行"},
-					"row_below": {name: "在下面插入一行"},
-					"hsep1": "---------",
-					"col_left": {name: "在左侧插入一列"},
-					"col_right": {name: "在右侧插入一列"},
-					"hsep2": "---------",
-					"remove_row": {name: "移除此行"},
-					"remove_col": {name: "移除次列"},
-					"hsep3": "---------",
-					"undo": {name: "撤销"},
-					"redo": {name: "还原"},
-					"make_read_only": {name: "设为只读"},
-					"alignment": {name: "对齐"},
-					
+				items : {
+					"about" : {
+						name : "*Power by Xianda*"
+					},
+					"hsep1" : "---------",
+					"row_above" : {
+						name : "在上面插入一行"
+					},
+					"row_below" : {
+						name : "在下面插入一行"
+					},
+					"hsep1" : "---------",
+					"col_left" : {
+						name : "在左侧插入一列"
+					},
+					"col_right" : {
+						name : "在右侧插入一列"
+					},
+					"hsep2" : "---------",
+					"remove_row" : {
+						name : "移除此行"
+					},
+					"remove_col" : {
+						name : "移除次列"
+					},
+					"hsep3" : "---------",
+					"undo" : {
+						name : "撤销"
+					},
+					"redo" : {
+						name : "还原"
+					},
+					"make_read_only" : {
+						name : "设为只读"
+					},
+					"alignment" : {
+						name : "对齐"
+					},
+
 				},
 			}
 		});
@@ -211,7 +234,7 @@
 					data.push(itemArr);
 				}
 			}
-		}else {
+		} else {
 			console.info("loadDataFromStorage: failed");
 		}
 		return data;
@@ -227,8 +250,7 @@
 	}
 	//	确认录入提交
 	$("#confirm-commit").on("click", function() {
-		
-		
+
 		var ht_data = hot.getPlugin("exportFile").exportAsString("csv");
 		// 导出的csv字符串会带有不可见的BOM，
 		// 在JavaScript中占一个单位，在php中占3个单位，
@@ -237,7 +259,7 @@
 		var _data = {
 			data : ht_data,
 			zxInfoTitle : JSON.stringify(zxInfoTitle),
-			type: "import",
+			type : "import",
 		};
 		// 页面滚动到左上角位置
 		pageScroll();
@@ -245,14 +267,15 @@
 			$("#xhr_response").html(data);
 		});
 	});
-	function pageScroll() { 
-		window.scrollBy(-5,-10); 
-		scrolldelay = setTimeout('pageScroll()',5); 
-		if(document.documentElement.scrollTop==0&&document.documentElement.scrollLeft==0) {
+	function pageScroll() {
+		window.scrollBy(-5, -10);
+		scrolldelay = setTimeout('pageScroll()', 5);
+		if (document.documentElement.scrollTop == 0
+				&& document.documentElement.scrollLeft == 0) {
 			clearTimeout(scrolldelay);
-			window.scrollTo(0,0);
+			window.scrollTo(0, 0);
 		}
-	} 
+	}
 	////////
 	/*function a(){
 		console.log($(".wtHolder")[0].style.height);

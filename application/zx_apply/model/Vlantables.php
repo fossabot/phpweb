@@ -15,12 +15,12 @@ class Vlantables extends Model {
 	 */
 	public static function createVlan($device = "", $vlan = "", $description = "") {
 		$vlantables = new static ();
-		$deviceConf = config ( "device" );
+		$deviceConf = config ( "aStation" );
 		if (array_key_exists ( $device, $deviceConf )) {
 			// 根据a端匹配到9312名，则保存vlan
 			$data = [ 
 					"deviceName" => $deviceConf [$device],
-					"vlan" => $vlan,
+					"vlan" => $vlan==0?null:$vlan,
 					"description" => $description 
 			];
 			$vlantables->isUpdate ( false )->allowField ( true )->save ( $data );

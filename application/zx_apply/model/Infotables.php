@@ -71,8 +71,12 @@ class Infotables extends Model {
 						"tags" => "导入",
 						"status" => 9 
 				], $data [$k] );
-				Iptables::createIp ( $data [$k] ["zxType"], $data [$k] ["ip"] );
-				Vlantables::createVlan ( $data [$k] ["aStation"], $data [$k] ["vlan"], $data [$k] ["cName"] );
+				// Iptables::createIp ( $data [$k] ["zxType"], $data [$k] ["ip"] );
+				if ($data [$k] ["vlan"]) {	
+					// 如果vlan不为空，则记录vlan表
+					Vlantables::createVlan ( $data [$k] ["aStation"], $data [$k] ["vlan"], $data [$k] ["cName"] );
+				}
+				$data [$k] = array_filter ( $data [$k] );	// 清除空元素
 				$result [] = $infotables->isUpdate ( false )->allowField ( true )->save ( $data [$k] );
 			}
 		}
@@ -83,11 +87,7 @@ class Infotables extends Model {
 		}
 		return $result;
 	}
-	
-	public static function updateInfo($data = ""){
-		
-		
-		
+	public static function updateInfo($data = "") {
 		$extraHeader = config ( "extraInfo" );
 		foreach ( $extraHeader as $k => $v ) {
 			$data ["extra"] [$v] = $data [$v];
@@ -95,9 +95,6 @@ class Infotables extends Model {
 		}
 		$result = Infotables::update ( $data ); // 更新单条数据
 		
-		
-		
 		return $result;
-		
 	}
 }

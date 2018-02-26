@@ -6,7 +6,6 @@ use think\Controller;
 use think\Request;
 use think\Db;
 use app\zx_apply\model\Infotables;
-use app\zx_apply\model\Vlantables;
 use app\zx_apply\model\Iptables;
 
 class Index extends Common {
@@ -23,11 +22,13 @@ class Index extends Common {
 	 * @return void|string
 	 */
 	public function tt() {
-		$ip = Iptables::check("互联网","10.2.2.2");
+		return dump(-1=="-1");
+		return $this->ip_export(ip2long("10.10.10.25"),ip2long("255.255.255.0"));
+		$ip = Iptables::check ( "互联网", "10.2.2.2" );
 		if ($ip && $ip [0] == 1) {
-			return  "ip冲突，" ;
+			return "ip冲突，";
 		}
-		return dump ($ip);
+		return dump ( $ip );
 	}
 	
 	/**
@@ -59,7 +60,7 @@ class Index extends Common {
 			if ($msg) {
 				$this->writeLog ( "登陆", "failed", $msg );
 				return $this->error ( $msg, null, input ( "post." ) );
-			} else if (time () - strtotime ( $user ["time"] ) > 3600 * 24 * 15) {	// 15天内可直接登陆
+			} else if (time () - strtotime ( $user ["time"] ) > 3600 * 24 * 15) { // 15天内可直接登陆
 				$msg = "登陆超时，请重新获取验证码。";
 				$this->writeLog ( "登陆", "failed", $msg );
 				unset ( $user ["code"] );
@@ -144,4 +145,5 @@ class Index extends Common {
 	public function update() {
 		return $this->fetch ( "index/update" );
 	}
+	
 }

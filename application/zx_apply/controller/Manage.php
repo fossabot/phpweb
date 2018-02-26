@@ -119,6 +119,8 @@ class Manage extends Index {
 		}
 		if (request ()->isGet ()) {
 			if (input ( '?get.zxInfoTitle' ) && input ( '?get.t' )) {
+				$aStation = array_keys ( config ( "aStation" ) );
+				$this->assign ( "aStation", implode ( ",", $aStation) );
 				return $this->fetch ();
 			}
 		}

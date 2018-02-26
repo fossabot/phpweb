@@ -75,8 +75,8 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="head"}
 	});
 	var ipStructure = {type:"label",label:"填写分配信息",list:[
 		{type:"input",label:"vlan",name:"vlan",validate:"^[2-3][0-9]{3}$",required:true},
-		{type:"input",label:"互联ip",name:"ip",required:true},
-		{type:"input",label:"业务ip",name:"ipB"}
+		{type:"input",label:"互联ip",name:"ip",validate:"ipstr",required:true},
+		{type:"input",label:"业务ip",name:"ipB",validate:"ipstr"}
 	]};
 /**
  * 初始化 表单
@@ -130,6 +130,14 @@ function form_init(formData){
 		}
 	});
 }
-
+/**
+ * 验证是否符合ip字符串的格式:10.10.10.10/32
+ */
+function ipstr(value){
+	var a = value.split("/");
+	var c = a[0].toString().match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+	var b = a.length==1?true:a.length>2?false:parseInt(a[1])<=32&&a[1].match(/^\d{0,2}$/);
+	return c&&!!(c[1]<=255&&c[2]<=255&&c[3]<=255&&c[4]<=255)&&b||false;
+}
 </script>
 {/block} {block name="script"} {/block}

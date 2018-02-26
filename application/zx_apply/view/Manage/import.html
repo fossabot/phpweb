@@ -97,7 +97,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block}{block name="main"}
 		myWins.attachViewportTo(document.getElementById("winVP"));
 		myWins.createWindow("_input",0,50,_htmlWidth,550);
 		//myWins.createWindow("_input",0,50,_htmlWidth,_htmlHeight-70);
-		var text = "验证您的录入&nbsp;&nbsp;&nbsp;&nbsp;<button id='confirm-commit' class='btn btn-xs btn-success'>提交</button>&nbsp;&nbsp;&nbsp;&nbsp;<a onclick='win_close()'>返回录入</a>";
+		var text = "验证您的录入&nbsp;&nbsp;&nbsp;&nbsp;<button id='confirm-commit' class='btn btn-xs btn-success'>提交</button>&nbsp;&nbsp;&nbsp;&nbsp;<a onclick='win_close()'>返回重新录入</a>";
 		myWins.window("_input").setText(text);
 		myWins.window("_input").attachURL("_ht_apply?t="+t+"&zxInfoTitle="+zxInfoTitle);
 		$("#confirm-commit").on("click",function(){
