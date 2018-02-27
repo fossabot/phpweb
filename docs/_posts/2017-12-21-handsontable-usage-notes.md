@@ -73,6 +73,7 @@ stretchH:           # 拉伸高度 默认:"none" 可选 "last" "all" 用于父�
 // https://docs.handsontable.com/pro/1.15.0/demo-stretching.html
 copyPaste:          # 复制粘贴选项
 search:             # 启动搜索插件
+contextMenu: true   # 右键菜单 可以自定义数组 []
 ```
 
 ### 常用API
@@ -933,7 +934,7 @@ hot.validateCells();
 
 ### 右键菜单 
 
-初始化时在`option`里可以配置`contextMenu:ture`开启，或者配置为如下选项：
+初始化时在`option`里可以配置`contextMenu:true`开启，或者配置为如下选项：
 
 如：`contextMenu：[row_above,row_below,undo,redo]`
 
