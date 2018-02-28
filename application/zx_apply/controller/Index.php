@@ -22,12 +22,9 @@ class Index extends Common {
 	 * @return void|string
 	 */
 	public function tt() {
-		return dump(-1=="-1");
-		return $this->ip_export(ip2long("10.10.10.25"),ip2long("255.255.255.0"));
-		$ip = Iptables::check ( "互联网", "10.2.2.2" );
-		if ($ip && $ip [0] == 1) {
-			return "ip冲突，";
-		}
+		$ip = Iptables::ip_parse ( "10.10.10.2" );
+		$ip [1] == - 1 && $ip = Iptables::ip_parse ( Iptables::ip_export ( $ip [0], - 8 ) );
+		// $ip = Iptables::check( "互联网","10.2.2.22" );
 		return dump ( $ip );
 	}
 	
@@ -145,5 +142,4 @@ class Index extends Common {
 	public function update() {
 		return $this->fetch ( "index/update" );
 	}
-	
 }

@@ -20,7 +20,7 @@ class Vlantables extends Model {
 			// 根据a端匹配到9312名，则保存vlan
 			$data = [ 
 					"deviceName" => $deviceConf [$device],
-					"vlan" => $vlan==0?null:$vlan,
+					"vlan" => $vlan == 0 ? null : $vlan,
 					"description" => $description 
 			];
 			$vlantables->isUpdate ( false )->allowField ( true )->save ( $data );
@@ -116,16 +116,18 @@ class Vlantables extends Model {
 	}
 	/**
 	 * 检查vlan是否已分配
-	 *
-	 * @param string $device        	
+	 * 
+	 * @param string $zxType        	
+	 * @param string $aStation        	
 	 * @param number $vlan        	
 	 * @return array
 	 */
-	public static function check($deviceName = "", $vlan = 0) {
-		$data = Db::name ( "vlantables" )->where ( [ 
-				"deviceName" => $deviceName,
+	public static function check($zxType = "", $aStation = "", $vlan = 0) {
+		$data = Db::name ( "infotables" )->where ( [ 
+				"zxType" => $zxType,
+				"aStation" => $aStation,
 				"vlan" => $vlan 
-		] )->column ( "description" );
+		] )->field( "id,cName" )->find();
 		return $data;
 	}
 }

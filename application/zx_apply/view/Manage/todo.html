@@ -106,19 +106,21 @@ function form_init(formData){
 					dhtmlx.alert({
 						type: data.code ? "alert" : "alert-error",
 						title: "&nbsp;",
-						text: data.msg,
+						text: data.msg + (data.code ? "" :"<br>已分配给:" + data.data),
 						callback: function(){
 							//location.href = "query.html";
-							myList.clearAll();
-							data.data && myList.parse(data.data,"json");
-							$("#form_container").html("");
+							if(data.code){
+								myList.clearAll();
+								data.data && myList.parse(data.data,"json");
+								$("#form_container").html("");
+							}
 						},
 					});
 					setTimeout(function(){
 						if($(".dhtmlx_popup_button div")[0]){
 							$(".dhtmlx_popup_button div")[0].click()
 						}
-					},2000);
+					},20000);
 				});
 			}else{
 				dhtmlx.alert({type: "alert-error", title: "数据验证有误", text: "请检查填写是否完整或格式类型是否正确。"});

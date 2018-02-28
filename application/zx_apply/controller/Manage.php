@@ -31,32 +31,57 @@ class Manage extends Index {
 		}
 		if (request ()->isPost ()) {
 			$req = input ( "get.req" );
-			// $input = input ( "post." );
+			$infotables = new Infotables ();
+			$info = $infotables->get ( input ( "post.id" ) ); // 获取器数据
+			$detail = $info->getData (); // 原始数据
+			$extra = json_decode ( $detail ["extra"], true );
+			foreach ( $extra as $k => $v ) {
+				$detail [$k] = $v;
+			}
+			$detail ["ip"] = $info ["ip"]; // 更正ip
+			$detail ["ipB"] = $info ["ipB"]; // 更正ipB
+			unset ( $detail ["extra"] );
 			if ($req == "getDetail") {
-				$infotables = new Infotables ();
-				$data = $infotables->get ( input ( "post.id" ) ); // 获取器数据
-				$detail = $data->getData (); // 原始数据
-				$extra = json_decode ( $detail ["extra"], true );
-				foreach ( $extra as $k => $v ) {
-					$detail [$k] = $v;
-				}
-				$detail ["ip"] = $data ["ip"]; // 更正ip
-				$detail ["ipB"] = $data ["ipB"]; // 更正ipB
-				unset ( $detail ["extra"] );
 				return json ( $detail ); // 返回单条数据
 			}
 			if ($req == "distribution") {
 				$data = input ( "post." );
-				$ip = Iptables::check ( $data ["zxType"], $data ["ip"] );
-				if ($ip && $ip [0] == 1) {
-					return $this->error ( "ip冲突，" );
+				/* 检查ip/ipB是否有变化，变化后是否冲突，并设置mask [start] */
+				if ($info ["ip"] != $data ["ip"]) { // 获取的ip有变化，则检查是否冲突
+					$ip = Iptables::check ( $data ["zxType"], $data ["ip"] );
+					if ($ip)
+						return $this->error ( "ip冲突，", null, $ip ["cName"] );
+				} else { // 设置ipMask
+					$ip_array = Iptables::ip_parse ( $data ["ip"] );
+					$data ["ip"] = $ip_array [2];
+					$data ["ipMask"] = $ip_array [1];
 				}
-				if ($data ["ipB"] == "") {
-					unset ( $data ["ipB"] );
+				/*
+				 * if ($data ["ipB"] == "") {
+				 * // 设置 ipB为null
+				 * unset ( $data ["ipB"] );
+				 * unset ( $data ["ipBMask"] );
+				 * } else {
+				 */
+				if ($info ["ipB"] != $data ["ipB"]) {
+					$ipB = Iptables::check ( $data ["zxType"], $data ["ipB"] );
+					if ($ipB)
+						return $this->error ( "ip冲突，", null, $ipB ["cName"] );
+				} else { // 设置ipBMask
+					$ipB_array = Iptables::ip_parse ( $data ["ipB"] );
+					$ipB_array [1] == - 1 && $ipB_array = Iptables::ip_parse ( Iptables::ip_export ( $ipB_array [0], - 8 ) );
+					$data ["ipB"] = $ipB_array [2];
+					$data ["ipBMask"] = $ipB_array [1];
 				}
-				// //////////////////////
-				// //////////////////
-				$data ["status"] = 1;
+				// }
+				/* 检查ip是否有变化，变化后是否冲突，并设置mask [over] */
+				/* 检查vlan是否冲突 [start] */
+				$vlan = Vlantables::check ( $data ["zxType"], $data ["aStation"], $data ["vlan"] );
+				if ($vlan && $vlan ["id"] != $data ["id"]) { // 找到vlan且vlan的id与自己的id不同
+					return $this->error ( "vlan冲突，", null, $vlan ["cName"] );
+				}
+				/* 检查vlan是否冲突 [over] */
+				// $data ["status"] = 1;
 				$result = Infotables::updateInfo ( $data );
 				if ($result) {
 					return $this->success ( "操作成功", null, $this->refleshTodoList () );
@@ -120,7 +145,7 @@ class Manage extends Index {
 		if (request ()->isGet ()) {
 			if (input ( '?get.zxInfoTitle' ) && input ( '?get.t' )) {
 				$aStation = array_keys ( config ( "aStation" ) );
-				$this->assign ( "aStation", implode ( ",", $aStation) );
+				$this->assign ( "aStation", implode ( ",", $aStation ) );
 				return $this->fetch ();
 			}
 		}
@@ -160,12 +185,11 @@ class Manage extends Index {
 			}
 		}
 	}
-	
-	private function cacheSettings(){
-		$client = new \Redis();
-		$client->connect('127.0.0.1', 6379);
-		$pool = new \Cache\Adapter\Redis\RedisCachePool($client);
-		$simpleCache = new \Cache\Bridge\SimpleCache\SimpleCacheBridge($pool);
-		\PhpOffice\PhpSpreadsheet\Settings::setCache($simpleCache);
+	private function cacheSettings() {
+		$client = new \Redis ();
+		$client->connect ( '127.0.0.1', 6379 );
+		$pool = new \Cache\Adapter\Redis\RedisCachePool ( $client );
+		$simpleCache = new \Cache\Bridge\SimpleCache\SimpleCacheBridge ( $pool );
+		\PhpOffice\PhpSpreadsheet\Settings::setCache ( $simpleCache );
 	}
 }

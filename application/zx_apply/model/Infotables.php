@@ -7,20 +7,29 @@ use think\Model;
 class Infotables extends Model {
 	protected $autoWriteTimestamp = true;
 	protected $type = [ 
-			"aDate" => "date",
+			// "aDate" => "date",
 			"extra" => "array" 
 	];
 	public function setIpAttr($value) {
-		return ip2long ( $value );
+		if (is_int ( $value )) {
+			return $value;
+		} else {
+			return ip2long ( $value );
+		}
 	}
-	public function getIpAttr($value) {
+	public function getIpAttr($value, $data) {
+		return Iptables::ip_export ( $value, $data ["ipMask"] );
 		return $value ? long2ip ( $value ) : null;
 	}
 	public function setIpBAttr($value) {
-		return ip2long ( $value );
+		if (is_int ( $value ) || "" == $value) {
+			return $value;
+		} else {
+			return ip2long ( $value );
+		}
 	}
-	public function getIpBAttr($value) {
-		return $value ? long2ip ( $value ) : null;
+	public function getIpBAttr($value, $data) {
+		return Iptables::ip_export ( $value, $data ["ipBMask"] );
 	}
 	public function setNeFactoryAttr($value) {
 		// if (preg_match_all ( "/[0-9]/", $tt ) == strlen ( $tt )) {
@@ -72,11 +81,11 @@ class Infotables extends Model {
 						"status" => 9 
 				], $data [$k] );
 				// Iptables::createIp ( $data [$k] ["zxType"], $data [$k] ["ip"] );
-				if ($data [$k] ["vlan"]) {	
+				if ($data [$k] ["vlan"]) {
 					// 如果vlan不为空，则记录vlan表
 					Vlantables::createVlan ( $data [$k] ["aStation"], $data [$k] ["vlan"], $data [$k] ["cName"] );
 				}
-				$data [$k] = array_filter ( $data [$k] );	// 清除空元素
+				$data [$k] = array_filter ( $data [$k] ); // 清除空元素
 				$result [] = $infotables->isUpdate ( false )->allowField ( true )->save ( $data [$k] );
 			}
 		}
@@ -93,8 +102,7 @@ class Infotables extends Model {
 			$data ["extra"] [$v] = $data [$v];
 			unset ( $data [$v] );
 		}
-		$result = Infotables::update ( $data ); // 更新单条数据
-		
+		$result = self::update ( $data ); // 更新单条数据
 		return $result;
 	}
 }
