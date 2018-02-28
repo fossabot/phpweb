@@ -35,21 +35,24 @@ class Iptables extends Model {
 	}
 	/**
 	 * 是否已分配
-	 *
+	 * 
 	 * @param unknown $zxType        	
-	 * @param unknown $ip_str        	
-	 * @return array
+	 * @param string $ip_str        	
+	 * @param string $filed        	
+	 * @return array|\think\db\false|PDOStatement|string|\think\Model
 	 */
-	public static function check($zxType, $ip_str = "") {
+	public static function check($zxType, $ip_str = "", $filed = "ip") {
+		$ip = self::ip_parse ( $ip_str );
 		$data = Db::name ( "infotables" )->where ( [ 
 				"zxType" => $zxType,
-				"ip" => self::ip_parse ( $ip_str ) [0] 
+				$filed => $ip [2],
+				$filed . "Mask" => $ip [1] 
 		] )->field ( "id,cName" )->find ();
 		return $data;
 	}
 	/**
 	 * 判断ip是否可用
-	 * 
+	 *
 	 * @param unknown $zxType        	
 	 * @param unknown $long        	
 	 * @param unknown $mask        	

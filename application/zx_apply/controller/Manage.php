@@ -31,8 +31,8 @@ class Manage extends Index {
 		}
 		if (request ()->isPost ()) {
 			$req = input ( "get.req" );
-			$infotables = new Infotables ();
-			$info = $infotables->get ( input ( "post.id" ) ); // 获取器数据
+			// $infotables = new Infotables ();
+			$info = Infotables::get ( input ( "post.id" ) ); // 获取器数据
 			$detail = $info->getData (); // 原始数据
 			$extra = json_decode ( $detail ["extra"], true );
 			foreach ( $extra as $k => $v ) {
@@ -50,30 +50,30 @@ class Manage extends Index {
 				if ($info ["ip"] != $data ["ip"]) { // 获取的ip有变化，则检查是否冲突
 					$ip = Iptables::check ( $data ["zxType"], $data ["ip"] );
 					if ($ip)
-						return $this->error ( "ip冲突，", null, $ip ["cName"] );
-				} else { // 设置ipMask
-					$ip_array = Iptables::ip_parse ( $data ["ip"] );
-					$data ["ip"] = $ip_array [2];
-					$data ["ipMask"] = $ip_array [1];
+						return $this->error ( "互联ip冲突，", null, $ip ["cName"] );
+					else { // 设置ipMask
+						$ip_array = Iptables::ip_parse ( $data ["ip"] );
+						$data ["ip"] = $ip_array [2];
+						$data ["ipMask"] = $ip_array [1];
+					}
 				}
-				/*
-				 * if ($data ["ipB"] == "") {
-				 * // 设置 ipB为null
-				 * unset ( $data ["ipB"] );
-				 * unset ( $data ["ipBMask"] );
-				 * } else {
-				 */
-				if ($info ["ipB"] != $data ["ipB"]) {
-					$ipB = Iptables::check ( $data ["zxType"], $data ["ipB"] );
-					if ($ipB)
-						return $this->error ( "ip冲突，", null, $ipB ["cName"] );
-				} else { // 设置ipBMask
-					$ipB_array = Iptables::ip_parse ( $data ["ipB"] );
-					$ipB_array [1] == - 1 && $ipB_array = Iptables::ip_parse ( Iptables::ip_export ( $ipB_array [0], - 8 ) );
-					$data ["ipB"] = $ipB_array [2];
-					$data ["ipBMask"] = $ipB_array [1];
+				if ($data ["ipB"] == "") {
+					// 设置 ipB为null
+					$data ["ipB"] = null;
+					$data ["ipBMask"] = null;
+				} else {
+					if ($info ["ipB"] != $data ["ipB"]) {
+						$ipB = Iptables::check ( $data ["zxType"], $data ["ipB"], "ipB" );
+						if ($ipB)
+							return $this->error ( "业务ip冲突，", null, $ipB ["cName"] );
+						else { // 设置ipBMask
+							$ipB_array = Iptables::ip_parse ( $data ["ipB"] );
+							$ipB_array [1] == - 1 && $ipB_array = Iptables::ip_parse ( Iptables::ip_export ( $ipB_array [0], - 8 ) );
+							$data ["ipB"] = $ipB_array [2];
+							$data ["ipBMask"] = $ipB_array [1];
+						}
+					}
 				}
-				// }
 				/* 检查ip是否有变化，变化后是否冲突，并设置mask [over] */
 				/* 检查vlan是否冲突 [start] */
 				$vlan = Vlantables::check ( $data ["zxType"], $data ["aStation"], $data ["vlan"] );
@@ -82,6 +82,7 @@ class Manage extends Index {
 				}
 				/* 检查vlan是否冲突 [over] */
 				// $data ["status"] = 1;
+				// return dump ( $data );
 				$result = Infotables::updateInfo ( $data );
 				if ($result) {
 					return $this->success ( "操作成功", null, $this->refleshTodoList () );

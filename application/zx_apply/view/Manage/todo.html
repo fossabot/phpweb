@@ -101,6 +101,7 @@ function form_init(formData){
 		if(id=="commit"){
 			if(myForm.validate()){
 				var myData = myForm.getFormData();
+				//myData["ipB"]=="" && delete myData["ipB"];
 				//myData["req"]="distribution";
 				$.post("?req=distribution",myData,function(data){
 					dhtmlx.alert({

@@ -22,9 +22,12 @@ class Index extends Common {
 	 * @return void|string
 	 */
 	public function tt() {
-		$ip = Iptables::ip_parse ( "10.10.10.2" );
+		$infotables = new Infotables();
+		//return dump($infotables->get(3)->getData());
+		$ip = Iptables::ip_parse ( "10.10.10.28" );
+		return dump($ip[1]);
 		$ip [1] == - 1 && $ip = Iptables::ip_parse ( Iptables::ip_export ( $ip [0], - 8 ) );
-		// $ip = Iptables::check( "互联网","10.2.2.22" );
+		$ip = Iptables::check( "互联网","10.2.2.21" );
 		return dump ( $ip );
 	}
 	
