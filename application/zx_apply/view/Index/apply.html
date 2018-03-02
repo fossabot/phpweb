@@ -33,7 +33,7 @@ myForm.attachEvent("onButtonClick", function(id) {
 						location.href = "query.html";
 					},
 				});
-				data.code == 0 && dhtmlx.alert({type:"alert-error",title:"提交失败",text:"请重试或联系管理员。"});
+				data.code == 0 && dhtmlx.alert({type:"alert-error",title:data.msg,text:data.data});
 			});
 		}else{
 			dhtmlx.alert({type:"alert-error",title:"数据验证有误",text:"请检查填写是否完整或格式类型是否正确。"});

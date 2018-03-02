@@ -13,7 +13,7 @@ class Manage extends Index {
 	];
 	protected function checkAuth() {
 		if (session ( "user.role" ) != "manage") {
-			return $this->error ( "您无权限哦^_^" );
+			return $this->redirect ( "index/query" );
 		}
 	}
 	public function index() {
@@ -47,33 +47,9 @@ class Manage extends Index {
 			if ($req == "distribution") {
 				$data = input ( "post." );
 				/* 检查ip/ipB是否有变化，变化后是否冲突，并设置mask [start] */
-				if ($info ["ip"] != $data ["ip"]) { // 获取的ip有变化，则检查是否冲突
-					$ip = Iptables::check ( $data ["zxType"], $data ["ip"] );
-					if ($ip)
-						return $this->error ( "互联ip冲突，", null, $ip ["cName"] );
-					else { // 设置ipMask
-						$ip_array = Iptables::ip_parse ( $data ["ip"] );
-						$data ["ip"] = $ip_array [2];
-						$data ["ipMask"] = $ip_array [1];
-					}
-				}
-				if ($data ["ipB"] == "") {
-					// 设置 ipB为null
-					$data ["ipB"] = null;
-					$data ["ipBMask"] = null;
-				} else {
-					if ($info ["ipB"] != $data ["ipB"]) {
-						$ipB = Iptables::check ( $data ["zxType"], $data ["ipB"], "ipB" );
-						if ($ipB)
-							return $this->error ( "业务ip冲突，", null, $ipB ["cName"] );
-						else { // 设置ipBMask
-							$ipB_array = Iptables::ip_parse ( $data ["ipB"] );
-							$ipB_array [1] == - 1 && $ipB_array = Iptables::ip_parse ( Iptables::ip_export ( $ipB_array [0], - 8 ) );
-							$data ["ipB"] = $ipB_array [2];
-							$data ["ipBMask"] = $ipB_array [1];
-						}
-					}
-				}
+				$this->checkInstanceID($data);
+				$this->checkAndSetIp($info,$data);
+				
 				/* 检查ip是否有变化，变化后是否冲突，并设置mask [over] */
 				/* 检查vlan是否冲突 [start] */
 				$vlan = Vlantables::check ( $data ["zxType"], $data ["aStation"], $data ["vlan"] );
@@ -183,6 +159,36 @@ class Manage extends Index {
 			}
 			if (input ( "post.exec" ) == "ok_vlan") {
 				return Vlantables::importUsedVlan ( input ( "post.device" ), input ( "post.vlanImport" ) );
+			}
+		}
+	}
+	protected function checkAndSetIp($info,$data){
+		if ($info ["ip"] != $data ["ip"]) { // 获取的ip有变化，则检查是否冲突
+			$ip = Iptables::check ( $data ["zxType"], $data ["ip"] );
+			if ($ip)
+				return $this->error ( "互联ip冲突，", null, $ip ["cName"] );
+				else { // 设置ipMask
+					$ip_array = Iptables::ip_parse ( $data ["ip"] );
+					$data ["ip"] = $ip_array [2];
+					$data ["ipMask"] = $ip_array [1];
+				}
+		}
+		if ($data ["ipB"] == "") {
+			// 设置 ipB为null
+			$data ["ipB"] = null;
+			$data ["ipBMask"] = null;
+		} else {
+			if ($info ["ipB"] != $data ["ipB"]) {
+				$ipB = Iptables::check ( $data ["zxType"], $data ["ipB"], "ipB" );
+				if ($ipB)
+					return $this->error ( "业务ip冲突，", null, $ipB ["cName"] );
+					else { // 设置ipBMask
+						$ipB_array = Iptables::ip_parse ( $data ["ipB"] );
+						$ipB_array [1] == - 1 && $ipB_array = Iptables::ip_parse ( Iptables::ip_export ( $ipB_array [0], - 8 ) );
+						/* 默认强制设置ipBMask为-8，并修正ip为ip_start */
+						$data ["ipB"] = $ipB_array [2];
+						$data ["ipBMask"] = $ipB_array [1];
+					}
 			}
 		}
 	}

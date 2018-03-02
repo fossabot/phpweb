@@ -21,42 +21,16 @@ query 显示全量，默认定位到最新日期。
 {/block} {block name="script"}
 <script>
 $(function($){
-	$(".wtHolder")[0].style.height="";	//修复wtHolder层height过大。
+	//$(".wtHolder")[0].style.height="";	//修复wtHolder层height过大。
 });
-var data;
-/*$.get("/static/demo-data.csv",function(_data){
-	data = _data;
-	var header = "申请时间,产品实例标识,专线类别,带宽,网元厂家,A端基站,客户名,客户地址,客户需求,ipId,vlanId,客户联系人姓名,客户联系人电话,客户联系人邮箱,客户经理姓名,客户经理电话,客户经理邮箱,单位性质,备注";
-	var container = document.getElementById('example');
-	var hot = new Handsontable(container, {
-	  data: data,
-	  rowHeaders: true,
-	  colHeaders: header.split(","),
-	  filters: true,
-	  dropdownMenu: true,
-	});
-});*/
-	// ******************
-	  var
-	    data1 = [
-	      ['', 'Tesla', 'Nissan', 'Toyota', 'Honda', 'Mazda', 'Ford', 'Tesla','Honda', 'Mazda', 'Ford', 'Tesla', 'Nissan', 'Toyota', 'Honda', 'Mazda', 'Ford', 'ffffffffffff'],
-	      ['2017', 10, 11, 12, 13, 15, 16],
-	      ['2018', 10, 11, 12, 13, 15, 16],
-	      ['2019', 10, 11, 12, 13, 15, 16],
-	      ['2020', 10, 11, 12, 13, 15, 16],
-	      ['2021', 10, 11, 12, 13, 15, 16]
-	    ],
-	    container1 = document.getElementById('example1'),
-	    settings1 = {
-	      data: data1,
-		  rowHeaders: true,
-		  colHeaders: true ,
-		  contextMenu: true
-	    },
-	    hot1;
-
-	  hot1 = new Handsontable(container1, settings1);
-	  data1[0][1] = 'Forddddd';  // change "Kia" to "Ford" programmatically
-	 // hot1.render();
+var colWidthsData = "98,96,65,50,65,100,180,220,450,50,116,107,107,164,93,96,164,50,75,76,76,76,132,107,62,62,76,104";
+var zxTypeData = "互联网,营业厅,平安校园,点对点,卫生网,教育网,IMS,其他";
+//var aStationData = "柴河局,西丰新局,西丰老局,昌图新局,昌图老局,开原老局,开原新局,清河,调兵山新局,铁岭县,银州区";
+var aStationData = "{$aStation}";
+var neFactoryData = "华为,中兴";
+var colHeaderData = [];
+var container = document.getElementById('inp_area');
+var infoData = []; // 用于保存hot的初始数据
+var hot;
 </script>
 {/block}

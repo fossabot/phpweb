@@ -6,7 +6,6 @@ use think\Controller;
 use think\Request;
 use think\Db;
 use app\zx_apply\model\Infotables;
-use app\zx_apply\model\Iptables;
 
 class Index extends Common {
 	
@@ -22,13 +21,9 @@ class Index extends Common {
 	 * @return void|string
 	 */
 	public function tt() {
-		$infotables = new Infotables();
-		//return dump($infotables->get(3)->getData());
-		$ip = Iptables::ip_parse ( "10.10.10.28" );
-		return dump($ip[1]);
-		$ip [1] == - 1 && $ip = Iptables::ip_parse ( Iptables::ip_export ( $ip [0], - 8 ) );
-		$ip = Iptables::check( "互联网","10.2.2.21" );
-		return dump ( $ip );
+		$infotables = new Infotables ();
+		$info = $infotables->get ( 1 )->getData ();
+		return dump ( $info );
 	}
 	
 	/**
@@ -99,6 +94,7 @@ class Index extends Common {
 			return $this->fetch ();
 		} else if (request ()->isPost ()) {
 			$data = input ( "post." );
+			$this->checkInstanceID ( $data ); // 检查instanceId
 			$extraHeader = config ( "extraInfo" );
 			foreach ( $extraHeader as $k => $v ) {
 				$data ["extra"] [$v] = $data [$v];
@@ -144,5 +140,19 @@ class Index extends Common {
 	 */
 	public function update() {
 		return $this->fetch ( "index/update" );
+	}
+	/**
+	 * 检查 instanceId 是否重复，可输入$data数组或instanceId
+	 * @param unknown $data
+	 */
+	protected function checkInstanceID($data) {
+		$condition = is_array ( $data ) ? $data ["instanceId"] : $data;
+		$info = Infotables::get ( [ 
+				"instanceId" => $condition 
+		] );
+		$flag = is_array ( $data ) ? $info && $data ["id"]!= $info["id"]: $info;
+		if ($flag) {
+			return $this->error ( "实例标识重复，请重试", null, "该实例标识对应客户名为：<br>" . $info ["cName"] );
+		}
 	}
 }

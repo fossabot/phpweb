@@ -63,6 +63,7 @@ textarea {
 			dhtmlx.alert({title: ".",text:"录入信息为空哦。"});
 			return false;
 		}
+		str_o = str_o.replace("\t\t","\t");
 		dhtmlx.message(str_o);
 		var arr_o = str_o.split('\t');
 		var ip = arr_o[10];
