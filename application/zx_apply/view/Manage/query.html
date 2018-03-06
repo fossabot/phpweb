@@ -14,10 +14,8 @@ query 显示全量，默认定位到最新日期。
 
 
 </div>
-<div id='example'></div>
-<div id='example1'></div>
+<div id='queryTable'></div>
 
-11
 {/block} {block name="script"}
 <script>
 $(function($){
@@ -26,11 +24,159 @@ $(function($){
 var colWidthsData = "98,96,65,50,65,100,180,220,450,50,116,107,107,164,93,96,164,50,75,76,76,76,132,107,62,62,76,104";
 var zxTypeData = "互联网,营业厅,平安校园,点对点,卫生网,教育网,IMS,其他";
 //var aStationData = "柴河局,西丰新局,西丰老局,昌图新局,昌图老局,开原老局,开原新局,清河,调兵山新局,铁岭县,银州区";
-var aStationData = "{$aStation}";
+var aStationData = "{$aStationData}";
 var neFactoryData = "华为,中兴";
 var colHeaderData = [];
-var container = document.getElementById('inp_area');
+var container = document.getElementById('queryTable');
 var infoData = []; // 用于保存hot的初始数据
 var hot;
+colHeaderData = "{$colHeaderData}";
+
+infoData = loadDataFromStorage(colHeaderData);
+
+hot = new Handsontable(container, {
+	data : infoData,
+	rowHeaders : true,
+	colWidths : colWidthsData.split(","),
+	//autoColumnSize : true,
+	//filters : true,
+	//search : true,
+	//minSpareRows : 1,
+	manualColumnResize : true,
+	colHeaders : data.split(","),
+	columns : [ {
+		type : "date",
+		dateFormat : "YYYY-MM-DD",
+		correctFormat : true,
+		validator : "date"
+	}, {
+		// 实例标识
+		type : 'numeric'
+	}, {
+		// 专线类型
+		editor : 'select',
+		selectOptions : zxTypeData.split(","),
+	}, {
+
+	}, {
+		// 网元厂家
+		editor : 'select',
+		selectOptions : neFactoryData.split(","),
+	}, {
+		strict : true,
+		type : 'autocomplete',
+		source : aStationData.split(","),
+	}, {
+
+	}, {
+
+	}, {
+
+	}, {
+		//  vlan
+		type : 'numeric',
+
+	}, {
+		// ip
+		validator : ipValidatorRegexp,
+	}, {
+
+	}, {
+
+	}, {
+
+	}, {
+
+	}, {
+
+	}, {
+
+	}, {
+
+	}, {
+
+	}, {
+		//1
+		type : 'numeric',
+	}, {
+		//2
+		type : 'numeric',
+	}, {
+		//3
+		type : 'numeric',
+	}, {
+		//4
+		type : 'numeric',
+	}, {
+	//5
+	}, {
+		//6
+		type : 'numeric',
+	}, {
+		//7
+		type : 'numeric',
+	}, {
+		//8
+		type : 'numeric',
+	}, {
+		//9
+		type : 'numeric',
+	} ],
+	contextMenu : {
+		callback : function(key, options) {
+			if (key === 'about') {
+				setTimeout(function() {
+					// timeout is used to make sure the menu collapsed before alert is shown
+					parent.dhtmlx.alert({
+						title : "特别鸣谢",
+						text : "本菜单由 Xianda 汉化。感谢Xianda"
+					});
+				}, 100);
+			}
+		},
+		items : {
+			"about" : {
+				name : "*Power by Xianda*"
+			},
+			"hsep1" : "---------",
+			"row_above" : {
+				name : "在上面插入一行"
+			},
+			"row_below" : {
+				name : "在下面插入一行"
+			},
+			"hsep1" : "---------",
+			"col_left" : {
+				name : "在左侧插入一列"
+			},
+			"col_right" : {
+				name : "在右侧插入一列"
+			},
+			"hsep2" : "---------",
+			"remove_row" : {
+				name : "移除此行"
+			},
+			"remove_col" : {
+				name : "移除次列"
+			},
+			"hsep3" : "---------",
+			"undo" : {
+				name : "撤销"
+			},
+			"redo" : {
+				name : "还原"
+			},
+			"make_read_only" : {
+				name : "设为只读"
+			},
+			"alignment" : {
+				name : "对齐"
+			},
+
+		},
+	}
+});
+hot.validateCells();
+});
 </script>
 {/block}

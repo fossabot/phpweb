@@ -51,7 +51,7 @@
 		}
 		return _url;
 	})(zxInfoTitle);
-	var colWidthsData = "98,96,65,50,65,100,180,220,450,50,116,107,107,164,93,96,164,50,75,76,76,76,132,107,62,62,76,104";
+	var colWidthsData = "98,96,65,50,65,100,180,220,450,50,116,107,107,164,93,96,164,200,75,76,76,76,132,107,62,62,76,104";
 	var zxTypeData = "互联网,营业厅,平安校园,点对点,卫生网,教育网,IMS,其他";
 	//var aStationData = "柴河局,西丰新局,西丰老局,昌图新局,昌图老局,开原老局,开原新局,清河,调兵山新局,铁岭县,银州区";
 	var aStationData = "{$aStation}";
@@ -250,7 +250,6 @@
 	}
 	//	确认录入提交
 	$("#confirm-commit").on("click", function() {
-
 		var ht_data = hot.getPlugin("exportFile").exportAsString("csv");
 		// 导出的csv字符串会带有不可见的BOM，
 		// 在JavaScript中占一个单位，在php中占3个单位，
@@ -264,7 +263,7 @@
 		// 页面滚动到左上角位置
 		pageScroll();
 		$.post("", _data, function(data) {
-			$("#xhr_response").html(data);
+			$("#xhr_response").html(data).before("<p>下面是存入结果：若为空则导入失败，请联系管理员。导入结束可点击右上方关闭本弹窗。</p>");
 		});
 	});
 	function pageScroll() {

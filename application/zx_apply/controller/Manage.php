@@ -46,17 +46,9 @@ class Manage extends Index {
 			}
 			if ($req == "distribution") {
 				$data = input ( "post." );
-				/* 检查ip/ipB是否有变化，变化后是否冲突，并设置mask [start] */
-				$this->checkInstanceID($data);
-				$this->checkAndSetIp($info,$data);
-				
-				/* 检查ip是否有变化，变化后是否冲突，并设置mask [over] */
-				/* 检查vlan是否冲突 [start] */
-				$vlan = Vlantables::check ( $data ["zxType"], $data ["aStation"], $data ["vlan"] );
-				if ($vlan && $vlan ["id"] != $data ["id"]) { // 找到vlan且vlan的id与自己的id不同
-					return $this->error ( "vlan冲突，", null, $vlan ["cName"] );
-				}
-				/* 检查vlan是否冲突 [over] */
+				$this->checkInstanceID ( $info, $data );
+				$this->checkAndSetIp ( $info, $data );
+				$this->checkVlan ( $data );
 				// $data ["status"] = 1;
 				// return dump ( $data );
 				$result = Infotables::updateInfo ( $data );
@@ -76,6 +68,18 @@ class Manage extends Index {
 		// $info = new Infotables();
 		$data = Infotables::where ( $where )->field ( $field )->select (); // explode(",", $field)
 		return json_encode ( $data, 256 );
+	}
+	/**
+	 * 信息查询
+	 */
+	public function query() {
+		$aStation = array_keys ( config ( "aStation" ) );
+		$colHeader = "";
+		$this->assign ( [ 
+				"aStationData" => implode ( ",", $aStation ),
+				"colHeaderData" => '' 
+		] );
+		return $this->fetch ();
 	}
 	/**
 	 * get:加载数据到handsontable并验证,
@@ -109,6 +113,7 @@ class Manage extends Index {
 				$temp = [ ];
 				foreach ( $extraHeader as $kk => $vv ) {
 					$data [$k] ["extra"] [$vv] = $v [$vv];
+					unset ( $data [$k] [$vv] );
 				}
 				if ($v ["aStation"] == "柴河局") {
 					$data [$k] ["aStation"] .= "-" . $data [$k] ["neFactory"];
@@ -162,16 +167,22 @@ class Manage extends Index {
 			}
 		}
 	}
-	protected function checkAndSetIp($info,$data){
+	/**
+	 * 检查获取的数据与数据库中的ip/ipB是否重复
+	 *
+	 * @param unknown $info        	
+	 * @param unknown $data        	
+	 */
+	protected function checkAndSetIp($info, $data) {
 		if ($info ["ip"] != $data ["ip"]) { // 获取的ip有变化，则检查是否冲突
 			$ip = Iptables::check ( $data ["zxType"], $data ["ip"] );
 			if ($ip)
 				return $this->error ( "互联ip冲突，", null, $ip ["cName"] );
-				else { // 设置ipMask
-					$ip_array = Iptables::ip_parse ( $data ["ip"] );
-					$data ["ip"] = $ip_array [2];
-					$data ["ipMask"] = $ip_array [1];
-				}
+			else { // 设置ipMask
+				$ip_array = Iptables::ip_parse ( $data ["ip"] );
+				$data ["ip"] = $ip_array [2];
+				$data ["ipMask"] = $ip_array [1];
+			}
 		}
 		if ($data ["ipB"] == "") {
 			// 设置 ipB为null
@@ -182,14 +193,25 @@ class Manage extends Index {
 				$ipB = Iptables::check ( $data ["zxType"], $data ["ipB"], "ipB" );
 				if ($ipB)
 					return $this->error ( "业务ip冲突，", null, $ipB ["cName"] );
-					else { // 设置ipBMask
-						$ipB_array = Iptables::ip_parse ( $data ["ipB"] );
-						$ipB_array [1] == - 1 && $ipB_array = Iptables::ip_parse ( Iptables::ip_export ( $ipB_array [0], - 8 ) );
-						/* 默认强制设置ipBMask为-8，并修正ip为ip_start */
-						$data ["ipB"] = $ipB_array [2];
-						$data ["ipBMask"] = $ipB_array [1];
-					}
+				else { // 设置ipBMask
+					$ipB_array = Iptables::ip_parse ( $data ["ipB"] );
+					$ipB_array [1] == - 1 && $ipB_array = Iptables::ip_parse ( Iptables::ip_export ( $ipB_array [0], - 8 ) );
+					/* 默认强制设置ipBMask为-8，并修正ip为ip_start */
+					$data ["ipB"] = $ipB_array [2];
+					$data ["ipBMask"] = $ipB_array [1];
+				}
 			}
+		}
+	}
+	/**
+	 * 检查获取的vlan是否已分配
+	 *
+	 * @param unknown $data        	
+	 */
+	protected function checkVlan($data) {
+		$vlan = Vlantables::check ( $data ["zxType"], $data ["aStation"], $data ["vlan"] );
+		if ($vlan && $vlan ["id"] != $data ["id"]) { // 找到vlan且vlan的id与自己的id不同
+			return $this->error ( "vlan冲突，", null, $vlan ["cName"] );
 		}
 	}
 	private function cacheSettings() {

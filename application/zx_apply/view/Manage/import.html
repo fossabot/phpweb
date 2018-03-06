@@ -88,7 +88,8 @@ file="Common/leftmenu_zx_apply_manage" /} {/block}{block name="main"}
 	function confirmTable(){
 		//AsyncLoad("css","__STATIC__/handsontable-pro/handsontable.full.min.css");
 		//AsyncLoad("script","__STATIC__/handsontable-pro/handsontable.full.min.js");
-		var ss = {k:Date.now(),v:$("#inp_area textarea").val().trim().replace(/ /g,"").replace(/,/g,"，")};
+		// 去空格，半角逗号改全角逗号，替换双引号之间的回车为全角分号以及去除双引号本身
+		var ss = {k:Date.now(),v:$("#inp_area textarea").val().trim().replace(/ /g,"").replace(/,/g,"，").replace(/\"(.*)\n(.*)\"/,"$1；$2")};
 		// 使用 sessionStorage 传递 textarea 数据
 		var t = btoa("appInputVal_"+ss["k"]);
 		sessionStorage.setItem(t,ss["v"]);

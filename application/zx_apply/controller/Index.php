@@ -21,9 +21,12 @@ class Index extends Common {
 	 * @return void|string
 	 */
 	public function tt() {
-		$infotables = new Infotables ();
-		$info = $infotables->get ( 1 )->getData ();
-		return dump ( $info );
+		$info = array_search ( "OLT", [
+				"华为",
+				"中兴",
+				"OLT"
+		] );
+		return dump ( is_int($info) );
 	}
 	
 	/**
@@ -94,7 +97,7 @@ class Index extends Common {
 			return $this->fetch ();
 		} else if (request ()->isPost ()) {
 			$data = input ( "post." );
-			$this->checkInstanceID ( $data ); // 检查instanceId
+			$this->checkInstanceID ( null, $data ); // 检查instanceId
 			$extraHeader = config ( "extraInfo" );
 			foreach ( $extraHeader as $k => $v ) {
 				$data ["extra"] [$v] = $data [$v];
@@ -142,16 +145,24 @@ class Index extends Common {
 		return $this->fetch ( "index/update" );
 	}
 	/**
-	 * 检查 instanceId 是否重复，可输入$data数组或instanceId
-	 * @param unknown $data
+	 * 检查 instanceId 是否重复
+	 * 可输入$data数组或instanceId
+	 *
+	 * @param unknown $info        	
+	 * @param unknown $data        	
 	 */
-	protected function checkInstanceID($data) {
-		$condition = is_array ( $data ) ? $data ["instanceId"] : $data;
+	protected function checkInstanceID($info, $data) {
+		if (null == $info) {
+			$instanceId = $data;
+		} else if ($info ["id"] != $data ["id"]) {
+			$instanceId = $data ["instanceId"];
+		} else {
+			return;
+		}
 		$info = Infotables::get ( [ 
-				"instanceId" => $condition 
+				"instanceId" => $instanceId 
 		] );
-		$flag = is_array ( $data ) ? $info && $data ["id"]!= $info["id"]: $info;
-		if ($flag) {
+		if ($info) {
 			return $this->error ( "实例标识重复，请重试", null, "该实例标识对应客户名为：<br>" . $info ["cName"] );
 		}
 	}

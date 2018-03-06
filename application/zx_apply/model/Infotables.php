@@ -42,7 +42,7 @@ class Infotables extends Model {
 					"中兴",
 					"OLT" 
 			] );
-			return $ne ? $ne : null;
+			return is_int($ne) ? $ne : null;
 		}
 	}
 	public function getNeFactoryAttr($value) {
@@ -73,9 +73,9 @@ class Infotables extends Model {
 	 */
 	public static function createInfo($data = "", $type = "") {
 		$result = [ ];
-		$infotables = new static ();
 		if ($type == "import") {
 			foreach ( $data as $k => $d ) {
+				$infotables = new static ();
 				$data [$k] = array_merge ( [ 
 						"tags" => "导入",
 						"status" => 9 
@@ -86,13 +86,14 @@ class Infotables extends Model {
 					Vlantables::createVlan ( $data [$k] ["aStation"], $data [$k] ["vlan"], $data [$k] ["cName"] );
 				}
 				$data [$k] = array_filter ( $data [$k] ); // 清除空元素
-				$result [] = $infotables->isUpdate ( false )->allowField ( true )->save ( $data [$k] );
+				//$result [] = $data [$k];
+				$result [] = $infotables->isUpdate ( false )->allowField ( true )->save ( $data [$k],[] );
 			}
 		}
 		if ($type == "apply") {
 			$data ["tags"] = "申请";
 			$data ["status"] = 0;
-			$result = $infotables->isUpdate ( false )->allowField ( true )->save ( $data );
+			$result = $infotables->isUpdate ( false )->allowField ( true )->save ( $data,[] );
 		}
 		return $result;
 	}
