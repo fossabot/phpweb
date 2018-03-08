@@ -32,11 +32,9 @@ handsontable-JavaScript Spreadsheet Component For Web Apps，这是官网的titl
 <script src="/static/handsontable-pro/handsontable.full.min.js"></script>
 {% endif %}
 
-## 基本用法
+## 干货写前面
 
-### 干货写前面
-
-#### 方法调用
+### 方法调用
 
 先构造一个handsontable，然后直接使用，或者使用jQuery的封装形式。
 
@@ -50,7 +48,7 @@ ht.setDataAtCell(0, 0, 'new value');
 $('#example1').handsontable('setDataAtCell', 0, 0, 'new value');
 ```
 
-#### 构造函数的options参数
+### 构造函数的options参数
 
 ``` javascript
 data:               # 数据源（二维数组、对象）
@@ -76,74 +74,9 @@ search:             # 启动搜索插件
 contextMenu: true   # 右键菜单 可以自定义数组 []
 ```
 
-### 常用API
+# 基本用法
 
-```
-hot.loadData()
-hot.getData()             // 数组格式
-got.getSourceData()       // JSON格式（columns里配置data）
-hot.search.query()        // 全局搜索并高亮，返回 [{row,col,data},...]
-```
-
-调用方法
-
-```javascript
-// all following examples assume that you constructed Handsontable like this
-var ht = new Handsontable(document.getElementById('example1'), options);
-
-// now, to use setDataAtCell method, you can either:
-ht.setDataAtCell(0, 0, 'new value');
-
-# Alternatively, you can call the method using jQuery wrapper (obsolete, requires initialization using our jQuery guide
-
-$('#example1').handsontable('setDataAtCell', 0, 0, 'new value');
-```
-
-#### hook #event:afterChange
-
-##### Parameters:
-
-| Name      | Type   | Description                              |
-| --------- | ------ | ---------------------------------------- |
-| `changes` | Array  | 2D array containing information about each of the edited cells `[[row, prop, oldVal, newVal], ...]`. |
-| `source`  | String | optionalString that identifies source of hook call([list of all available sources](http://docs.handsontable.com/tutorial-using-callbacks.html#page-source-definition)). |
-
-#### hook #event:afterValidate
-
-如果定义了validator函数，执行之后会触发该事件。并执行响应函数，函数的第一个参数是验证结果，用来确定是否验证通过。
-
-##### Parameters:
-
-| Name      | Type            | Description                                                  |
-| --------- | --------------- | ------------------------------------------------------------ |
-| `isValid` | Boolean         | `true` if valid, `false` if not.                             |
-| `value`   | *               | The value in question.                                       |
-| `row`     | Number          | Row index.                                                   |
-| `prop`    | String \|Number | Property name / column index.                                |
-| `source`  | String          | optionalString that identifies source of hook call([list of all available sources](http://docs.handsontable.com/tutorial-using-callbacks.html#page-source-definition)). |
-
-#### updateSettings
-
-在初始化之后，更新handsontable的设置
-
-```javascript
-var hot = new Handsontable(example, settings);
-hot.updateSettings(Settings);
-// Settings 是 json 结构 {} 如：
-hot.updateSettings({
-  contextMenu: {
-    callback: function (key, options){
-      xxxxxx
-    },
-    items:{
-      xxx:{},
-      yyy:{}
-    }
-  }  
-});
-```
-
-### 快速开始
+## 快速开始
 
 1. 在网页中引入`js`和`css`文件。推荐引入`handsontable.full.min.js`和`handsontable.full.min.css`。
 2. 在html中添加容器`<div id="example"></div>`。
@@ -195,9 +128,9 @@ var hot = new Handsontable(container, {
 });
 </script>
 
-### 数据绑定
+## 数据绑定
 
-#### 理解作为引用的绑定
+### 理解作为引用的绑定
 
 Handsontable通过引用与你的数据源(数组或对象)绑定。因此，特点有二：
 
@@ -226,7 +159,7 @@ Handsontable通过引用与你的数据源(数组或对象)绑定。因此，特
 
 ```
 
-#### 更改数据源而不更改显示
+### 更改数据源而不更改显示
 
 可以在引用数据时，引用数据源的一个单独的副本。这样数据源变化就不会影响数据显示了。
 
@@ -238,7 +171,7 @@ hot2 = new Handsontable(container2, {
   });
 ```
 
-#### 更改显示而不更改数据源
+### 更改显示而不更改数据源
 
 保存之前先克隆，`tmpData`即是显示修改之前的数据副本。
 
@@ -255,11 +188,11 @@ hot3 = new Handsontable(container3, {
   });
 ```
 
-### 数据来源
+## 数据来源
 
 Handsontable是如何使用各种数据源的？
 
-#### 数组类型数据源
+### 数组类型数据源
 
 ```javascript
    var
@@ -283,7 +216,7 @@ Handsontable是如何使用各种数据源的？
   });
 ```
 
-#### 含隐藏列的数组类型数据源
+### 含隐藏列的数组类型数据源
 
 ```javascript
   var
@@ -313,7 +246,7 @@ Handsontable是如何使用各种数据源的？
   });
 ```
 
-#### 对象数据源
+### 对象数据源
 
 ```javascript
   var
@@ -335,7 +268,7 @@ Handsontable是如何使用各种数据源的？
 
 ```
 
-#### 用列做函数的对象数据源
+### 用列做函数的对象数据源
 
 ```javascript
   var nestedObjects = [
@@ -379,7 +312,7 @@ Handsontable是如何使用各种数据源的？
   ],
 ```
 
-#### 自定义数据结构及列名的对象数据源
+### 自定义数据结构及列名的对象数据源
 
 ```javascript
 dataSchema: {id: null, name: {first: null, last: null}, address: null},
@@ -391,9 +324,9 @@ colHeaders: ['ID', 'First Name', 'Last Name', 'Address'],
 
 
 
-### 数据的加载与保存
+## 数据的加载与保存
 
-#### 使用onChange回调保存数据
+### 使用onChange回调保存数据
 
 定义在初始化Handsontable时`option`选项参数：`afterChange`
 
@@ -448,7 +381,7 @@ colHeaders: ['ID', 'First Name', 'Last Name', 'Address'],
   });
 ```
 
-#### 本地保存
+### 本地保存
 
 启用数据存储机制，可在初始化时设置`persistentState`参数为`true`，或者使用`updateSettings `方法。
 
@@ -463,7 +396,7 @@ persistentStateReset (key: String)
 
 使用这三个钩子的api，是为了防止同页面有2个以上实例，数据只能保存一份的尴尬。
 
-### 设置选项
+## 设置选项
 
 单元格选项，在构造时定义配置
 
@@ -491,47 +424,7 @@ var hot = new Handsontable(document.getElementById('example'), {
 })
 ```
 
-级联的配置模型，在构造函数使用第一级提供的配置选项或者`updateSettings`方法，使用二级对象提供的配置选项，
-
-### 回调函数
-
-<https://docs.handsontable.com/pro/1.15.0/tutorial-using-callbacks.html>
-
-### 自定义样式
-
-<https://docs.handsontable.com/pro/1.15.0/tutorial-styling.html>
-
-
-
-## Setting options
-
-### Introduction to cell options
-
-Any constructor or column option may be overwritten for a particular cell (row/column combination),      using `cell` array passed to the Handsontable constructor. Example:
-
-```javascript
-var hot = new Handsontable(document.getElementById('example'), {
-  cell: [
-    {row: 0, col: 0, readOnly: true}
-  ]
-});
-```
-
-Or using cells function property to the Handsontable constructor. Example:
-
-```javascript
-var hot = new Handsontable(document.getElementById('example'), {
-  cells: function (row, col, prop) {
-    var cellProperties = {}
-
-    if (row === 0 && col === 0) {
-      cellProperties.readOnly = true;
-    }
-
-    return cellProperties;
-  }
-})
-```
+级联的配置模型，在构造函数使用第一级提供的配置选项或者`updateSettings`方法，使用二级对象提供的配置选项，具体阅读官方版：<https://docs.handsontable.com/tutorial-setting-options.html>，关键部分已摘抄至下面。
 
 ### How does the Cascading Configuration work?
 
@@ -601,17 +494,15 @@ The Cascading Configuration model is based on prototypal inheritance. It is much
   });
   ```
 
-## [Using callbacks](https://docs.handsontable.com/pro/1.15.0/tutorial-using-callbacks.html)
+## Using callbacks
 
 Please visit：<https://docs.handsontable.com/pro/1.15.0/tutorial-using-callbacks.html>
 
-
-
 ## Styling
 
+> <https://docs.handsontable.com/pro/1.15.0/tutorial-styling.html>
+
 Commonly used styles:
-
-
 
 ​      There is very little you can't do with Handsontable. As it doesn't impose any specific theme,      you can play with CSS however you like. Keep in mind that Handsontable needs to calculate the      width and height of elements inside it to control the scrollbar, so the complex styling rules      may affect the performance.    
 
@@ -818,11 +709,9 @@ for (var i = 0; i < borders.length; i++) {
 }
 ```
 
+# 开发者指南
 
-
-## 开发者指南
-
-### 搜索 
+## 搜索 
 
 初始化时在`option`里可以配置`search: true`开启。
 
@@ -840,9 +729,21 @@ queryResult 格式：
 }
 ```
 
+##  单元格数据类型
 
+默认定义了9种类型：
 
-###  单元格数据类型(*to be updated*)
+- `autocomplete` for `Handsontable.cellTypes.autocomplete`
+- `checkbox` for `Handsontable.cellTypes.checkbox`
+- `date` for `Handsontable.cellTypes.date`
+- `dropdown` for `Handsontable.cellTypes.dropdown`
+- `handsontable` for `Handsontable.cellTypes.handsontable`
+- `numeric` for `Handsontable.cellTypes.numeric`
+- `password` for `Handsontable.cellTypes.password`
+- `text` for `Handsontable.cellTypes.text`
+- `time` for `Handsontable.cellTypes.time`
+
+更多直接查看官方：<https://docs.handsontable.com/tutorial-cell-types.html>
 
 `columns`参数详解
 
@@ -859,8 +760,6 @@ type // 数据类型
 ```
 
 初始化的`options`中配置举例
-
-
 
 [autocomplete](https://docs.handsontable.com/0.35.0/demo-autocomplete.html)
 
@@ -903,6 +802,7 @@ hot = new Handsontable(container, {
       source: ['yellow', 'red', 'orange', 'green']
     }，
 ```
+
 > Internally, cell `{type: "dropdown"}` is equivalent to cell` {type: "autocomplete", strict: true, filter: false}`. Therefore you can think of `dropdown` as a searchable `<select>`.
 
 ``` javascript
@@ -932,7 +832,7 @@ hot = new Handsontable(container, {
 hot.validateCells();
 ```
 
-### 右键菜单 
+## 右键菜单 
 
 初始化时在`option`里可以配置`contextMenu:true`开启，或者配置为如下选项：
 
@@ -1002,6 +902,174 @@ var
   })
 ```
 
+# API参考
+
+```
+hot.loadData()
+hot.getData()             // 数组格式
+got.getSourceData()       // JSON格式（columns里配置data）
+hot.search.query()        // 全局搜索并高亮，返回 [{row,col,data},...]
+```
+
+调用方法
+
+```javascript
+// all following examples assume that you constructed Handsontable like this
+var ht = new Handsontable(document.getElementById('example1'), options);
+
+// now, to use setDataAtCell method, you can either:
+ht.setDataAtCell(0, 0, 'new value');
+
+# Alternatively, you can call the method using jQuery wrapper (obsolete, requires initialization using our jQuery guide
+
+$('#example1').handsontable('setDataAtCell', 0, 0, 'new value');
+```
+
+## 核心
+
+### 核心方法
+
+#### updateSettings
+
+在初始化之后，更新handsontable的设置
+
+```javascript
+var hot = new Handsontable(example, settings);
+hot.updateSettings(Settings);
+// Settings 是 json 结构 {} 如：
+hot.updateSettings({
+  contextMenu: {
+    callback: function (key, options){
+      xxxxxx
+    },
+    items:{
+      xxx:{},
+      yyy:{}
+    }
+  }  
+});
+```
+
+### 钩子事件
+
+#### afterChange
+
+Parameters:
+
+| Name      | Type   | Description                              |
+| --------- | ------ | ---------------------------------------- |
+| `changes` | Array  | 2D array containing information about each of the edited cells `[[row, prop, oldVal, newVal], ...]`. |
+| `source`  | String | optionalString that identifies source of hook call([list of all available sources](http://docs.handsontable.com/tutorial-using-callbacks.html#page-source-definition)). |
+
+#### afterValidate
+
+如果定义了validator函数，执行之后会触发该事件。并执行响应函数，函数的第一个参数是验证结果，用来确定是否验证通过。
+
+Parameters:
+
+| Name      | Type            | Description                                                  |
+| --------- | --------------- | ------------------------------------------------------------ |
+| `isValid` | Boolean         | `true` if valid, `false` if not.                             |
+| `value`   | *               | The value in question.                                       |
+| `row`     | Number          | Row index.                                                   |
+| `prop`    | String \|Number | Property name / column index.                                |
+| `source`  | String          | optionalString that identifies source of hook call([list of all available sources](http://docs.handsontable.com/tutorial-using-callbacks.html#page-source-definition)). |
+
+### 选项可选成员
+
+这里介绍构造时，`var hot = new Handsontable(container, settings);`settings的选项的成员。
+
+#### columns
+
+官网例子：
+
+<https://docs.handsontable.com/Options.html#columns>
+
+数据类型例子：
+
+>  具体数据类型可参见 [Developer guide/Cell types](https://docs.handsontable.com/tutorial-cell-types.html)
+
+```javascript
+columns : [ {
+	editor : 'select',
+	selectOptions : [array],
+}, {
+	strict : true,
+	type : 'autocomplete',
+	source : [array],
+},{
+    data: 'name.first'
+}
+```
+
+数据加载例子（json）：
+
+<https://docs.handsontable.com/tutorial-data-sources.html#page-nested>
+
+#### validator
+
+使用时可以是函数、正则表达式、字符串。提供的可选字符串有
+
+- autocomplete,
+- date,
+- numeric,
+- time.
+
+可以自己[注册](http://docs.handsontable.com/demo-data-validation.html)一个验证器。
+
+```javascript
+Handsontable.validators.registerValidator('my.credit-card', creditCardValidator);
+```
+
+注册时最好使用别名：
+
+```javascript
+(function(Handsontable){
+  function customValidator(query, callback) {
+    // ...your custom logic of the validator
+
+    callback(/* Pass `true` or `false` based on your logic */);
+  }
+
+  // Register an alias
+  Handsontable.validators.registerValidator('my.custom', customValidator);
+
+})(Handsontable);
+```
+
+这样就可以像下面一样使用 `customValidator` 了：
+
+```javascript
+var hot = new Handsontable(document.getElementById('container'), {
+  data: someData,
+  columns: [
+    {
+      validator: 'my.custom'
+    }
+  ]
+}); 
+```
+
+下面是例子
+
+```javascript
+// as a function
+columns: [ {
+	validator: function(value, callback) { // validation rules }
+}，
+// as a regexp
+{
+	validator: /^[0-9]$/ // regular expression
+}，
+// as a string
+{
+	validator: 'numeric'
+}
+]
+```
+
+
+
 ## 插件
 
 ### 获取自动调整的宽度
@@ -1036,4 +1104,3 @@ exportPlugin.downloadFile('csv', {filename: 'MyFile'});
 
 
 
-### 

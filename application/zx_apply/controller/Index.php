@@ -21,12 +21,8 @@ class Index extends Common {
 	 * @return void|string
 	 */
 	public function tt() {
-		$info = array_search ( "OLT", [
-				"华为",
-				"中兴",
-				"OLT"
-		] );
-		return dump ( is_int($info) );
+		$t = config ( "colWidth" );
+		return dump ( $t );
 	}
 	
 	/**
@@ -131,6 +127,23 @@ class Index extends Common {
 			$headerArr [] = $_headerData [$o] [$sub];
 		}
 		return implode ( ",", $headerArr );
+	}
+	/**
+	 * 根据order获取handsontable组件的colWidth
+	 *
+	 * @param unknown $order        	
+	 * @return string|void
+	 */
+	protected function getColWidths($order = null) {
+		if (! is_null ( $order )) {
+			$orderArr = explode ( ",", $order );
+			$result = [ ];
+			foreach ( $orderArr as $v ) {
+				$result [] = config ( "colWidth" ) [$v];
+			}
+			return implode ( ",", $result );
+		}
+		return $this->result ( null, 0, "~缺参数~" );
 	}
 	/**
 	 * 信息查询

@@ -73,13 +73,28 @@ class Manage extends Index {
 	 * 信息查询
 	 */
 	public function query() {
-		$aStation = array_keys ( config ( "aStation" ) );
-		$colHeader = "";
-		$this->assign ( [ 
-				"aStationData" => implode ( ",", $aStation ),
-				"colHeaderData" => '' 
-		] );
-		return $this->fetch ();
+		if (request ()->isGet ()) {
+			// 访问
+			$aStation = array_keys ( config ( "aStation" ) );
+			$zxTitle = [ 
+					"label" => "zx_apply-new-rb",
+					"order" => "1,2,3,4,5,7,8,9,10,11,12,13,14,15,16,17,18,19,20,22,23,24,25,26,27,29,30,31,32,33,34,35,36,37" 
+			];
+			$this->assign ( [ 
+					"aStationData" => implode ( ",", $aStation ),
+					"colHeaderData" => $this->getHeader ( $zxTitle ["label"], $zxTitle ["order"] ),
+					"colWidthsData" => $this->getColWidths ( $zxTitle ["order"] ) 
+			] );
+			return $this->fetch ();
+		}
+		if (request ()->isPost ()) {
+			// 获取台账
+			$data = collection ( Infotables::all () )->toArray ();
+			return $data;
+		}
+		if (request ()->isPut ()) {
+			// 更新数据
+		}
 	}
 	/**
 	 * get:加载数据到handsontable并验证,
@@ -94,12 +109,13 @@ class Manage extends Index {
 	 * @return void|string|mixed|string
 	 */
 	public function _ht_apply() {
+		$zxInfoTitle = [ 
+				"label" => "zx_apply-new-rb",
+				"order" => "0,1,2,3,4,5,6,7,8,9,10,12,13,14,15,16,17,18,19,29,30,31,32,33,34,35,36,37" 
+		];
 		if (request ()->isPost ()) {
 			$postData = input ( "post.data" );
-			// return dump($postData);
 			$type = input ( "post.type" );
-			$zxInfoTitle = input ( "post.zxInfoTitle", null, null );
-			$zxInfoTitle = json_decode ( $zxInfoTitle, JSON_UNESCAPED_UNICODE );
 			$dataHeader = $this->getHeader ( $zxInfoTitle ["label"], $zxInfoTitle ["order"], true );
 			// 获取数据库的列名
 			$dataHeader = explode ( ",", $dataHeader );
@@ -118,6 +134,10 @@ class Manage extends Index {
 				if ($v ["aStation"] == "柴河局") {
 					$data [$k] ["aStation"] .= "-" . $data [$k] ["neFactory"];
 				}
+				if ($this->checkDateIsValid ( $data [$k] ["aDate"] )) {
+					// 申请时间转存到 create_time
+					$data [$k] ["create_time"] = strtotime ( $data [$k] ["aDate"] );
+				}
 			}
 			// 若导入，ip/vlan信息要单独存储。
 			$result = Infotables::createInfo ( $data, $type );
@@ -125,9 +145,13 @@ class Manage extends Index {
 			return dump ( $result );
 		}
 		if (request ()->isGet ()) {
-			if (input ( '?get.zxInfoTitle' ) && input ( '?get.t' )) {
+			if (input ( '?get.t' )) {
 				$aStation = array_keys ( config ( "aStation" ) );
-				$this->assign ( "aStation", implode ( ",", $aStation ) );
+				$this->assign ( [ 
+						"aStation" => implode ( ",", $aStation ),
+						'colHeaderData' => $this->getHeader ( $zxInfoTitle ["label"], $zxInfoTitle ["order"] ),
+						"colWidthsData" => $this->getColWidths ( $zxInfoTitle ["order"] ) 
+				] );
 				return $this->fetch ();
 			}
 		}
@@ -213,6 +237,29 @@ class Manage extends Index {
 		if ($vlan && $vlan ["id"] != $data ["id"]) { // 找到vlan且vlan的id与自己的id不同
 			return $this->error ( "vlan冲突，", null, $vlan ["cName"] );
 		}
+	}
+	/**
+	 * 校验日期格式是否正确
+	 *
+	 * @param string $date
+	 *        	日期
+	 * @param string $formats
+	 *        	需要检验的格式数组
+	 * @return boolean
+	 */
+	protected function checkDateIsValid($date, $formats = array("Y-m-d", "Y/m/d")) {
+		$unixTime = strtotime ( $date );
+		if (! $unixTime) { // strtotime转换不对，日期格式显然不对。
+			return false;
+		}
+		// 校验日期的有效性，只要满足其中一个格式就OK
+		foreach ( $formats as $format ) {
+			if (date ( $format, $unixTime ) == $date) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 	private function cacheSettings() {
 		$client = new \Redis ();

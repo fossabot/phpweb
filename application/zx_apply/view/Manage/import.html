@@ -93,21 +93,18 @@ file="Common/leftmenu_zx_apply_manage" /} {/block}{block name="main"}
 		// 使用 sessionStorage 传递 textarea 数据
 		var t = btoa("appInputVal_"+ss["k"]);
 		sessionStorage.setItem(t,ss["v"]);
-		var zxInfoTitle = btoa("zxInfoTitle"+ss["k"]);
-		sessionStorage.setItem(zxInfoTitle,JSON.stringify(zxInfoTitleData));
 		myWins.attachViewportTo(document.getElementById("winVP"));
 		myWins.createWindow("_input",0,50,_htmlWidth,550);
 		//myWins.createWindow("_input",0,50,_htmlWidth,_htmlHeight-70);
 		var text = "验证您的录入&nbsp;&nbsp;&nbsp;&nbsp;<button id='confirm-commit' class='btn btn-xs btn-success'>提交</button>&nbsp;&nbsp;&nbsp;&nbsp;<a onclick='win_close()'>返回重新录入</a>";
 		myWins.window("_input").setText(text);
-		myWins.window("_input").attachURL("_ht_apply?t="+t+"&zxInfoTitle="+zxInfoTitle);
+		myWins.window("_input").attachURL("_ht_apply?t="+t);
 		$("#confirm-commit").on("click",function(){
 			var ifr = myWins.window("_input").getFrame();
 			ifr.contentWindow.document.getElementById("confirm-commit").click();
 		});
 	}
 	var myWins= new dhtmlXWindows();
-	var zxInfoTitleData = {$zxInfoTitle};
 	function win_close(){
 		myWins.window("_input").close();
 		$("#inp_area textarea").select();
@@ -126,10 +123,6 @@ file="Common/leftmenu_zx_apply_manage" /} {/block}{block name="main"}
 			form.append(input);
 		}
 		form.submit();
-	}
-	
-
-	
-	
+	}	
 </script>
 {/block}
