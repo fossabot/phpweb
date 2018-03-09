@@ -7,23 +7,58 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 <div class="htmltitle">
 	<h2>信息查询</h2>
 </div>
-<div>
-	上方显示搜索框、 <br> query 显示全量，默认定位到最新日期。
-
-
+<div style="margin-bottom: 3px;">
+	<form class="form-inline" onsubmit="javascript:return false;">
+		<div class="form-group has-success">
+			<label for="searchStr">全局搜索</label> <input type="text"
+				class="form-control" id="searchStr">
+		</div>
+		<button id="btn-search" type="submit" class="btn btn-default">搜索</button>
+		<div id="tips" class="form-group"
+			style="display: none; margin-left: 20px;">
+			<span id="tips-text" class="text-primary"></span>
+			<button id="tips-btn" class="btn btn-xs btn-primary">定位到下一个</button>
+		</div>
+		<div id="tips-msg" class="form-group text-muted"
+			style="margin-left: 20px;"></div>
+	</form>
 </div>
-<div style="width: 100%;">
+<div class="fixed-container" style="overflow: hidden;">
 	<div id='queryTable'></div>
 </div>
 {/block} {block name="script"}
 <script>
 	$(function($) {
 		//$(".wtHolder")[0].style.height="";	//修复wtHolder层（handsontable右键菜单）height过大。
-		$.post("", null, function(data) {
-			//infoData = data;
-			hot.render();
-		});
+		/*dhxWins.createWindow("_input",0,50,_htmlWidth,_htmlHeight-70);
+		var text = "&nbsp;&nbsp;&nbsp;&nbsp;<a onclick='win_close()'>返回</a>";
+		dhxWins.window("_input").setText(text);
+		dhxWins.window("_input").attachObject("queryTable");*/
+		$(".fixed-container").css("height",(_htmlHeight-170)+"px");
+		initHandsontable(infoData);
+		initSearch();
 	});
+	function win_close(){
+		dhxWins.window("_input").close();
+		$("#inp_area textarea").select();
+	}
+	(function(Handsontable) {
+		function ipstr(value, callback) {
+			if(value==null||value.length==0){
+				callback(true);
+				return;
+			}
+			var a = value.split("/");
+			var c = a[0].toString().match(
+					/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+			var b = a.length == 1 ? true : a.length > 2 ? false
+					: parseInt(a[1]) <= 32 && a[1].match(/^\d{0,2}$/);
+			callback(!!c
+					&& !!(c[1] <= 255 && c[2] <= 255 && c[3] <= 255 && c[4] <= 255)
+					&& !!b || false);
+		}
+		Handsontable.validators.registerValidator('my.ipstr', ipstr);
+	})(Handsontable);
 	var colWidthsData = "{$colWidthsData}";
 	var zxTypeData = "互联网,营业厅,平安校园,点对点,卫生网,教育网,IMS,其他";
 	//var aStationData = "柴河局,西丰新局,西丰老局,昌图新局,昌图老局,开原老局,开原新局,清河,调兵山新局,铁岭县,银州区";
@@ -32,21 +67,8 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 	var colHeaderData = "{$colHeaderData}";
 	var container = document.getElementById('queryTable');
 	var infoData, hot, columnsData, contextMenuData;
-	infoData = [ new Array(34) ];
-	hot = new Handsontable(container, {
-		data : infoData,
-		rowHeaders : true,
-		colWidths : colWidthsData.split(","),
-		//autoColumnSize : true,
-		//filters : true,
-		//search : true,
-		//minSpareRows : 1,
-		manualColumnResize : true,
-		colHeaders : colHeaderData.split(","),
-		columns : columnsData,
-		contextMenu : contextMenuData
-	});
-	hot.validateCells();
+	//infoData = [ new Array(34) ];
+	infoData = {$data};
 	columnsData = [ {
 		data : 'instanceId',
 		type : 'numeric'
@@ -62,15 +84,17 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		selectOptions : neFactoryData.split(","),
 	}, {
 		data : 'aStation',
-		strict : true,
+		//strict : true,
 		type : 'autocomplete',
 		source : aStationData.split(","),
+		//editor : 'select',
+		//selectOptions : aStationData.split(","),
 	}, {
 		data : 'cName',
-	}, {
-		data : 'cAddress',
-	}, {
-		data : 'cNeeds',
+	//}, {
+	//	data : 'cAddress',
+	//}, {
+	//	data : 'cNeeds',
 	}, {
 		data : 'vlan',
 		type : 'numeric',
@@ -80,24 +104,24 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 	}, {
 		data : 'ipB',
 		validator : "my.ipstr"
-	}, {
-		data: 'cPerson',
-	}, {
-		data: 'cPhone',
-	}, {
-		data: 'cEmail',
-	}, {
-		data: 'mPerson',
-	}, {
-		data: 'mPhone',
-	}, {
-		data: 'mEmail',
+	//}, {
+	//	data: 'cPerson',
+	//}, {
+	//	data: 'cPhone',
+	//}, {
+	//	data: 'cEmail',
+	//}, {
+	//	data: 'mPerson',
+	//}, {
+	//	data: 'mPhone',
+	//}, {
+	//	data: 'mEmail',
 	}, {
 		data: 'marks',
 	}, {
 		data: 'ifOnu',
-	}, {
-		data: 'oltName',
+	//}, {
+	//	data: 'oltName',
 	}, {
 		data: 'aPerson',
 	}, {
@@ -108,102 +132,165 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		dateFormat : "YYYY-MM-DD",
 		correctFormat : true,
 		validator : "date"
-	},  {
-		data: 'status',
+	//},  {
+	//	data: 'status',
+	//}, {
+	//	data: 'tags',
 	}, {
-		data: 'tags',
-	}, {
-		data: 'unitProperty',
+		data: 'extra.unitProperty',
 		type : 'numeric',
 	}, {
-		data: 'unitCategory',
+		data: 'extra.unitCategory',
 		type : 'numeric',
 	}, {
-		data: 'industryCategory',
+		data: 'extra.industryCategory',
 		type : 'numeric',
 	}, {
-		data: 'credential',
+		data: 'extra.credential',
 		type : 'numeric',
 	}, {
-		data: 'credentialnum',
+		data: 'extra.credentialnum',
 	}, {
-		data: 'province',
+		data: 'extra.province',
 		type : 'numeric',
 	}, {
-		data: 'city',
+		data: 'extra.city',
 		type : 'numeric',
 	}, {
-		data: 'county',
+		data: 'extra.county',
 		type : 'numeric',
 	}, {
-		data: 'appServType',
+		data: 'extra.appServType',
 		type : 'numeric',
 	} ];
-	contextMenuData = {
-		callback : function(key, options) {
-			if (key === 'about') {
-				setTimeout(function() {
-					// timeout is used to make sure the menu collapsed before alert is shown
-					parent.dhtmlx.alert({
-						title : "特别鸣谢",
-						text : "本菜单由 Xianda 汉化。感谢Xianda"
-					});
-				}, 100);
+	function initHandsontable(infoData){
+		if(typeof(hot)!="undefined")
+			hot=null;
+		container.innerHTML=null;
+		hot = new Handsontable(container, {
+			data : infoData,
+			rowHeaders : true,
+			colWidths : colWidthsData.split(","),
+			//autoColumnSize : true,
+			//filters : true,
+			search : true,
+			//minSpareRows : 1,
+			manualColumnResize : true,
+			colHeaders : colHeaderData.split(","),
+			columns : columnsData
+		});
+		hot.validateCells();
+		hot.updateSettings({
+			contextMenu: {
+				callback : function(key, options) {
+					if (key === 'about') {
+						setTimeout(function() {
+							// timeout is used to make sure the menu collapsed before alert is shown
+							parent.dhtmlx.alert({
+								title : "特别鸣谢",
+								text : "本菜单由 Xianda 汉化。感谢Xianda"
+							});
+						}, 100);
+					}
+				},
+				items : {
+					"about" : {
+						name : "**Power by Xianda"
+					},
+					"hsep1" : "---------",
+					"row_above" : {
+						name : "在上面插入一行"
+					},
+					"row_below" : {
+						name : "在下面插入一行"
+					},
+					"hsep1" : "---------",
+					"col_left" : {
+						name : "在左侧插入一列"
+					},
+					"col_right" : {
+						name : "在右侧插入一列"
+					},
+					"hsep2" : "---------",
+					"remove_row" : {
+						name : "移除此行"
+					},
+					"remove_col" : {
+						name : "移除次列"
+					},
+					"hsep3" : "---------",
+					"undo" : {
+						name : "撤销"
+					},
+					"redo" : {
+						name : "还原"
+					},
+					"make_read_only" : {
+						name : "设为只读"
+					},
+					"alignment" : {
+						name : "对齐"
+					},
+				},
 			}
-		},
-		items : {
-			"about" : {
-				name : "*Power by Xianda*"
+		});
+		hot.updateSettings({
+			afterOnCellMouseDown: function(event,coords,td){
+				console.log(event);
+				console.log(coords);
+				console.log(td);
 			},
-			"hsep1" : "---------",
-			"row_above" : {
-				name : "在上面插入一行"
-			},
-			"row_below" : {
-				name : "在下面插入一行"
-			},
-			"hsep1" : "---------",
-			"col_left" : {
-				name : "在左侧插入一列"
-			},
-			"col_right" : {
-				name : "在右侧插入一列"
-			},
-			"hsep2" : "---------",
-			"remove_row" : {
-				name : "移除此行"
-			},
-			"remove_col" : {
-				name : "移除次列"
-			},
-			"hsep3" : "---------",
-			"undo" : {
-				name : "撤销"
-			},
-			"redo" : {
-				name : "还原"
-			},
-			"make_read_only" : {
-				name : "设为只读"
-			},
-			"alignment" : {
-				name : "对齐"
-			},
-
-		},
-	};
-	(function(Handsontable) {
-		function ipstr(value, callback) {
-			var a = value.split("/");
-			var c = a[0].toString().match(
-					/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
-			var b = a.length == 1 ? true : a.length > 2 ? false
-					: parseInt(a[1]) <= 32 && a[1].match(/^\d{0,2}$/);
-			callback(c
-					&& !!(c[1] <= 255 && c[2] <= 255 && c[3] <= 255 && c[4] <= 255)
-					&& b || false);
+		});
+	}
+	function initSearch(){
+		/* 搜索按钮 */
+		$("#btn-search").on("click",function(){
+			var str = $("#searchStr").val();
+			if(str == ""){
+				showTips("");
+			}else{
+				var result = hot.search.query(str);
+				result.length == 0 && showTips("未找到");
+				result.length > 0 && selectCell(result);
+				sessionStorage.setItem("result",JSON.stringify(result));
+				sessionStorage.setItem("index",0);
+			}
+		});
+		/* 定位下一个按钮 */
+		$("#tips-btn").on("click",function(){
+			var result = JSON.parse(sessionStorage.getItem("result"));
+			var index = parseInt(sessionStorage.getItem("index"));
+			if(++index == result.length){
+				index = 0;
+				dhtmlx.message("返回到第一个搜索结果");
+			}
+			sessionStorage.setItem("index",index);
+			hot.selectCell(result[index].row,result[index].col);
+			hot.selectCell(result[index].row,result[index].col);
+			$(".wtHolder")[0].scrollBy(0,50);
+			showTips("当前定位到第"+(index+1)+"个结果。",result.length);
+		});
+	}
+	function selectCell(result){
+		hot.selectCell(result[0].row,result[0].col);
+		hot.selectCell(result[0].row,result[0].col);
+		if(result.length==1){
+			//sessionStorage.removeItem("result");
+			showTips("1个结果。");
+		}else{
+			showTips("可以继续定位到下一个。",result.length);
 		}
-		Handsontable.validators.registerValidator('my.ipstr', ipstr);
-	})(Handsontable);
+		$(".wtHolder")[0].scrollBy(0,30);
+	}
+	function showTips(msg,muti){
+		if(typeof(muti)!="undefined"){
+			$("#tips-msg").html(msg);
+			$("#tips").fadeIn(500);
+			$("#tips-text").html("找到 "+muti+" 个结果。");
+		}else{
+			$("#tips-msg").html(msg);
+			$("#tips").fadeOut(500);
+		}
+	}
 </script>
 {/block}

@@ -78,23 +78,29 @@ class Manage extends Index {
 			$aStation = array_keys ( config ( "aStation" ) );
 			$zxTitle = [ 
 					"label" => "zx_apply-new-rb",
-					"order" => "1,2,3,4,5,7,8,9,10,11,12,13,14,15,16,17,18,19,20,22,23,24,25,26,27,29,30,31,32,33,34,35,36,37" 
+					"order" => "1,2,3,4,5,6,9,10,11,18,19,22,23,24,29,30,31,32,33,34,35,36,37" 
 			];
 			$this->assign ( [ 
 					"aStationData" => implode ( ",", $aStation ),
 					"colHeaderData" => $this->getHeader ( $zxTitle ["label"], $zxTitle ["order"] ),
-					"colWidthsData" => $this->getColWidths ( $zxTitle ["order"] ) 
+					"colWidthsData" => $this->getColWidths ( $zxTitle ["order"] ),
+					"data" => $this->getInfoData()
 			] );
 			return $this->fetch ();
 		}
 		if (request ()->isPost ()) {
 			// 获取台账
-			$data = collection ( Infotables::all () )->toArray ();
+			//return $this->getInfoData();
+			input("post.r")=="info" && $data = $this->getInfoData();
+			input("post.r")=="detail" && $data = Infotables::get(input("post.id"))->toJson();
 			return $data;
 		}
 		if (request ()->isPut ()) {
 			// 更新数据
 		}
+	}
+	private function getInfoData(){
+		return collection ( Infotables::order("id")->limit(200)->select () )->toJson();
 	}
 	/**
 	 * get:加载数据到handsontable并验证,
