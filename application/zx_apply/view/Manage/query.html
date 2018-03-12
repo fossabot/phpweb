@@ -23,21 +23,33 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 			style="margin-left: 20px;"></div>
 	</form>
 </div>
-<div class="fixed-container" style="overflow: hidden;">
+<div class="fixed-container" style="overflow: hidden;visibility: hidden;">
 	<div id='queryTable'></div>
 </div>
 {/block} {block name="script"}
 <script>
 	$(function($) {
 		//$(".wtHolder")[0].style.height="";	//修复wtHolder层（handsontable右键菜单）height过大。
-		/*dhxWins.createWindow("_input",0,50,_htmlWidth,_htmlHeight-70);
-		var text = "&nbsp;&nbsp;&nbsp;&nbsp;<a onclick='win_close()'>返回</a>";
-		dhxWins.window("_input").setText(text);
-		dhxWins.window("_input").attachObject("queryTable");*/
 		$(".fixed-container").css("height",(_htmlHeight-170)+"px");
 		initHandsontable(infoData);
 		initSearch();
+		
 	});
+	$(".fixed-container").css("visibility","");
+	/*var _tt = {0:"数据加载完毕~",1:"one",2:"two",3:"three",4:" ",t:4};
+	dhtmlx.message({id:"_msg",text:"数据加载中。。。"});
+	var xx =  Date.now();
+	var _loading = setInterval(function(){
+		if(_tt.t<0){
+			$(".fixed-container").css("visibility","");
+			clearInterval(_loading);
+			return;
+		}
+		xx=Date.now();
+		dhtmlx.message.hide("_msg");
+		dhtmlx.message({id:"_msg",text:_tt[_tt.t]});
+		_tt.t--;
+	},800);*/
 	function win_close(){
 		dhxWins.window("_input").close();
 		$("#inp_area textarea").select();
@@ -84,7 +96,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		selectOptions : neFactoryData.split(","),
 	}, {
 		data : 'aStation',
-		//strict : true,
+		strict : true,
 		type : 'autocomplete',
 		source : aStationData.split(","),
 		//editor : 'select',
@@ -124,14 +136,17 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 	//	data: 'oltName',
 	}, {
 		data: 'aPerson',
+		readOnly: true
 	}, {
 		data: 'aEmail',
+		readOnly: true
 	}, {
 		data: 'create_time',
 		type : "date",
 		dateFormat : "YYYY-MM-DD",
 		correctFormat : true,
-		validator : "date"
+		validator : "date",
+		readOnly: true
 	//},  {
 	//	data: 'status',
 	//}, {
@@ -236,9 +251,8 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		});
 		hot.updateSettings({
 			afterOnCellMouseDown: function(event,coords,td){
-				console.log(event);
-				console.log(coords);
-				console.log(td);
+				console.log(event,coords,td);
+				showDetail(coords);
 			},
 		});
 	}
@@ -291,6 +305,23 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 			$("#tips-msg").html(msg);
 			$("#tips").fadeOut(500);
 		}
+	}
+	function showDetail(coords){
+		var d = infoData[coords.row];
+		var keys = {"instanceId":"实例标识","cName":"客户名","cAddress":"客户地址","cNeeds":"客户需求","cPerson":"客户联系人","cPhone":"客户电话","cEmail":"客户邮箱","mPerson":"客户经理","mPhone":"客户经理电话","mEmail":"客户经理邮箱","tags":"标签"};
+		var str = "<p style='padding:5px;'>";
+		for(var i in keys){
+			str += "<b>"+keys[i]+"</b>： "+d[i]+"<br>";
+		}
+		str += "</p>";
+		$("detail").html(str);;
+		if(dhxWins.isWindow("_input")){
+			dhxWins.window("_input").close();
+		}
+		dhxWins.createWindow("_input",0,50,400,_htmlHeight*0.5);
+		var text = "详细信息&nbsp;&nbsp;&nbsp;&nbsp;<a onclick='win_close()'>点此关闭</a>";
+		dhxWins.window("_input").setText(text);
+		dhxWins.window("_input").attachHTMLString(str);
 	}
 </script>
 {/block}

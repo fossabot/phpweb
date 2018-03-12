@@ -84,23 +84,24 @@ class Manage extends Index {
 					"aStationData" => implode ( ",", $aStation ),
 					"colHeaderData" => $this->getHeader ( $zxTitle ["label"], $zxTitle ["order"] ),
 					"colWidthsData" => $this->getColWidths ( $zxTitle ["order"] ),
-					"data" => $this->getInfoData()
+					"data" => $this->getInfoData () 
 			] );
 			return $this->fetch ();
 		}
 		if (request ()->isPost ()) {
 			// 获取台账
-			//return $this->getInfoData();
-			input("post.r")=="info" && $data = $this->getInfoData();
-			input("post.r")=="detail" && $data = Infotables::get(input("post.id"))->toJson();
+			// return $this->getInfoData();
+			input ( "post.r" ) == "info" && $data = $this->getInfoData ();
+			input ( "post.r" ) == "detail" && $data = Infotables::get ( input ( "post.id" ) )->toJson ();
+			input ( "post.r" ) == "search" && $data = collection(Infotables::where ( input ( "post.where/a" ) )->select())->toJson ();
 			return $data;
 		}
 		if (request ()->isPut ()) {
 			// 更新数据
 		}
 	}
-	private function getInfoData(){
-		return collection ( Infotables::order("id")->limit(200)->select () )->toJson();
+	private function getInfoData($limit = 200) {
+		return collection ( Infotables::order ( "id" )->limit ( $limit )->select () )->toJson ();
 	}
 	/**
 	 * get:加载数据到handsontable并验证,
