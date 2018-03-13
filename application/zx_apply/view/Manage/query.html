@@ -35,8 +35,8 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		initSearch();
 		
 	});
-	$(".fixed-container").css("visibility","");
-	/*var _tt = {0:"数据加载完毕~",1:"one",2:"two",3:"three",4:" ",t:4};
+	//$(".fixed-container").css("visibility","");
+	var _tt = {0:"数据加载完毕~",1:"one",2:"two",3:"three",4:" ",t:4};
 	dhtmlx.message({id:"_msg",text:"数据加载中。。。"});
 	var xx =  Date.now();
 	var _loading = setInterval(function(){
@@ -49,9 +49,9 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		dhtmlx.message.hide("_msg");
 		dhtmlx.message({id:"_msg",text:_tt[_tt.t]});
 		_tt.t--;
-	},800);*/
-	function win_close(){
-		dhxWins.window("_input").close();
+	},800);
+	function win_close(winId){
+		dhxWins.window(winId).close();
 		$("#inp_area textarea").select();
 	}
 	(function(Handsontable) {
@@ -207,13 +207,32 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 							});
 						}, 100);
 					}
+					if(key === 'script'){
+						
+					}
 				},
 				items : {
 					"about" : {
 						name : "**Power by Xianda"
 					},
 					"hsep1" : "---------",
-					"row_above" : {
+					"script": {
+						name : "单条数据制作脚本生成",
+						disabled: function(){
+							var a = hot.getSelected()[0] === hot.getSelected()[2];
+							return !a || !hot.currentRowValid;
+						}
+					},
+					"export_zg": {
+						name : "资管模板数据导出"
+					},
+					"export_jtip": {
+						name : "集团IP备案数据导出"
+					},
+					"export_gxbip": {
+						name : "工信部IP备案数据导出"
+					},
+					/*"row_above" : {
 						name : "在上面插入一行"
 					},
 					"row_below" : {
@@ -233,7 +252,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 					"remove_col" : {
 						name : "移除次列"
 					},
-					"hsep3" : "---------",
+					"hsep3" : "---------",*/
 					"undo" : {
 						name : "撤销"
 					},
@@ -253,6 +272,9 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 			afterOnCellMouseDown: function(event,coords,td){
 				console.log(event,coords,td);
 				showDetail(coords);
+				hot.validateRows([hot.getSelected()[0]],function(valid){
+					hot.currentRowValid = valid;	// 触发设置当前行的验证结果
+				});
 			},
 		});
 	}
@@ -314,14 +336,26 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 			str += "<b>"+keys[i]+"</b>： "+d[i]+"<br>";
 		}
 		str += "</p>";
+		str += "<button id='script' class='function btn btn-sx btn-primary'>数据制作</button>";
 		$("detail").html(str);;
 		if(dhxWins.isWindow("_input")){
 			dhxWins.window("_input").close();
 		}
-		dhxWins.createWindow("_input",0,50,400,_htmlHeight*0.5);
-		var text = "详细信息&nbsp;&nbsp;&nbsp;&nbsp;<a onclick='win_close()'>点此关闭</a>";
+		dhxWins.createWindow("_input",0,50,400,440);
+		var text = "详细信息&nbsp;&nbsp;&nbsp;&nbsp;<a onclick='win_close(\"_input\")'>点此关闭</a>";
 		dhxWins.window("_input").setText(text);
 		dhxWins.window("_input").attachHTMLString(str);
+		btnOnFuncInit();
+	}
+	function btnOnFuncInit(){
+		$(".function").on("click",function(){
+			if(this.id == "script"){
+				dhxWins.createWindow("_script",150,80,_htmlWidth-150,_htmlHeight-100);
+				var text = "配置脚本生成&nbsp;&nbsp;&nbsp;&nbsp;<a onclick='win_close(\"_script\")'>点此关闭</a>";
+				dhxWins.window("_script").setText(text);
+				dhxWins.window("_script").attachURL("../tool/_script.html");
+			}
+		});
 	}
 </script>
 {/block}

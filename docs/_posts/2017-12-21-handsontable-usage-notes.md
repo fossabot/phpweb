@@ -72,6 +72,7 @@ stretchH:           # 拉伸高度 默认:"none" 可选 "last" "all" 用于父�
 copyPaste:          # 复制粘贴选项
 search:             # 启动搜索插件
 contextMenu: true   # 右键菜单 可以自定义数组 []
+selectionMode:      # 选择模式 可选 range(默认) single multiple 
 ```
 
 # 基本用法
