@@ -93,15 +93,32 @@ class Manage extends Index {
 			// return $this->getInfoData();
 			input ( "post.r" ) == "info" && $data = $this->getInfoData ();
 			input ( "post.r" ) == "detail" && $data = Infotables::get ( input ( "post.id" ) )->toJson ();
-			input ( "post.r" ) == "search" && $data = collection(Infotables::where ( input ( "post.where/a" ) )->select())->toJson ();
+			input ( "post.r" ) == "search" && $data = collection ( Infotables::where ( input ( "post.where/a" ) )->order ( "id desc" )->select () )->toJson ();
 			return $data;
 		}
 		if (request ()->isPut ()) {
-			// 更新数据
+			// 相关操作
+			input ( "post.r" ) == "script" && $data = $this->generateScript ( input ( "post.id/a" ) [0] );
+			return $data;
 		}
 	}
-	private function getInfoData($limit = 200) {
+	/**
+	 * 获取台账信息
+	 * @param number $limit
+	 * @return string
+	 */
+	private function getInfoData($limit = 100) {
 		return collection ( Infotables::order ( "id" )->limit ( $limit )->select () )->toJson ();
+	}
+	/**
+	 * 数据制作脚本生成
+	 * @param unknown $id
+	 * @return \app\zx_apply\model\Infotables|NULL
+	 */
+	private function generateScript($id = null) {
+		$data = Infotables::get ( $id );
+		$script = 1;
+		return $data;
 	}
 	/**
 	 * get:加载数据到handsontable并验证,

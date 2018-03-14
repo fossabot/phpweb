@@ -10,10 +10,15 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 <div style="margin-bottom: 3px;">
 	<form class="form-inline" onsubmit="javascript:return false;">
 		<div class="form-group has-success">
-			<label for="searchStr">全局搜索</label> <input type="text"
-				class="form-control" id="searchStr">
+			<select id="colName" class="form-control">
+				<option value="cName">客户名</option>
+				<option value="ip">ip</option>
+				<option value="instanceId">实例标识</option>
+				<option value="create_time">申请时间</option>
+			</select> <input type="text" class="form-control" id="searchStr">
 		</div>
-		<button id="btn-search" type="submit" class="btn btn-default">搜索</button>
+		<button id="btn-search" type="submit" class="btn btn-default" data-toggle="tooltip" data-placement="top" title="当前页搜索不限制列名，可搜索任意字段">当前页搜索</button>
+		<button id="btn-searchAll" class="btn btn-default" data-toggle="tooltip" data-placement="top" title="全局搜索需根据列名搜索">全局搜索</button>
 		<div id="tips" class="form-group"
 			style="display: none; margin-left: 20px;">
 			<span id="tips-text" class="text-primary"></span>
@@ -23,7 +28,8 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 			style="margin-left: 20px;"></div>
 	</form>
 </div>
-<div class="fixed-container" style="overflow: hidden;visibility: hidden;">
+<div class="fixed-container"
+	style="overflow: hidden; visibility: hidden;">
 	<div id='queryTable'></div>
 </div>
 {/block} {block name="script"}
@@ -31,16 +37,19 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 	$(function($) {
 		//$(".wtHolder")[0].style.height="";	//修复wtHolder层（handsontable右键菜单）height过大。
 		$(".fixed-container").css("height",(_htmlHeight-170)+"px");
+		var tt = Date.now();
 		initHandsontable(infoData);
 		initSearch();
-		
+		console.info("\t\t渲染用时:", Date.now() - tt, "ms");
+		hot.initTimes = Date.now();
+		$('[data-toggle="tooltip"]').tooltip();
 	});
 	//$(".fixed-container").css("visibility","");
-	var _tt = {0:"数据加载完毕~",1:"one",2:"two",3:"three",4:" ",t:4};
-	dhtmlx.message({id:"_msg",text:"数据加载中。。。"});
+	//var _tt = {0:"数据加载完毕~",1:"one",2:"two",3:"three",4:" ",t:4};
+	dhtmlx.message({id:"_msg",text:"loading..."});
 	var xx =  Date.now();
-	var _loading = setInterval(function(){
-		if(_tt.t<0){
+	var _loading = setTimeout(function(){
+		/*if(_tt.t<0){
 			$(".fixed-container").css("visibility","");
 			clearInterval(_loading);
 			return;
@@ -48,8 +57,12 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		xx=Date.now();
 		dhtmlx.message.hide("_msg");
 		dhtmlx.message({id:"_msg",text:_tt[_tt.t]});
-		_tt.t--;
-	},800);
+		_tt.t--;*/
+		dhtmlx.message.hide("_msg");
+		dhtmlx.message({id:"_msg",text:"数据加载完毕~"});
+		$(".fixed-container").css("visibility","");
+		console.info("\t\t数据验证用时:", Date.now() - hot.initTimes, "ms");
+	},500);
 	function win_close(winId){
 		dhxWins.window(winId).close();
 		$("#inp_area textarea").select();
@@ -75,7 +88,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 	var zxTypeData = "互联网,营业厅,平安校园,点对点,卫生网,教育网,IMS,其他";
 	//var aStationData = "柴河局,西丰新局,西丰老局,昌图新局,昌图老局,开原老局,开原新局,清河,调兵山新局,铁岭县,银州区";
 	var aStationData = "{$aStationData}";
-	var neFactoryData = "华为,中兴";
+	var neFactoryData = "请选择,华为,中兴";
 	var colHeaderData = "{$colHeaderData}";
 	var container = document.getElementById('queryTable');
 	var infoData, hot, columnsData, contextMenuData;
@@ -103,6 +116,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		//selectOptions : aStationData.split(","),
 	}, {
 		data : 'cName',
+		allowEmpty: false
 	//}, {
 	//	data : 'cAddress',
 	//}, {
@@ -110,9 +124,10 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 	}, {
 		data : 'vlan',
 		type : 'numeric',
+		allowEmpty: false
 	}, {
 		data : 'ip',
-		validator : "my.ipstr"
+		validator : "my.ipstr",
 	}, {
 		data : 'ipB',
 		validator : "my.ipstr"
@@ -207,8 +222,9 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 							});
 						}, 100);
 					}
-					if(key === 'script'){
-						
+					var r=new RegExp(','+key+',');
+					if(r.test(',script,export_zg,export_jtip,export_gxbip,')){
+						put(key);
 					}
 				},
 				items : {
@@ -279,7 +295,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		});
 	}
 	function initSearch(){
-		/* 搜索按钮 */
+		/* 当前页搜索按钮 */
 		$("#btn-search").on("click",function(){
 			var str = $("#searchStr").val();
 			if(str == ""){
@@ -292,18 +308,27 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 				sessionStorage.setItem("index",0);
 			}
 		});
+		/* 数据库搜索按钮 */
+		$("#btn-searchAll").on("click",function(){
+			var str = $("#searchStr").val();
+			if(str == ""){
+				showTips("");
+			}else{
+				$.post("",{r:"search",where:{}});
+			}
+		});
 		/* 定位下一个按钮 */
 		$("#tips-btn").on("click",function(){
 			var result = JSON.parse(sessionStorage.getItem("result"));
 			var index = parseInt(sessionStorage.getItem("index"));
 			if(++index == result.length){
 				index = 0;
-				dhtmlx.message("返回到第一个搜索结果");
+				dhtmlx.alert("返回到第一个搜索结果");
 			}
 			sessionStorage.setItem("index",index);
 			hot.selectCell(result[index].row,result[index].col);
 			hot.selectCell(result[index].row,result[index].col);
-			$(".wtHolder")[0].scrollBy(0,50);
+			//!!index && $(".wtHolder")[0].scrollBy(0,50);
 			showTips("当前定位到第"+(index+1)+"个结果。",result.length);
 		});
 	}
@@ -316,7 +341,6 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		}else{
 			showTips("可以继续定位到下一个。",result.length);
 		}
-		$(".wtHolder")[0].scrollBy(0,30);
 	}
 	function showTips(msg,muti){
 		if(typeof(muti)!="undefined"){
@@ -357,5 +381,41 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 			}
 		});
 	}
+	function getSelectedIds(){
+		if(hot.getSelected() === undefined){
+			return;
+		}
+		var hotData = hot.getSourceData();
+		var ids = [];
+		for(var i = hot.getSelectedRange().from.row; i <= hot.getSelectedRange().to.row; i++){
+			ids.push(hotData[i].id);
+		}
+		return ids;
+	}
+	/* 右键菜单操作 */
+	/************************/
+	function put(method,ids,callback){
+		$.post("",{_method: "PUT",r: method,id: ids},function(data){
+			callback(data);
+		});
+	}
+	function put(key){
+		$.post("",{_method: "PUT",r: key,id: getSelectedIds()},function(data){
+			eval(key)(data);
+		});
+	}
+	function script(data){
+		console.log(data);
+	}
+	function export_zg(data){
+		eval(data)(1);
+	}
+	function export_jtip(){
+		
+	}
+	function export_gxbip(){
+		
+	}
+	/************************/
 </script>
 {/block}
