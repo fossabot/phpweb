@@ -59,7 +59,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		dhtmlx.message({id:"_msg",text:_tt[_tt.t]});
 		_tt.t--;*/
 		dhtmlx.message.hide("_msg");
-		dhtmlx.message({id:"_msg",text:"数据加载完毕~"});
+		dhtmlx.message({id:"_msg",text:"数据加载完毕~<hr>数据验证用时:    "+(Date.now()-hot.initTimes)/1000+" s"});
 		$(".fixed-container").css("visibility","");
 		console.info("\t\t数据验证用时:", Date.now() - hot.initTimes, "ms");
 	},500);
@@ -285,13 +285,21 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 			}
 		});
 		hot.updateSettings({
-			afterOnCellMouseDown: function(event,coords,td){
+			/*afterOnCellMouseDown: function(event,coords,td){
 				console.log(event,coords,td);
-				showDetail(coords);
+				showDetail(coords.row);
 				hot.validateRows([hot.getSelected()[0]],function(valid){
 					hot.currentRowValid = valid;	// 触发设置当前行的验证结果
 				});
-			},
+			},*/
+			afterSelectionEndByProp: function (r, c, r2, c2) {
+				if(r==r2&&c==c2){
+					showDetail(r);
+					hot.validateRows([r],function(valid){
+						hot.currentRowValid = valid;	// 触发设置当前行的验证结果
+					});
+				}
+			}
 		});
 	}
 	function initSearch(){
@@ -313,8 +321,21 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 			var str = $("#searchStr").val();
 			if(str == ""){
 				showTips("");
+				$.post("",{r:"info"},function(data){
+					infoData = data;
+					hot.updateSettings({data: infoData});
+					hot.validateCells();
+				});
 			}else{
-				$.post("",{r:"search",where:{}});
+				showTips("");
+				var _where = [];
+				_where[0] = $("#colName").val();
+				_where[2] = str;
+				$.post("",{r:"search",where:_where},function(data){
+					infoData = data;
+					hot.updateSettings({data: infoData});
+					hot.validateCells();
+				});
 			}
 		});
 		/* 定位下一个按钮 */
@@ -332,6 +353,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 			showTips("当前定位到第"+(index+1)+"个结果。",result.length);
 		});
 	}
+	/* 定位数据 */
 	function selectCell(result){
 		hot.selectCell(result[0].row,result[0].col);
 		hot.selectCell(result[0].row,result[0].col);
@@ -342,6 +364,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 			showTips("可以继续定位到下一个。",result.length);
 		}
 	}
+	/* 按钮后面的提示信息 */
 	function showTips(msg,muti){
 		if(typeof(muti)!="undefined"){
 			$("#tips-msg").html(msg);
@@ -352,8 +375,9 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 			$("#tips").fadeOut(500);
 		}
 	}
-	function showDetail(coords){
-		var d = infoData[coords.row];
+	/* 显示单条数据详细信息 */
+	function showDetail(row){
+		var d = infoData[row];
 		var keys = {"instanceId":"实例标识","cName":"客户名","cAddress":"客户地址","cNeeds":"客户需求","cPerson":"客户联系人","cPhone":"客户电话","cEmail":"客户邮箱","mPerson":"客户经理","mPhone":"客户经理电话","mEmail":"客户经理邮箱","tags":"标签"};
 		var str = "<p style='padding:5px;'>";
 		for(var i in keys){
@@ -363,15 +387,13 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		str += "<button id='script' class='function btn btn-sx btn-primary'>数据制作</button>";
 		$("detail").html(str);;
 		if(dhxWins.isWindow("_input")){
-			dhxWins.window("_input").close();
+			dhxWins.window("_input").attachHTMLString(str);
+			return;
 		}
 		dhxWins.createWindow("_input",0,50,400,440);
 		var text = "详细信息&nbsp;&nbsp;&nbsp;&nbsp;<a onclick='win_close(\"_input\")'>点此关闭</a>";
 		dhxWins.window("_input").setText(text);
 		dhxWins.window("_input").attachHTMLString(str);
-		btnOnFuncInit();
-	}
-	function btnOnFuncInit(){
 		$(".function").on("click",function(){
 			if(this.id == "script"){
 				dhxWins.createWindow("_script",150,80,_htmlWidth-150,_htmlHeight-100);
@@ -381,6 +403,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 			}
 		});
 	}
+	/* 获取当前选择列的ids return Array */
 	function getSelectedIds(){
 		if(hot.getSelected() === undefined){
 			return;

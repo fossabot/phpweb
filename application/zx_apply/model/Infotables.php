@@ -6,9 +6,10 @@ use think\Model;
 
 class Infotables extends Model {
 	protected $autoWriteTimestamp = true;
+	protected $dateFormat= 'Y-m-d';
 	protected $type = [ 
 			// "aDate" => "date",
-			"extra" => "array" 
+			"extra" => "array"
 	];
 	public function setIpAttr($value) {
 		if (is_int ( $value )) {
