@@ -122,6 +122,21 @@ class Manage extends Index {
 		$script = 1;
 		return $data;
 	}
+	private function generateZgWorkflow($id = null) {
+		$data = Infotables::get ( $id );
+		$script = 1;
+		return $data;
+	}
+	private function generateJtIp($id = null) {
+		$data = Infotables::get ( $id );
+		$script = 1;
+		return $data;
+	}
+	private function generateGxbIp($id = null) {
+		$data = Infotables::get ( $id );
+		$script = 1;
+		return $data;
+	}
 	/**
 	 * get:加载数据到handsontable并验证,
 	 * post:上传,后台处理入库

@@ -976,6 +976,36 @@ Parameters:
 | `prop`    | String \|Number | Property name / column index.                                |
 | `source`  | String          | optionalString that identifies source of hook call([list of all available sources](http://docs.handsontable.com/tutorial-using-callbacks.html#page-source-definition)). |
 
+#### afterSelectionEndByProp
+
+表格单元数据被选择后触发。
+
+Parameters:
+
+| Name                  | Type   | Description                                                  |
+| --------------------- | ------ | ------------------------------------------------------------ |
+| `r`                   | Number | Selection start visual row index.                            |
+| `p`                   | String | Selection start data source object property index.           |
+| `r2`                  | Number | Selection end visual row index.                              |
+| `p2`                  | String | Selection end data source object property index.             |
+| `selectionLayerLevel` | Number | The number which indicates what selection layer is currently modified. |
+
+#### afterOnCellMouseOver
+
+鼠标在单元格上移动时触发。
+
+> 另有`afterOnCellMouseDown`：鼠标按下时触发(不区分单击 右击)
+>
+> `afterOnCellMouseOut`：鼠标移出单元格时触发
+
+Parameters:
+
+| Name     | Type    | Description                              |
+| -------- | ------- | ---------------------------------------- |
+| `event`  | Object  | `mouseover` event object.                |
+| `coords` | Object  | Hovered cell's visual coordinate object. |
+| `TD`     | Element | Cell's TD (or TH) element.               |
+
 ### 选项可选成员
 
 这里介绍构造时，`var hot = new Handsontable(container, settings);`settings的选项的成员。

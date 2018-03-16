@@ -406,6 +406,7 @@ function show_the93_wsw(vlan, desc, the_up_yz, the_down){
 	});
 	the93_win.attachObject($("#the93_pre").clone()[0]);
 }
+
 function create_bas_net_script(bas, trunk0, domain0, vlan0, rbp0, ip0, desc){
 	var _int = "interface Eth-Trunk";
 	var _bas_name = {"01":"01-CHJ","02":"02-YZL"};
@@ -500,7 +501,9 @@ for (var i = 0; i < a_sta_arry.length; i++) {
 }
 $("#the93_info tbody").html(tbodyHtml.replace(/undefined/g," "));
 myLayout.cells("c").attachObject("others");
-
+function checkWindows(id){
+	dhxWins.isWindow(id) && dhxWins.window(id).close();
+}
 function showInfoWin(){
 	checkWindows("info_win");
 	var info_win = dhxWins.createWindow({
@@ -509,13 +512,8 @@ function showInfoWin(){
 		width: 1000,
 		height: 500,
 		caption: "9312互联端口明细",
-});
+	});
 	info_win.attachObject($("#the93_info").clone()[0]);
-}
-function checkWindows(id){
-	if(dhxWins.isWindow(id)){
-		dhxWins.window(id).close();
-	}
 }
 </script>
 {/block}

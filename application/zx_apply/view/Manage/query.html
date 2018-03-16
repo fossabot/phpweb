@@ -63,10 +63,6 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		$(".fixed-container").css("visibility","");
 		console.info("\t\t数据验证用时:", Date.now() - hot.initTimes, "ms");
 	},500);
-	function win_close(winId){
-		dhxWins.window(winId).close();
-		$("#inp_area textarea").select();
-	}
 	(function(Handsontable) {
 		function ipstr(value, callback) {
 			if(value==null||value.length==0){
@@ -233,20 +229,20 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 					},
 					"hsep1" : "---------",
 					"script": {
-						name : "单条数据制作脚本生成",
+						name : "1.单条数据制作脚本生成",
 						disabled: function(){
 							var a = hot.getSelected()[0] === hot.getSelected()[2];
-							return !a || !hot.currentRowValid;
+							return !a || !hot.currentRowValid.valid;
 						}
 					},
 					"export_zg": {
-						name : "资管模板数据导出"
+						name : "2.资管模板数据导出"
 					},
 					"export_jtip": {
-						name : "集团IP备案数据导出"
+						name : "3.集团IP备案数据导出"
 					},
 					"export_gxbip": {
-						name : "工信部IP备案数据导出"
+						name : "4.工信部IP备案数据导出"
 					},
 					/*"row_above" : {
 						name : "在上面插入一行"
@@ -285,21 +281,18 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 			}
 		});
 		hot.updateSettings({
-			/*afterOnCellMouseDown: function(event,coords,td){
-				console.log(event,coords,td);
-				showDetail(coords.row);
-				hot.validateRows([hot.getSelected()[0]],function(valid){
-					hot.currentRowValid = valid;	// 触发设置当前行的验证结果
-				});
-			},*/
 			afterSelectionEndByProp: function (r, c, r2, c2) {
-				if(r==r2&&c==c2){
+				if(r == r2 && c == c2){
+					//console.log(r, c, r2, c2);
 					showDetail(r);
-					hot.validateRows([r],function(valid){
-						hot.currentRowValid = valid;	// 触发设置当前行的验证结果
-					});
 				}
-			}
+			},
+			afterOnCellMouseOver: function(event,coords,td){
+				//console.log(event,coords,td);
+				hot.validateRows([coords.row],function(valid){
+					hot.currentRowValid = {row: coords.row,valid: valid};	// 触发设置当前行的验证结果
+				});
+			},
 		});
 	}
 	function initSearch(){
@@ -377,31 +370,27 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 	}
 	/* 显示单条数据详细信息 */
 	function showDetail(row){
+		if(row<0){
+			checkWindows("_input");
+			return;
+		}
 		var d = infoData[row];
-		var keys = {"instanceId":"实例标识","cName":"客户名","cAddress":"客户地址","cNeeds":"客户需求","cPerson":"客户联系人","cPhone":"客户电话","cEmail":"客户邮箱","mPerson":"客户经理","mPhone":"客户经理电话","mEmail":"客户经理邮箱","tags":"标签"};
+		var keys = {"instanceId":"实例标识","cName":"客户名","cAddress":"客户地址","cNeeds":"客户需求","cPerson":"客户联系人","cPhone":"客户电话","cEmail":"客户邮箱","mPerson":"客户经理","mPhone":"客户经理电话","mEmail":"客户经理邮箱","tags":"标签","marks":"备注"};
 		var str = "<p style='padding:5px;'>";
 		for(var i in keys){
 			str += "<b>"+keys[i]+"</b>： "+d[i]+"<br>";
 		}
-		str += "</p>";
-		str += "<button id='script' class='function btn btn-sx btn-primary'>数据制作</button>";
-		$("detail").html(str);;
+		str += '</p><hr><p class="h3 bg-info">更多操作尽在右键菜单</p>';
+		str = str.replace(/null/g,"");
+		$("detail").html(str);
 		if(dhxWins.isWindow("_input")){
 			dhxWins.window("_input").attachHTMLString(str);
 			return;
 		}
-		dhxWins.createWindow("_input",0,50,400,440);
-		var text = "详细信息&nbsp;&nbsp;&nbsp;&nbsp;<a onclick='win_close(\"_input\")'>点此关闭</a>";
+		dhxWins.createWindow("_input",0,50,400,600);
+		var text = "详细信息&nbsp;&nbsp;&nbsp;&nbsp;<a onclick='checkWindows(\"_input\")'>点此关闭</a>";
 		dhxWins.window("_input").setText(text);
 		dhxWins.window("_input").attachHTMLString(str);
-		$(".function").on("click",function(){
-			if(this.id == "script"){
-				dhxWins.createWindow("_script",150,80,_htmlWidth-150,_htmlHeight-100);
-				var text = "配置脚本生成&nbsp;&nbsp;&nbsp;&nbsp;<a onclick='win_close(\"_script\")'>点此关闭</a>";
-				dhxWins.window("_script").setText(text);
-				dhxWins.window("_script").attachURL("../tool/_script.html");
-			}
-		});
 	}
 	/* 获取当前选择列的ids return Array */
 	function getSelectedIds(){
@@ -417,11 +406,6 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 	}
 	/* 右键菜单操作 */
 	/************************/
-	function put(method,ids,callback){
-		$.post("",{_method: "PUT",r: method,id: ids},function(data){
-			callback(data);
-		});
-	}
 	function put(key){
 		$.post("",{_method: "PUT",r: key,id: getSelectedIds()},function(data){
 			eval(key)(data);
@@ -429,6 +413,9 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 	}
 	function script(data){
 		console.log(data);
+		$.get("../Tool/_script.html",function(data){
+			$(".content").append(data);
+		});
 	}
 	function export_zg(data){
 		eval(data)(1);

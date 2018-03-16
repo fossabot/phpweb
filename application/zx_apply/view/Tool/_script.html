@@ -1,1 +1,93 @@
-//重构 数据脚本生成。
+<style>
+textarea.pre{
+	font-family: Monaco,Menlo,Consolas,"Courier New",monospace;
+	padding: 9.5px 0 0 9.5px;
+	display: block;
+    font-size: 12px;
+    line-height: 1.42857143;
+    color: #333;
+    word-break: break-all;
+    word-wrap: break-word;
+    background-color: #f5f5f5;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    overflow: auto;
+}
+.hide-pre{
+	display: none;
+	height:100%;
+}
+</style>
+<pre id="bas_pre" class="hide-pre" contenteditable="true"></pre>
+<pre id="the93_pre" class="hide-pre" contenteditable="true"></pre>
+<textarea id="bas_textarea" class="hide-pre pre"  style="width:100%;" spellcheck="false"></textarea>
+<textarea id="the93_textarea" class="hide-pre pre" contenteditable="true" style="width:100%;" spellcheck="false"></textarea>
+<script>
+function win_park(bas){
+	var cell = dhxWins.findByText("01")[0];
+	if(cell){
+		var f = cell['cell'].isParked();
+		cell['cell'].park(!f);
+	}
+	var cell2 = dhxWins.findByText("02")[0];
+	if(cell2){
+		var f2 = cell2['cell'].isParked();
+		cell2['cell'].park(!f2);
+	}
+	return;
+	var cell = dhxWins.findByText(bas)[0]['cell'];
+	var f = cell.isParked();
+	cell.park(!f);
+	
+}
+var show_bas = function(bas, bas_str){
+	$("#bas_pre").text(bas_str);
+	var title = "bas "+bas+" 制作脚本&nbsp;&nbsp;&nbsp;&nbsp;<a onclick='win_park(\""+bas+"\")' >最小化</a>";
+	var _bas_conf ={};
+	_bas_conf["01"]= {
+			id: "aaa",
+			left: 120,
+			top: 30,
+			width: 1000,
+			height: 275,
+			caption: title,
+	};
+	_bas_conf["02"]= {
+			id: "bbb",
+			left: 170,
+			top: 120,
+			width: 1000,
+			height: 275,
+			caption: title,
+	};
+	checkWindows(_bas_conf[bas]["id"]);
+	var bas_win = dhxWins.createWindow(_bas_conf[bas]);
+	bas_win.attachEvent("onParkDown", function(win){
+		var t = win.getText().replace("还原窗口","最小化");
+		win.setText(t);
+	});
+	bas_win.attachEvent("onParkUp", function(win){
+		var t = win.getText().replace("最小化","还原窗口");
+		win.setText(t);
+	});
+	bas_win.attachObject($($("#bas_pre").clone()[0]).prop("id",'bas'+bas)[0]);
+}
+var show_9312 = function(){
+	var title = "9312-" + myForm_net.getItemValue("a_sta") + " 制作脚本&nbsp;&nbsp;&nbsp;&nbsp;<a class='btn btn-xs btn-default' onclick='closeAll()'>关闭全部</a>";
+	checkWindows("ccc");
+	var the93_win = dhxWins.createWindow({
+		id: "ccc",
+		left: 480,
+		top: 300,
+		width: 400,
+		height: 295,
+		caption: title,
+	});
+	the93_win.attachObject($("#the93_pre").clone()[0]);
+}
+var closeAll = function(){
+	checkWindows("aaa");
+	checkWindows("bbb");
+	checkWindows("ccc");
+}
+</script>
