@@ -6,6 +6,7 @@ use think\Controller;
 use app\zx_apply\model\Vlantables;
 use app\zx_apply\model\Infotables;
 use app\zx_apply\model\Iptables;
+use Overtrue\Pinyin\Pinyin;
 
 class Manage extends Index {
 	protected $beforeActionList = [ 
@@ -99,6 +100,9 @@ class Manage extends Index {
 		if (request ()->isPut ()) {
 			// 相关操作
 			input ( "post.r" ) == "script" && $data = $this->generateScript ( input ( "post.id/a" ) [0] );
+			input ( "post.r" ) == "zgWorkflow" && $data = $this->generateZgWorkflow ( input ( "post.id/a" ) );
+			input ( "post.r" ) == "jtIp" && $data = $this->generateJtIp ( input ( "post.id/a" ) );
+			input ( "post.r" ) == "bxbIp" && $data = $this->generateGxbIp ( input ( "post.id/a" ) );
 			return $data;
 		}
 	}
@@ -111,16 +115,114 @@ class Manage extends Index {
 	private function getInfoData($limit = 100) {
 		return collection ( Infotables::order ( "id" )->limit ( $limit )->select () );
 	}
-	/**
-	 * 数据制作脚本生成
-	 *
-	 * @param unknown $id        	
-	 * @return \app\zx_apply\model\Infotables|NULL
-	 */
+	public function tt() {
+		return dump ( $this->generateScript ( 54 ) );
+	}
 	private function generateScript($id = null) {
 		$data = Infotables::get ( $id );
-		$script = 1;
-		return $data;
+		if ($data ["zxType"] == "互联网") {
+			return $this->generateScriptNet ( $data );
+		}
+		if ($data ["zxType"] == "卫生网") {
+			return $this->generateScriptWsw ( $data );
+		}
+	}
+	/**
+	 * 数据制作脚本生成-互联网
+	 *
+	 * @param unknown $data        	
+	 * @return string|NULL[]|string[]
+	 */
+	private function generateScriptNet($data) {
+		$data ["domain"] = 'tlyd-rb'; // 1. domain
+		$aStation = config ( "aStation" );
+		$data ["sw93"] = $aStation [$data ["aStation"]]; // 2. 9312名
+		$pinyin = new Pinyin ();
+		$desc = substr ( $data ["sw93"], 0, stripos ( $data ["sw93"], "-" ) + 1 );
+		$desc = str_replace ( "CHJ", "TL", $desc );
+		$_desc = $pinyin->convert ( preg_replace ( "/[^\x{4e00}-\x{9fa5}A-Za-z-]/u", "", $data ["cName"] ) );
+		foreach ( $_desc as $v ) {
+			$desc .= ucfirst ( $v );
+		}
+		$data ["desc"] = $desc; // 3. 描述
+		$device9312 = json_decode ( config ( "device9312" ), true ) [$data ["sw93"]];
+		function bas($bas, $device9312, $data) {
+			$trunk = $device9312 ['bas01_down_port'];
+			$rbp = $device9312 ['rbp_name'];
+			$_bas_name = [ 
+					"01" => "01-CHJ",
+					"02" => "02-YZL" 
+			];
+			if (strlen ( $data ["domain"] ) > 4) { // tlyd-rb
+				$rbp = "\n remote-backup-profile " . $rbp;
+			} else {
+				$rbp = null;
+			}
+			$script = "interface " . $trunk . "." . $data ["vlan"];
+			$script .= "\ndis th\n ";
+			$script .= "\n description [LNTIL-MA-CMNET-BAS" . $_bas_name [$bas] . "ME60X]" . $trunk . "." . $data ["vlan"] . "-[" . $data ["desc"] . "]";
+			$script .= "\n user-vlan " . $data ["vlan"] . $rbp;
+			$script .= "\n bas\n #\n access-type layer2-subscriber default-domain authentication " . $data ["domain"];
+			$script .= "\n authentication-method bind\n";
+			$script .= "static-user " . $data ["ip"] . " " . $data ["ip"] . " gateway " . substr ( $data ["ip"], 0, strripos ( $data ["ip"], "." ) + 1 ) . "1 " . "interface " . $trunk . "." . $data ["vlan"] . " vlan " . $data ["vlan"] . " domain-name " . $data ["domain"] . " detect\r\n";
+			return $script;
+		}
+		function the93($device9312, $data) {
+			if ($data ["neFactory"]) {
+				$data ["neFactory"] === '华为' && $down = "port_hw";
+				$data ["neFactory"] === '中兴' && $down = "port_zte";
+			} else {
+				return "网元厂家未定义";
+			}
+			$script = "vlan " . $data ["vlan"] . "\ndis th\n \n";
+			$script .= "description to-[" . $data ["desc"] . "]\nq";
+			$script .= "\ninterface " . $device9312 ["up_port_yz"]; // 上行银州 bas02
+			$script .= "\nport trunk allow-pass vlan " . $data ["vlan"];
+			if (strlen ( $data ["domain"] ) > 4) { // 上行柴河 bas01
+				$script .= "\ninterface " . $device9312 ["up_port_ch"] . "\nport trunk allow-pass vlan " . $data ["vlan"];
+			}
+			$script .= "\ninterface " . $device9312 [$down]; // 下行
+			$script .= "\nport trunk allow-pass vlan " . $data ["vlan"];
+			$script .= "\nq\r\n";
+			return $script;
+		}
+		$result = [ 
+				"bas01" => bas ( "01", $device9312, $data ),
+				"bas02" => bas ( "02", $device9312, $data ),
+				"the93" => the93 ( $device9312, $data ) 
+		];
+		return $result;
+	}
+	/**
+	 * 数据制作脚本生成-卫生网
+	 *
+	 * @param unknown $data        	
+	 * @return string|NULL[]|string[]
+	 */
+	private function generateScriptWsw($data) {
+		$aStation = config ( "aStation" );
+		$data ["sw93"] = $aStation [$data ["aStation"]]; // 2. 9312名
+		$pinyin = new Pinyin ();
+		$desc = substr ( $data ["sw93"], 0, stripos ( $data ["sw93"], "-" ) + 1 );
+		$desc = str_replace ( "CHJ", "TL", $desc );
+		$_desc = $pinyin->convert ( preg_replace ( "/[^\x{4e00}-\x{9fa5}A-Za-z-]/u", "", $data ["cName"] ) );
+		foreach ( $_desc as $v ) {
+			$desc .= ucfirst ( $v );
+		}
+		$data ["desc"] = $desc; // 3. 描述
+		$device9312 = json_decode ( config ( "device9312" ), true ) [$data ["sw93"]];
+		$trunk = $device9312 ['bas01_down_port'];
+		$_int = "interface Eth-Trunk";
+		$script = "interface" + $trunk+ "." + $data["vlan"] . "\ndis th\n" ;
+		$script.= "\n vlan-type dot1q " . $data["vlan"] ;
+		$script.= "\n description [LNTIL-MA-CMNET-BAS02-YZLME60X]" . $trunk. "." . $data["vlan"] . "-[" . $data["desc"] . "]" ;
+		$script.= "\n ip binding vpn-instance tlwsw1" ;
+		//$script.= "\n ip address " . $ipB . " 255.255.255.252" ;
+		$script.= "\n traffic-policy remarkdscp inbound" ;
+		$script.= "\n statistic enable" ;
+		//$script.= "\nip route-static vpn-instance tlwsw1 " . $ip . " 255.255.255.248 " . substr ( 0, $ip. lastIndexOf ( "." ),$ip) . (parseInt ( ip_h . substr ( ip_h . lastIndexOf ( "." ) . 1 ) ) . 1) . "\r\n";
+		return pre_str;
+		return $result;
 	}
 	private function generateZgWorkflow($id = null) {
 		$data = Infotables::get ( $id );

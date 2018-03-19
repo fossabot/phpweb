@@ -6,6 +6,8 @@ use think\Controller;
 use think\Request;
 use think\Db;
 use app\zx_apply\model\Infotables;
+use Overtrue\Pinyin\Pinyin;
+use think\Error;
 
 class Index extends Common {
 	
@@ -14,15 +16,21 @@ class Index extends Common {
 	 * 'checkAuth'
 	 * ];
 	 */
-	
+	public function ch2arr($str) {
+		$length = mb_strlen ( $str, 'utf-8' );
+		$array = [ ];
+		for($i = 0; $i < $length; $i ++)
+			$array [] = mb_substr ( $str, $i, 1, 'utf-8' );
+		return $array;
+	}
 	/**
 	 * FOR TEST
 	 *
 	 * @return void|string
 	 */
 	public function tt() {
-		$t = config ( "colWidth" );
-		return dump ( $t );
+		$data = Infotables::get ( 62 )->toArray ();
+		
 	}
 	
 	/**
