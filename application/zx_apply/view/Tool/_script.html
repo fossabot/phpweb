@@ -2,7 +2,7 @@
 textarea.pre{
 	font-family: Monaco,Menlo,Consolas,"Courier New",monospace;
 	padding: 9.5px 0 0 9.5px;
-	display: block;
+	/*display: block;*/
     font-size: 12px;
     line-height: 1.42857143;
     color: #333;
@@ -21,7 +21,7 @@ textarea.pre{
 <pre id="bas_pre" class="hide-pre" contenteditable="true"></pre>
 <pre id="the93_pre" class="hide-pre" contenteditable="true"></pre>
 <textarea id="bas_textarea" class="hide-pre pre"  style="width:100%;" spellcheck="false"></textarea>
-<textarea id="the93_textarea" class="hide-pre pre" contenteditable="true" style="width:100%;" spellcheck="false"></textarea>
+<textarea id="the93_textarea" class="hide-pre pre" style="width:100%;" spellcheck="false"></textarea>
 <script>
 function win_park(bas){
 	var cell = dhxWins.findByText("01")[0];
@@ -72,10 +72,11 @@ var show_bas = function(bas, bas_str){
 	});
 	bas_win.attachObject($($("#bas_pre").clone()[0]).prop("id",'bas'+bas)[0]);
 }
-var show_9312 = function(){
-	var title = "9312-" + myForm_net.getItemValue("a_sta") + " 制作脚本&nbsp;&nbsp;&nbsp;&nbsp;<a class='btn btn-xs btn-default' onclick='closeAll()'>关闭全部</a>";
+var show_9312 = function(device,str){
+	$("#the93_pre").text(str);
+	var title = "9312-" + device + " 制作脚本&nbsp;&nbsp;&nbsp;&nbsp;<a class='btn btn-xs btn-default' onclick='closeAll()'>关闭全部</a>";
 	checkWindows("ccc");
-	var the93_win = dhxWins.createWindow({
+	dhxWins.createWindow({
 		id: "ccc",
 		left: 480,
 		top: 300,
@@ -83,11 +84,20 @@ var show_9312 = function(){
 		height: 295,
 		caption: title,
 	});
-	the93_win.attachObject($("#the93_pre").clone()[0]);
+	dhxWins.window("ccc").attachObject($("#the93_pre").clone()[0]);
 }
 var closeAll = function(){
 	checkWindows("aaa");
 	checkWindows("bbb");
 	checkWindows("ccc");
+}
+var bas01 = function(data){
+	show_bas("01",data);
+}
+var bas02 = function(data){
+	show_bas("02",data);
+}
+var the93 = function(data){
+	show_9312(data[0],data[1]);
 }
 </script>

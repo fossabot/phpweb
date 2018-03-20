@@ -104,8 +104,8 @@ class Iptables extends Model {
 	/**
 	 * ip、掩码转换成ip字符串10.10.10.10/32
 	 *
-	 * @param unknown $long        	
-	 * @param unknown $subnet_mask        	
+	 * @param long $long        	
+	 * @param long $subnet_mask        	
 	 * @return string
 	 */
 	public static function ip_export($long, $subnet_mask = "") {
@@ -115,7 +115,7 @@ class Iptables extends Model {
 		if ($subnet_mask == - 1 | $subnet_mask == "") {
 			return long2ip ( $long );
 		} else {
-			$suffix = strlen ( preg_replace ( "/0/", "", decbin ( $subnet_mask ) ) );
+			$suffix = strlen ( preg_replace ( "/0/", "", decbin ( $subnet_mask ) ) );	// 十进制转二进制 统计32-bits的二进制中1的个数
 			return long2ip ( $long ) . "/" . $suffix;
 		}
 	}

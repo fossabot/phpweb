@@ -411,11 +411,30 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 			eval(key)(data);
 		});
 	}
-	function script(data){
-		console.log(data);
-		$.get("../Tool/_script.html",function(data){
-			$(".content").append(data);
-		});
+	function script(scriptArr){
+		window.scriptArr=scriptArr;
+		if(typeof(show_bas)=="undefined"){
+			// 加载一次。
+			$.get("../Tool/_script.html",function(data){
+				$(".content").append(data);
+				console.log("scriptArr",scriptArr);
+				showScript(scriptArr);
+				console.log("$.get");
+			});
+		}else{
+			console.log("script_str",script_str);
+			
+			checkWindows("_input");
+			console.log("Loaded already");
+		}
+	}
+	function showScript(scriptArr){
+		var winIds = [bas01,bas02,the93];
+		for(var i in winIds){
+			var func = scriptArr[winIds[i].name];
+			!!func && ;
+			show_bas("01",data);
+		}
 	}
 	function export_zg(data){
 		eval(data)(1);
@@ -427,5 +446,8 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		
 	}
 	/************************/
+	function checkWindows(id){
+		dhxWins.isWindow(id) && dhxWins.window(id).close();
+	}
 </script>
 {/block}

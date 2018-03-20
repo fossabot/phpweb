@@ -48,7 +48,7 @@ class Manage extends Index {
 			if ($req == "distribution") {
 				$data = input ( "post." );
 				$this->checkInstanceID ( $info, $data );
-				$this->checkAndSetIp ( $info, $data );
+				$data = $this->checkAndSetIp ( $info, $data );
 				$this->checkVlan ( $data );
 				// $data ["status"] = 1;
 				// return dump ( $data );
@@ -114,9 +114,6 @@ class Manage extends Index {
 	 */
 	private function getInfoData($limit = 100) {
 		return collection ( Infotables::order ( "id" )->limit ( $limit )->select () );
-	}
-	public function tt() {
-		return dump ( $this->generateScript ( 54 ) );
 	}
 	private function generateScript($id = null) {
 		$data = Infotables::get ( $id );
@@ -189,7 +186,10 @@ class Manage extends Index {
 		$result = [ 
 				"bas01" => bas ( "01", $device9312, $data ),
 				"bas02" => bas ( "02", $device9312, $data ),
-				"the93" => the93 ( $device9312, $data ) 
+				"the93" => [ 
+						$data ["sw93"],
+						the93 ( $device9312, $data ) 
+				] 
 		];
 		return $result;
 	}
@@ -203,26 +203,51 @@ class Manage extends Index {
 		$aStation = config ( "aStation" );
 		$data ["sw93"] = $aStation [$data ["aStation"]]; // 2. 9312名
 		$pinyin = new Pinyin ();
-		$desc = substr ( $data ["sw93"], 0, stripos ( $data ["sw93"], "-" ) + 1 );
+		$desc = substr ( $data ["sw93"], 0, stripos ( $data ["sw93"], "-" ) + 1 ); // 3. 描述
 		$desc = str_replace ( "CHJ", "TL", $desc );
 		$_desc = $pinyin->convert ( preg_replace ( "/[^\x{4e00}-\x{9fa5}A-Za-z-]/u", "", $data ["cName"] ) );
 		foreach ( $_desc as $v ) {
 			$desc .= ucfirst ( $v );
 		}
-		$data ["desc"] = $desc; // 3. 描述
 		$device9312 = json_decode ( config ( "device9312" ), true ) [$data ["sw93"]];
-		$trunk = $device9312 ['bas01_down_port'];
-		$_int = "interface Eth-Trunk";
-		$script = "interface" + $trunk+ "." + $data["vlan"] . "\ndis th\n" ;
-		$script.= "\n vlan-type dot1q " . $data["vlan"] ;
-		$script.= "\n description [LNTIL-MA-CMNET-BAS02-YZLME60X]" . $trunk. "." . $data["vlan"] . "-[" . $data["desc"] . "]" ;
-		$script.= "\n ip binding vpn-instance tlwsw1" ;
-		//$script.= "\n ip address " . $ipB . " 255.255.255.252" ;
-		$script.= "\n traffic-policy remarkdscp inbound" ;
-		$script.= "\n statistic enable" ;
-		//$script.= "\nip route-static vpn-instance tlwsw1 " . $ip . " 255.255.255.248 " . substr ( 0, $ip. lastIndexOf ( "." ),$ip) . (parseInt ( ip_h . substr ( ip_h . lastIndexOf ( "." ) . 1 ) ) . 1) . "\r\n";
-		return pre_str;
-		return $result;
+		$trunk = $device9312 ['bas02_down_port'];
+		$ip = Iptables::ip_parse ( $data ["ip"] );
+		$ipB = Iptables::ip_parse ( $data ["ipB"] );
+		$script = "interface " . $trunk . "." . $data ["vlan"] . "\ndis th\n";
+		$script .= "\n vlan-type dot1q " . $data ["vlan"];
+		$script .= "\n description [LNTIL-MA-CMNET-BAS02-YZLME60X]" . $trunk . "." . $data ["vlan"] . "-[" . $desc . "]";
+		$script .= "\n ip binding vpn-instance tlwsw";
+		$script .= "\n ip address " . long2ip ( $ipB [2] + 1 ) . " " . long2ip ( $ipB [1] );
+		$script .= "\n traffic-policy remarkdscp inbound";
+		$script .= "\n statistic enable";
+		$script .= "\nip route-static vpn-instance tlwsw " . long2ip ( $ip [2] ) . " " . long2ip ( $ip [1] ) . " " . long2ip ( $ipB [2] + 2 ) . "\r\n";
+		/* the9312 */
+		if ($data ["neFactory"]) {
+			$data ["neFactory"] === '华为' && $down = "port_hw";
+			$data ["neFactory"] === '中兴' && $down = "port_zte";
+		} else {
+			return [ 
+					"the93" => [ 
+							"网元厂家未定义",
+							"" 
+					] 
+			];
+		}
+		$the9312 = "vlan " . $data ["vlan"] . "\ndis th\n\n";
+		$the9312 .= "description to-[" . $desc . "]\nq";
+		$the9312 .= "\ninterface " . $device9312 ["up_port_yz"] . "\nport trunk allow-pass vlan " . $data ["vlan"];
+		$the9312 .= "\ninterface " . $device9312 [$down] . "\nport trunk allow-pass vlan " . $data ["vlan"] . "\nq\r\n";
+		return [ 
+				"bas02" => $script,
+				"the93" => [ 
+						$data ["sw93"],
+						$the9312 
+				] 
+		];
+	}
+	public function tt() {
+		return dump ( $this->generateScriptWsw ( Infotables::get ( 2 )->toArray () ) );
+		return dump ( Infotables::get ( 2 )->toArray () );
 	}
 	private function generateZgWorkflow($id = null) {
 		$data = Infotables::get ( $id );
@@ -345,30 +370,30 @@ class Manage extends Index {
 			$ip = Iptables::check ( $data ["zxType"], $data ["ip"] );
 			if ($ip)
 				return $this->error ( "互联ip冲突，", null, $ip ["cName"] );
-			else { // 设置ipMask
-				$ip_array = Iptables::ip_parse ( $data ["ip"] );
-				$data ["ip"] = $ip_array [2];
-				$data ["ipMask"] = $ip_array [1];
-			}
 		}
+		// 设置ipMask
+		$ip_array = Iptables::ip_parse ( $data ["ip"] );
+		$data ["ip"] = $ip_array [2];
+		$data ["ipMask"] = $ip_array [1];
 		if ($data ["ipB"] == "") {
 			// 设置 ipB为null
 			$data ["ipB"] = null;
 			$data ["ipBMask"] = null;
-		} else {
-			if ($info ["ipB"] != $data ["ipB"]) {
-				$ipB = Iptables::check ( $data ["zxType"], $data ["ipB"], "ipB" );
-				if ($ipB)
-					return $this->error ( "业务ip冲突，", null, $ipB ["cName"] );
-				else { // 设置ipBMask
-					$ipB_array = Iptables::ip_parse ( $data ["ipB"] );
-					$ipB_array [1] == - 1 && $ipB_array = Iptables::ip_parse ( Iptables::ip_export ( $ipB_array [0], - 8 ) );
-					/* 默认强制设置ipBMask为-8，并修正ip为ip_start */
-					$data ["ipB"] = $ipB_array [2];
-					$data ["ipBMask"] = $ipB_array [1];
-				}
-			}
+			return $data;
 		}
+		if ($info ["ipB"] != $data ["ipB"]) {
+			$ipB = Iptables::check ( $data ["zxType"], $data ["ipB"], "ipB" );
+			if ($ipB)
+				return $this->error ( "业务ip冲突，", null, $ipB ["cName"] );
+		}
+		// 设置ipBMask
+		$ipB_array = Iptables::ip_parse ( $data ["ipB"] );
+		/* 若为提供ipBMask，默认强制设置ipBMask为-8 */
+		$ipB_array [1] == - 1 && $ipB_array = Iptables::ip_parse ( Iptables::ip_export ( $ipB_array [0], - 8 ) );
+		/* 修正ip为ip_start */
+		$data ["ipB"] = $ipB_array [2];
+		$data ["ipBMask"] = $ipB_array [1];
+		return $data;
 	}
 	/**
 	 * 检查获取的vlan是否已分配
