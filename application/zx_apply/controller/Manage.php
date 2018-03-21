@@ -264,6 +264,9 @@ class Manage extends Index {
 		$script = 1;
 		return $data;
 	}
+	public function _getDevice9312Info(){
+		return config("device9312");
+	}
 	/**
 	 * get:加载数据到handsontable并验证,
 	 * post:上传,后台处理入库

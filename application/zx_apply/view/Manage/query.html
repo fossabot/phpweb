@@ -222,6 +222,19 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 					if(r.test(',script,export_zg,export_jtip,export_gxbip,')){
 						put(key);
 					}
+					/*else if (key === 'script') {
+						put(script);
+					}
+					else if (key === 'export_zg') {
+						put(export_zg);
+					}
+					else if (key === 'export_jtip') {
+						put(export_jtip);
+					}
+					else if (key === 'export_gxbip') {
+						put(export_gxbip);
+					}*/
+					
 				},
 				items : {
 					"about" : {
@@ -282,7 +295,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		});
 		hot.updateSettings({
 			afterSelectionEndByProp: function (r, c, r2, c2) {
-				if(r == r2 && c == c2){
+				if(r == r2 && c == c2 && !dhxWins.isWindow("ccc")){
 					//console.log(r, c, r2, c2);
 					showDetail(r);
 				}
@@ -417,30 +430,30 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 			// 加载一次。
 			$.get("../Tool/_script.html",function(data){
 				$(".content").append(data);
-				console.log("scriptArr",scriptArr);
 				showScript(scriptArr);
-				console.log("$.get");
 			});
 		}else{
-			console.log("script_str",script_str);
-			
-			checkWindows("_input");
-			console.log("Loaded already");
+			showScript(scriptArr);
 		}
+		checkWindows("_input");
 	}
 	function showScript(scriptArr){
-		var winIds = [bas01,bas02,the93];
-		for(var i in winIds){
-			var func = scriptArr[winIds[i].name];
-			!!func && ;
-			show_bas("01",data);
+		if(typeof(scriptArr.bas01!="undefined")){
+			show_bas("01",scriptArr.bas01);
+		}
+		if(typeof(scriptArr.bas02!="undefined")){
+			show_bas("02",scriptArr.bas01);
+		}
+		if(typeof(scriptArr.the93!="undefined")){
+			show_9312(scriptArr.the93[0],scriptArr.the93[1]);
 		}
 	}
 	function export_zg(data){
 		eval(data)(1);
 	}
-	function export_jtip(){
-		
+	function export_jtip(data){
+		console.log(arguments);
+		data == 1 && console.table({a:1,b:2});
 	}
 	function export_gxbip(){
 		
