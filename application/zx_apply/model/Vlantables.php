@@ -37,7 +37,7 @@ class Vlantables extends Model {
 	 */
 	public static function generateVlan($device = "", $cName = "", $manual = false) {
 		$vlans = Db::name ( "vlantables" )->where ( "deviceName", $device )->column ( "vlan" );
-		for($vlan = 2049; $vlan < 3000; $vlan ++) {
+		for($vlan = 2049; $vlan < 3071; $vlan ++) {
 			if (! in_array ( $vlan, $vlans )) {
 				$preVlan = $vlan;
 				break;

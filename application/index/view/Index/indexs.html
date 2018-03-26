@@ -38,7 +38,8 @@
 							href="/trouble" style="color: #f30dec;">终端故障报修</a>
 					</div>
 				</div>
-				<div class="wraper" style="display: none;">
+				<!--
+				<div class="wraper">
 					<div class="module">
 						<a target="_blank" href="/kxeams/index/index.html">客响维材管理</a>
 					</div>
@@ -48,14 +49,15 @@
 							target="_blank" href="/kxeams/user/todo">我的代办</a>
 					</div>
 				</div>
+				-->
 				<div class="wraper">
 					<div class="module">
 						<a href="/zx_apply/index/index.html">数据专线</a>
 					</div>
 					<div class="function">
 						<a href="/zx_apply/index/apply">专线申请</a> <a
-							href="/zx_apply/index/script">专线bas制作数据合成</a> <a
-							href="/zx_apply/index/workflow">新开点流程录入信息</a>
+							href="/zx_apply/tool/script">专线bas制作数据合成</a> <a
+							href="/zx_apply/tool/workflow">新开点流程录入信息</a>
 					</div>
 				</div>
 				<div class="wraper">
@@ -64,19 +66,19 @@
 					</div>
 					<div class="function">
 						<a href="__STATIC__/Chrome_Setup49.exe">谷歌浏览器下载</a> <a
-							href="/zx_apply/tool/script">交换机脚本批量生成</a> <a
+							href="/zx_apply/tool/swscript">交换机脚本批量生成</a> <a
 							href="/checkME60/index/index">BAS脚本检查</a>
 					</div>
 				</div>
 				<div>以下为内网应用</div>
 				<div class="wraper">
 					<div class="module">
-						<a href="//10.61.214.71/">自助服务平台</a>
+						<a href="//10.61.214.72:800/">自助服务平台</a>
 					</div>
 					<div class="function">
 
-						<a target="_blank" href="//10.61.214.71/vehicle">公务车管理系统</a><a
-							target="_blank" href="//10.61.214.71/TLCAR/txl_static.html">企业通讯录-铁岭移动</a>
+						<a target="_blank" href="//10.61.214.72:800/vehicle">公务车管理系统</a><a
+							target="_blank" href="//10.61.214.72:800/TLCAR/txl_static.html">企业通讯录-铁岭移动</a>
 					</div>
 				</div>
 				<div class="wraper">
@@ -89,9 +91,7 @@
 				</div>
 			</div>
 		</div>
-{php}
-echo "您的IP是：".request()->ip();
-{/php}
+		<p>您的IP是： {$Request.ip}</p>
 	</div>
 	<script>
 		(function(T, h, i, n, k, P, a, g, e) {

@@ -425,7 +425,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		});
 	}
 	function script(scriptArr){
-		window.scriptArr=scriptArr;
+		window.postScript=scriptArr;
 		if(typeof(show_bas)=="undefined"){
 			// 加载一次。
 			$.get("../Tool/_script.html",function(data){
