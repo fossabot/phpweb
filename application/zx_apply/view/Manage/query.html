@@ -203,7 +203,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 			//minSpareRows : 1,
 			manualColumnResize : true,
 			colHeaders : colHeaderData.split(","),
-			columns : columnsData
+			columns : columnsData,
 		});
 		hot.validateCells();
 		hot.updateSettings({
@@ -218,14 +218,16 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 							});
 						}, 100);
 					}
+					else if (key === 'script') {
+						$.post("",{_method: "PUT",r: key,id: getSelectedIds()},function(data){
+							script(data);
+						});
+					}
 					var r=new RegExp(','+key+',');
-					if(r.test(',script,export_zg,export_jtip,export_gxbip,')){
+					if(r.test(',export_zg,export_jtip,export_gxbip,')){
 						put(key);
 					}
-					/*else if (key === 'script') {
-						put(script);
-					}
-					else if (key === 'export_zg') {
+					/*else if (key === 'export_zg') {
 						put(export_zg);
 					}
 					else if (key === 'export_jtip') {
@@ -234,7 +236,6 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 					else if (key === 'export_gxbip') {
 						put(export_gxbip);
 					}*/
-					
 				},
 				items : {
 					"about" : {
@@ -420,9 +421,20 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 	/* 右键菜单操作 */
 	/************************/
 	function put(key){
-		$.post("",{_method: "PUT",r: key,id: getSelectedIds()},function(data){
-			eval(key)(data);
-		});
+		var args ={_method: "PUT",r: key,id: getSelectedIds()};
+		var form = $("<form method='post' action ='' name='_export'></form>");
+		for (arg in args) {
+			var input = $("<input type='hidden'>");
+			input.attr({
+				"name" : arg
+			});
+			input.val(args[arg]);
+			form.append(input);
+		}
+		$(document.body).append(form);
+		form.submit();
+		setTimeout("document.forms._export.parentNode.removeChild(document.forms._export)",0);
+		console.log("\t\tsubmit:",args);
 	}
 	function script(scriptArr){
 		window.postScript=scriptArr;
@@ -449,7 +461,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		}
 	}
 	function export_zg(data){
-		eval(data)(1);
+		console.log(data);
 	}
 	function export_jtip(data){
 		console.log(arguments);

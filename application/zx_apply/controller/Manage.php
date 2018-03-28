@@ -100,9 +100,9 @@ class Manage extends Index {
 		if (request ()->isPut ()) {
 			// 相关操作
 			input ( "post.r" ) == "script" && $data = $this->generateScript ( input ( "post.id/a" ) [0] );
-			input ( "post.r" ) == "zgWorkflow" && $data = $this->generateZgWorkflow ( input ( "post.id/a" ) );
-			input ( "post.r" ) == "jtIp" && $data = $this->generateJtIp ( input ( "post.id/a" ) );
-			input ( "post.r" ) == "bxbIp" && $data = $this->generateGxbIp ( input ( "post.id/a" ) );
+			input ( "post.r" ) == "export_zg" && $data = $this->generateZgWorkflow ( explode ( ",", input ( "post.id" ) ) );
+			input ( "post.r" ) == "export_jtip" && $data = $this->generateJtIp ( explode ( ",", input ( "post.id" ) ) );
+			input ( "post.r" ) == "export_gxbip" && $data = $this->generateGxbIp ( explode ( ",", input ( "post.id" ) ) );
 			return $data;
 		}
 	}
@@ -115,7 +115,7 @@ class Manage extends Index {
 	private function getInfoData($limit = 100) {
 		return collection ( Infotables::order ( "id" )->limit ( $limit )->select () );
 	}
-	private function generateScript($id = null) {
+	protected function generateScript($id = null) {
 		$data = Infotables::get ( $id );
 		if ($data ["zxType"] == "互联网") {
 			return $this->generateScriptNet ( $data );
@@ -245,47 +245,100 @@ class Manage extends Index {
 				] 
 		];
 	}
-	private function generateZgWorkflow($id = null) {
-		$data = Infotables::get ( $id );
-		$script = 1;
-		return $data;
+	protected function generateZgWorkflow($ids = null) {
+		$row = 5;
+		$cellValues = [ ];
+		$default = [ 
+				"E" => "占用",
+				"H" => "其他",
+				"I" => "铁岭",
+				"K" => "互联地址",
+				"N" => "CMNET",
+				"P" => "企业",
+				"R" => "集客专线",
+				"S" => "互联网专线",
+				"T" => "辽宁",
+				"U" => "LNTIL-MA-CMNET-BAS02-YZME60X",
+				"AC" => "卜玉",
+				"AD" => 18841050815,
+				"AE" => "已启用",
+				"AI" => "客户响应中心",
+				"AJ" => "buyu.tl@ln.chinamobile.com",
+				"AK" => "铁岭",
+				"AL" => "卜玉" 
+		];
+		foreach ( $ids as $id ) {
+			foreach ( $default as $k => $v ) {
+				$cellValues [$k . $row] = $v;
+			}
+			$data = Infotables::get ( $id )->toArray ();
+			$ip = $data ["ip"];
+			$segment = substr ( $ip, 0, strripos ( $ip, "." ) ) . ".0/24";
+			$gateway = substr ( $ip, 0, strripos ( $ip, "." ) ) . ".1";
+			$cellValues ["B" . $row] = $ip; // ip
+			$cellValues ["F" . $row] = $segment; // 上一级子网名
+			$cellValues ["O" . $row] = $gateway; // 网关ip
+			$cellValues ["V" . $row] = $data ["cName"]; // 客户名
+			$cellValues ["W" . $row] = $data ["cPerson"]; // 客户联系人
+			$cellValues ["Y" . $row] = $data ["cAddress"]; // 客户地址
+			$cellValues ["Z" . $row] = $data ["cPhone"]+0; // 客户电话
+			$cellValues ["AA" . $row] = $data ["create_time"]; // 分配时间
+			$cellValues ["AB" . $row] = $data ["cEmail"]; // 客户邮箱
+			$row ++;
+		}
+		$pFilename = './sampleData/zg_import.xls';
+		$this->exportExcelFile ( $pFilename, 0, $cellValues, 'Xls', '资管系统导入数据' . date ( "Ymd_His" ) . '.xls' );
 	}
 	public function tt() {
-		//return dump(iconv('UTF-8', 'GB2312//IGNORE', "于显达"));
-		function browser_export($filename, $type = "Excel5") {
-			if ($type == "Excel5") {
-				header ( 'Content-Type: application/vnd.ms-excel' ); // 告诉浏览器将要输出excel03文件
-			} else {
-				header ( 'Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ); // 告诉浏览器数据excel07文件
-			}
-			header ( 'Content-Disposition: attachment;filename="' . $filename . '"' ); // 告诉浏览器将输出文件的名称
-			header ( 'Cache-Control: max-age=0' ); // 禁止缓存
+		return date ( "Ymd_His" );
+		return dump ( Infotables::get ( 12 )->toArray () );
+	}
+	protected function generateJtIp($id = null) {
+		$data = Infotables::get ( $id );
+		$script = 1;
+		return $data;
+	}
+	protected function generateGxbIp($id = null) {
+		$data = Infotables::get ( $id );
+		$script = 1;
+		return $data;
+	}
+	/**
+	 * 导出到excel
+	 *
+	 * @param unknown $pFilename
+	 *        	模板文件地址
+	 * @param unknown $workSheetIndex
+	 *        	工作表索引
+	 * @param unknown $cellValues
+	 *        	数据
+	 * @param unknown $writerType
+	 *        	输出类型
+	 * @param unknown $fileName
+	 *        	输出文件名
+	 */
+	private function exportExcelFile($pFilename, $workSheetIndex, $cellValues, $writerType, $fileName) {
+		$spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load ( $pFilename );
+		$worksheet = $spreadsheet->getSheet ( $workSheetIndex );
+		// 编辑worksheet
+		foreach ( $cellValues as $d => $v ) {
+			$worksheet->getCell ( $d )->setValue ( $v );
 		}
-		$pFilename= './sampleData/ip_jt.xlsx';
-		$spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load ( $pFilename);
-		//return dump($spreadsheet->getProperties());
-		$xls = new \PhpOffice\PhpSpreadsheet\Writer\Xls ( $spreadsheet );
-		$spreadsheet->getProperties()->setCreator("Xianda");
-		$spreadsheet->getProperties()->setLastModifiedBy('Xianda');
-		
-		
-		//return ;
-		browser_export ( 'export_excel.xls' ); // 输出到浏览器
-		$xls->save ( "php://output" );
+		// 定义spreadsheet参数并输出到浏览器
+		$spreadsheet->getProperties ()->setCreator ( "Xianda" );
+		$spreadsheet->getProperties ()->setLastModifiedBy ( 'Xianda' );
+		$writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter ( $spreadsheet, $writerType );
+		if ($writerType == "Xls") {
+			header ( 'Content-Type: application/vnd.ms-excel' ); // 告诉浏览器将要输出excel03文件
+		} else {
+			header ( 'Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ); // 告诉浏览器数据excel07文件
+		}
+		header ( 'Content-Disposition: attachment;filename="' . $fileName . '"' ); // 告诉浏览器将输出文件的名称
+		header ( 'Cache-Control: max-age=0' ); // 禁止缓存
+		$writer->save ( "php://output" );
 		$spreadsheet->disconnectWorksheets ();
 		unset ( $spreadsheet );
-		
-		return dump ( Infotables::get ( 2 )->toArray () );
-	}
-	private function generateJtIp($id = null) {
-		$data = Infotables::get ( $id );
-		$script = 1;
-		return $data;
-	}
-	private function generateGxbIp($id = null) {
-		$data = Infotables::get ( $id );
-		$script = 1;
-		return $data;
+		unset ( $writer );
 	}
 	public function _getDevice9312Info() {
 		return config ( "device9312" );
