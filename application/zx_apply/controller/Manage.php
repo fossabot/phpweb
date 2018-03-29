@@ -79,7 +79,7 @@ class Manage extends Index {
 			$aStation = array_keys ( config ( "aStation" ) );
 			$zxTitle = [ 
 					"label" => "zx_apply-new-rb",
-					"order" => "1,2,3,4,5,6,9,10,11,18,19,22,23,24,29,30,31,32,33,34,35,36,37" 
+					"order" => "24,1,2,3,4,5,6,9,10,11,18,19,22,23,29,30,31,32,33,34,35,36,37" 
 			];
 			$this->assign ( [ 
 					"aStationData" => implode ( ",", $aStation ),
@@ -95,6 +95,7 @@ class Manage extends Index {
 			input ( "post.r" ) == "info" && $data = $this->getInfoData ()->toArray ();
 			input ( "post.r" ) == "detail" && $data = Infotables::get ( input ( "post.id" ) )->toJson ();
 			input ( "post.r" ) == "search" && $data = collection ( Infotables::where ( input ( "post.where/a" ) [0], "like", "%" . input ( "post.where/a" ) [2] . "%" )->order ( "id desc" )->select () )->toArray ();
+			input ( "get.r" ) == "update" && $data = $this->updateInfo ( input ( "post." ) );
 			return $data;
 		}
 		if (request ()->isPut ()) {
@@ -114,6 +115,22 @@ class Manage extends Index {
 	 */
 	private function getInfoData($limit = 100) {
 		return collection ( Infotables::order ( "id" )->limit ( $limit )->select () );
+	}
+	/**
+	 * 从query.html更新台账
+	 * 
+	 * @param unknown $updateData        	
+	 * @return number|\think\false
+	 */
+	private function updateInfo($updateData) {
+		$result = 0;
+		$infotables = new Infotables ();
+		foreach ( $updateData as $k => $v ) {
+			$result += $infotables->isUpdate ( true )->save ( $v, [ 
+					"id" => $k 
+			] );
+		}
+		return $result;
 	}
 	protected function generateScript($id = null) {
 		$data = Infotables::get ( $id );
@@ -281,7 +298,7 @@ class Manage extends Index {
 			$cellValues ["V" . $row] = $data ["cName"]; // 客户名
 			$cellValues ["W" . $row] = $data ["cPerson"]; // 客户联系人
 			$cellValues ["Y" . $row] = $data ["cAddress"]; // 客户地址
-			$cellValues ["Z" . $row] = $data ["cPhone"]+0; // 客户电话
+			$cellValues ["Z" . $row] = $data ["cPhone"] + 0; // 客户电话
 			$cellValues ["AA" . $row] = $data ["create_time"]; // 分配时间
 			$cellValues ["AB" . $row] = $data ["cEmail"]; // 客户邮箱
 			$row ++;
@@ -290,7 +307,23 @@ class Manage extends Index {
 		$this->exportExcelFile ( $pFilename, 0, $cellValues, 'Xls', '资管系统导入数据' . date ( "Ymd_His" ) . '.xls' );
 	}
 	public function tt() {
-		return date ( "Ymd_His" );
+		$spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load ( './sampleData/zg_import.xls' );
+		$worksheet = $spreadsheet->getSheet ( 0 );
+		
+		$worksheet->setCellValueByColumnAndRow ( 1, 1, 'Test_Xianda啦' );
+		$writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter ( $spreadsheet, 'Xls' );
+		$writerType = "Xls";
+		if ($writerType == "Xls") {
+			header ( 'Content-Type: application/vnd.ms-excel' ); // 告诉浏览器将要输出excel03文件
+		} else {
+			header ( 'Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ); // 告诉浏览器数据excel07文件
+		}
+		header ( 'Content-Disposition: attachment;filename="' . "测试test.xls" . '"' ); // 告诉浏览器将输出文件的名称
+		header ( 'Cache-Control: max-age=0' ); // 禁止缓存
+		$writer->save ( "php://output" );
+		$spreadsheet->disconnectWorksheets ();
+		unset ( $spreadsheet );
+		unset ( $writer );
 		return dump ( Infotables::get ( 12 )->toArray () );
 	}
 	protected function generateJtIp($id = null) {
@@ -313,16 +346,17 @@ class Manage extends Index {
 	 * @param unknown $cellValues
 	 *        	数据
 	 * @param unknown $writerType
-	 *        	输出类型
+	 *        	输出类型 Xls or Xlsx
 	 * @param unknown $fileName
 	 *        	输出文件名
 	 */
-	private function exportExcelFile($pFilename, $workSheetIndex, $cellValues, $writerType, $fileName) {
+	private function exportExcelFile($pFilename, $workSheetIndex, $cellValues, $writerType, $fileName, $writerMethod = "setCellValue") {
 		$spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load ( $pFilename );
 		$worksheet = $spreadsheet->getSheet ( $workSheetIndex );
 		// 编辑worksheet
 		foreach ( $cellValues as $d => $v ) {
-			$worksheet->getCell ( $d )->setValue ( $v );
+			$worksheet->$writerMethod ( $d, $v );
+			// $worksheet->getCell ( $d )->setValue ( $v );
 		}
 		// 定义spreadsheet参数并输出到浏览器
 		$spreadsheet->getProperties ()->setCreator ( "Xianda" );

@@ -17,8 +17,10 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 				<option value="create_time">申请时间</option>
 			</select> <input type="text" class="form-control" id="searchStr">
 		</div>
-		<button id="btn-search" type="submit" class="btn btn-default" data-toggle="tooltip" data-placement="top" title="当前页搜索不限制列名，可搜索任意字段">当前页搜索</button>
-		<button id="btn-searchAll" class="btn btn-default" data-toggle="tooltip" data-placement="top" title="全局搜索需根据列名搜索">全局搜索</button>
+		<button id="btn-search" type="submit" class="btn btn-default"
+			data-toggle="tooltip" data-placement="top" title="当前页搜索不限制列名，可搜索任意字段">当前页搜索</button>
+		<button id="btn-searchAll" class="btn btn-default"
+			data-toggle="tooltip" data-placement="top" title="全局搜索需根据列名搜索">全局搜索</button>
 		<div id="tips" class="form-group"
 			style="display: none; margin-left: 20px;">
 			<span id="tips-text" class="text-primary"></span>
@@ -91,6 +93,13 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 	//infoData = [ new Array(34) ];
 	infoData = {$data};
 	columnsData = [ {
+		data: 'create_time',
+		type : "date",
+		dateFormat : "YYYY-MM-DD",
+		correctFormat : true,
+		validator : "date",
+		readOnly: true
+	}, {
 		data : 'instanceId',
 		type : 'numeric'
 	}, {
@@ -143,6 +152,8 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		data: 'marks',
 	}, {
 		data: 'ifOnu',
+		editor : 'select',
+		selectOptions : [0,1],
 	//}, {
 	//	data: 'oltName',
 	}, {
@@ -150,13 +161,6 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		readOnly: true
 	}, {
 		data: 'aEmail',
-		readOnly: true
-	}, {
-		data: 'create_time',
-		type : "date",
-		dateFormat : "YYYY-MM-DD",
-		correctFormat : true,
-		validator : "date",
 		readOnly: true
 	//},  {
 	//	data: 'status',
@@ -245,8 +249,9 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 					"script": {
 						name : "1.单条数据制作脚本生成",
 						disabled: function(){
-							var a = hot.getSelected()[0] === hot.getSelected()[2];
-							return !a || !hot.currentRowValid.valid;
+							var a = hot.getSelected().length > 1;
+							var b = hot.getSelectedRange()[0].from.row != hot.getSelectedRange()[0].to.row;
+							return a || b || !hot.currentRowValid.valid;
 						}
 					},
 					"export_zg": {
@@ -307,10 +312,51 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 					hot.currentRowValid = {row: coords.row,valid: valid};	// 触发设置当前行的验证结果
 				});
 			},
+			afterChange: function(changes, source){	// 修改后自动同步到数据库
+				console.log(changes, source);
+				var updates = {},
+					hotData = hot.getSourceData();
+				for(var i in changes){	// 记录变化到 updates
+					var _change = changes[i];
+					if(_change[2] == _change[3]){
+						break;
+					}
+					console.log("change["+i+"]",_change);
+					var _id = hotData[_change[0]].id,
+						key = _change[1],
+						value = _change[3];
+					updates[_id] = {};
+					updates[_id][ _change[1]] = _change[3];
+				}
+				if($.isEmptyObject(updates)){	// 无变化，函数返回
+					return;
+				}
+				if(sessionStorage.getItem("updateConfirm")==null){
+					dhtmlx.confirm({
+						type: "confirm-warning",
+						title : "您已修改台账信息，是否同步更新到服务器？",
+						text : "确认后本次登陆期间不再提醒，所有的修改会同步到服务器。取消则本次不会同步。。。。。。<br><br>【请注意】：若多人同时操作会以最后一次修改为准。操作请谨慎。。&nbsp;&nbsp;%^_^% +_+ %^_^%",
+						ok : "确认",
+						cancel : "取消",
+						callback : function(result){
+							result && sessionStorage.setItem("updateConfirm","auto");
+						}
+					});
+				}
+				if(sessionStorage.getItem("updateConfirm")=="auto"){
+					$.post("?r=update&_method=POST",updates,function(data){
+						console.log("updates",updates);
+						dhtmlx.message("修改（"+changes.length+"条）：<br>"+JSON.stringify(updates)+"<br>同步至服务器成功条数："+data.data);
+					});
+				}
+			}
 		});
 	}
 	function initSearch(){
 		/* 当前页搜索按钮 */
+		$("#searchStr").on("focus",function(){
+			checkWindows("_input");
+		});
 		$("#btn-search").on("click",function(){
 			var str = $("#searchStr").val();
 			if(str == ""){
@@ -319,8 +365,9 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 				var result = hot.search.query(str);
 				result.length == 0 && showTips("未找到");
 				result.length > 0 && selectCell(result);
-				sessionStorage.setItem("result",JSON.stringify(result));
-				sessionStorage.setItem("index",0);
+				sessionStorage.setItem("searchResult",JSON.stringify(result));
+				sessionStorage.setItem("searchResultSelectedIndex",0);
+				checkWindows("_input");
 			}
 		});
 		/* 数据库搜索按钮 */
@@ -347,17 +394,18 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		});
 		/* 定位下一个按钮 */
 		$("#tips-btn").on("click",function(){
-			var result = JSON.parse(sessionStorage.getItem("result"));
-			var index = parseInt(sessionStorage.getItem("index"));
+			var result = JSON.parse(sessionStorage.getItem("searchResult"));
+			var index = parseInt(sessionStorage.getItem("searchResultSelectedIndex"));
 			if(++index == result.length){
 				index = 0;
 				dhtmlx.alert("返回到第一个搜索结果");
 			}
-			sessionStorage.setItem("index",index);
+			sessionStorage.setItem("searchResultSelectedIndex",index);
 			hot.selectCell(result[index].row,result[index].col);
 			hot.selectCell(result[index].row,result[index].col);
 			//!!index && $(".wtHolder")[0].scrollBy(0,50);
 			showTips("当前定位到第"+(index+1)+"个结果。",result.length);
+			checkWindows("_input");
 		});
 	}
 	/* 定位数据 */
@@ -365,7 +413,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		hot.selectCell(result[0].row,result[0].col);
 		hot.selectCell(result[0].row,result[0].col);
 		if(result.length==1){
-			//sessionStorage.removeItem("result");
+			//sessionStorage.removeItem("searchResult");
 			showTips("1个结果。");
 		}else{
 			showTips("可以继续定位到下一个。",result.length);
@@ -407,15 +455,26 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		dhxWins.window("_input").attachHTMLString(str);
 	}
 	/* 获取当前选择列的ids return Array */
+	// 多选的行号合并、去重并获取其数据的id数组
 	function getSelectedIds(){
 		if(hot.getSelected() === undefined){
 			return;
 		}
-		var hotData = hot.getSourceData();
-		var ids = [];
-		for(var i = hot.getSelectedRange().from.row; i <= hot.getSelectedRange().to.row; i++){
-			ids.push(hotData[i].id);
+		var hotData = hot.getSourceData(),
+			obj = {},
+			ids = [],
+			selectedRange = hot.getSelectedRange();
+		for(var range in selectedRange){	// 每一个selectedRange
+			var from = selectedRange[range].from.row,
+				to = selectedRange[range].to.row;
+			for(var i = Math.min(from, to); i <= Math.max(from, to); i++){	// from.row 与 to.row从大到小
+				if(!obj[i]){	// 去重
+					obj[i] = 1;
+					ids.push(hotData[i].id);
+				}
+			}
 		}
+		ids = ids.sort(function(a,b){return a-b;});
 		return ids;
 	}
 	/* 右键菜单操作 */
@@ -464,7 +523,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		console.log(data);
 	}
 	function export_jtip(data){
-		console.log(arguments);
+		console.log(arguments[2]==undefined);
 		data == 1 && console.table({a:1,b:2});
 	}
 	function export_gxbip(){

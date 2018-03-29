@@ -171,7 +171,8 @@
 		if (_htmlHeight < 400 || _htmlWidth < 1320) {
 			dhtmlx.message({
 				text : "窗口过小，或显示不全，建议调整窗口大小。『当前页面大小：" + _htmlWidth + "*"
-						+ _htmlHeight + "』"
+						+ _htmlHeight + "』",
+				expire : 6000
 			});
 		}
 		if (_htmlHeight < 400) {
@@ -180,7 +181,8 @@
 		resizePage();
 		dhtmlx.message({
 			type : "error",
-			text : "调整窗口大小可能会影响页面布局。建议刷新本页面。"
+			text : "调整窗口大小可能会影响页面布局。建议刷新本页面。",
+			expire : 10000
 		});
 		/*$(".dhtmlx_message_area").removeAttr("style").css({
 			"right" : "50px",
