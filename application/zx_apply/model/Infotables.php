@@ -6,16 +6,16 @@ use think\Model;
 
 class Infotables extends Model {
 	protected $autoWriteTimestamp = true;
-	protected $dateFormat= 'Y-m-d';
+	protected $dateFormat = 'Y-m-d';
 	protected $type = [ 
 			// "aDate" => "date",
-			"extra" => "array"
+			"extra" => "array" 
 	];
 	public function setIpAttr($value) {
 		if (is_int ( $value )) {
 			return $value;
 		} else {
-			return ip2long ( $value );
+			return Iptables::ip_parse ( $value ) [2];
 		}
 	}
 	public function getIpAttr($value, $data) {
@@ -26,7 +26,7 @@ class Infotables extends Model {
 		if (is_int ( $value ) || "" == $value) {
 			return $value;
 		} else {
-			return ip2long ( $value );
+			return Iptables::ip_parse ( $value ) [2];
 		}
 	}
 	public function getIpBAttr($value, $data) {
@@ -46,6 +46,11 @@ class Infotables extends Model {
 			return is_int ( $ne ) ? $ne : null;
 		}
 	}
+	/*
+	 * public function setIpMask(){
+	 *
+	 * }
+	 */
 	public function getNeFactoryAttr($value) {
 		$zx_nefactory = [ 
 				0 => "华为",
@@ -92,19 +97,11 @@ class Infotables extends Model {
 			}
 		}
 		if ($type == "apply") {
+			$infotables = new static ();
 			$data ["tags"] = "申请";
 			$data ["status"] = 0;
 			$result = $infotables->isUpdate ( false )->allowField ( true )->save ( $data, [ ] );
 		}
-		return $result;
-	}
-	public static function updateInfo($data = "") {
-		$extraHeader = config ( "extraInfo" );
-		foreach ( $extraHeader as $k => $v ) {
-			$data ["extra"] [$v] = $data [$v];
-			unset ( $data [$v] );
-		}
-		$result = self::update ( $data ); // 更新单条数据
 		return $result;
 	}
 }

@@ -116,7 +116,7 @@ class Vlantables extends Model {
 	}
 	/**
 	 * 检查vlan是否已分配
-	 * 
+	 *
 	 * @param string $zxType        	
 	 * @param string $aStation        	
 	 * @param number $vlan        	
@@ -127,7 +127,25 @@ class Vlantables extends Model {
 				"zxType" => $zxType,
 				"aStation" => $aStation,
 				"vlan" => $vlan 
-		] )->field( "id,cName" )->find();
+		] )->field ( "id,cName" )->find ();
+		if (! $data) {
+			// $vlantables = new static ();
+			$data = self::where ( "vlan", $vlan );
+			$deviceConf = config ( "aStation" );
+			if (array_key_exists ( $aStation, $deviceConf )) {
+				$data = $data->where ( "deviceName", $deviceConf [$aStation] );
+				$data = $data->field ( "id,description as cName" )->find ();
+				if ($data) {	// 修改以区别于查询infotables的结果Vlantables::check()。line:126
+					$data = $data->toArray ();
+					$data ["id"] .= "_vlan";
+				}
+			} else {
+				$data = [ 
+						"id" => "",
+						"cName" => "A端基站有误！" 
+				];
+			}
+		}
 		return $data;
 	}
 }

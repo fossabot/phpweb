@@ -313,7 +313,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 				});
 			},
 			afterChange: function(changes, source){	// 修改后自动同步到数据库
-				console.log(changes, source);
+				console.log("afterChange:", changes, source);
 				var updates = {},
 					hotData = hot.getSourceData();
 				for(var i in changes){	// 记录变化到 updates
@@ -335,7 +335,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 					dhtmlx.confirm({
 						type: "confirm-warning",
 						title : "您已修改台账信息，是否同步更新到服务器？",
-						text : "确认后本次登陆期间不再提醒，所有的修改会同步到服务器。取消则本次不会同步。。。。。。<br><br>【请注意】：若多人同时操作会以最后一次修改为准。操作请谨慎。。&nbsp;&nbsp;%^_^% +_+ %^_^%",
+						text : "确认后所有的修改会同步到服务器，本次登陆期间不再提醒。取消则本次不会同步。。。。。。<br><br>【请注意】：若多人同时操作会以最后一次修改为准。操作请谨慎。。&nbsp;&nbsp;%^_^% +_+ %^_^%",
 						ok : "确认",
 						cancel : "取消",
 						callback : function(result){
@@ -345,8 +345,8 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 				}
 				if(sessionStorage.getItem("updateConfirm")=="auto"){
 					$.post("?r=update&_method=POST",updates,function(data){
-						console.log("updates",updates);
-						dhtmlx.message("修改（"+changes.length+"条）：<br>"+JSON.stringify(updates)+"<br>同步至服务器成功条数："+data.data);
+						console.log("updates(:348)",updates);
+						dhtmlx.message("修改（"+changes.length+"条）：<br /><span style='color:red'>---<br />"+JSON.stringify(updates)+"<br />---</span><br />同步至服务器成功条数："+data.msg);
 					});
 				}
 			}

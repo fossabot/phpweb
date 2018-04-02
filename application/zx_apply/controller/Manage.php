@@ -49,10 +49,10 @@ class Manage extends Index {
 				$data = input ( "post." );
 				$this->checkInstanceID ( $info, $data );
 				$data = $this->checkAndSetIp ( $info, $data );
-				$this->checkVlan ( $data );
+				$this->checkAndSetVlan ( $data );
 				// $data ["status"] = 1;
 				// return dump ( $data );
-				$result = Infotables::updateInfo ( $data );
+				$result = $this->updateInfo ( $data );
 				if ($result) {
 					return $this->success ( "操作成功", null, $this->refleshTodoList () );
 				} else {
@@ -60,6 +60,19 @@ class Manage extends Index {
 				}
 			}
 		}
+	}
+	protected function updateInfo($data = "") {
+		$extraHeader = config ( "extraInfo" );
+		foreach ( $extraHeader as $k => $v ) {
+			$data ["extra"] [$v] = $data [$v];
+			unset ( $data [$v] );
+		}
+		$infotables = new Infotables ();
+		$result = $infotables->isUpdate ( true )->save ( $data, [ 
+				"id" => $data ["id"] 
+		] ); // 更新单条数据
+		$infotables->find($data ["id"] );
+		return $result;
 	}
 	protected function refleshTodoList() {
 		$where = [ 
@@ -95,7 +108,7 @@ class Manage extends Index {
 			input ( "post.r" ) == "info" && $data = $this->getInfoData ()->toArray ();
 			input ( "post.r" ) == "detail" && $data = Infotables::get ( input ( "post.id" ) )->toJson ();
 			input ( "post.r" ) == "search" && $data = collection ( Infotables::where ( input ( "post.where/a" ) [0], "like", "%" . input ( "post.where/a" ) [2] . "%" )->order ( "id desc" )->select () )->toArray ();
-			input ( "get.r" ) == "update" && $data = $this->updateInfo ( input ( "post." ) );
+			input ( "get.r" ) == "update" && $data = $this->queryUpdateInfo ( input ( "post." ) );
 			return $data;
 		}
 		if (request ()->isPut ()) {
@@ -118,19 +131,22 @@ class Manage extends Index {
 	}
 	/**
 	 * 从query.html更新台账
-	 * 
+	 *
 	 * @param unknown $updateData        	
 	 * @return number|\think\false
 	 */
-	private function updateInfo($updateData) {
+	private function queryUpdateInfo($updateData) {
 		$result = 0;
+		$new = [ ];
 		$infotables = new Infotables ();
 		foreach ( $updateData as $k => $v ) {
 			$result += $infotables->isUpdate ( true )->save ( $v, [ 
 					"id" => $k 
 			] );
+			// 反查询刚才修改后的数据库里的值，用于前后端数据的一致性
+			$dbNew [$k] = $infotables->field ( implode ( ",", array_keys ( $v ) ) )->find ( $k );
 		}
-		return $result;
+		return $this->result ( $dbNew, 1, $result );
 	}
 	protected function generateScript($id = null) {
 		$data = Infotables::get ( $id );
@@ -307,6 +323,7 @@ class Manage extends Index {
 		$this->exportExcelFile ( $pFilename, 0, $cellValues, 'Xls', '资管系统导入数据' . date ( "Ymd_His" ) . '.xls' );
 	}
 	public function tt() {
+		return dump ( Vlantables::check("互联网","柴河局-华为",2999) );
 		$spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load ( './sampleData/zg_import.xls' );
 		$worksheet = $spreadsheet->getSheet ( 0 );
 		
@@ -509,14 +526,16 @@ class Manage extends Index {
 		return $data;
 	}
 	/**
-	 * 检查获取的vlan是否已分配
+	 * 检查获取的vlan是否已分配，并记录
 	 *
 	 * @param unknown $data        	
 	 */
-	protected function checkVlan($data) {
+	protected function checkAndSetVlan($data) {
 		$vlan = Vlantables::check ( $data ["zxType"], $data ["aStation"], $data ["vlan"] );
 		if ($vlan && $vlan ["id"] != $data ["id"]) { // 找到vlan且vlan的id与自己的id不同
 			return $this->error ( "vlan冲突，", null, $vlan ["cName"] );
+		} else {
+			Vlantables::createVlan ( $data ["aStation"], $data ["vlan"], $data ["cName"] );
 		}
 	}
 	/**

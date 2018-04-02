@@ -101,7 +101,7 @@ class Index extends Common {
 			return $this->fetch ();
 		} else if (request ()->isPost ()) {
 			$data = input ( "post." );
-			$this->checkInstanceID ( null, $data ); // 检查instanceId
+			$this->checkInstanceID ( null, $data["instanceId"] ); // 检查instanceId
 			$extraHeader = config ( "extraInfo" );
 			foreach ( $extraHeader as $k => $v ) {
 				$data ["extra"] [$v] = $data [$v];
