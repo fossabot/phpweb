@@ -71,7 +71,7 @@ class Manage extends Index {
 		$result = $infotables->isUpdate ( true )->save ( $data, [ 
 				"id" => $data ["id"] 
 		] ); // 更新单条数据
-		$infotables->find($data ["id"] );
+		$infotables->find ( $data ["id"] );
 		return $result;
 	}
 	protected function refleshTodoList() {
@@ -144,7 +144,10 @@ class Manage extends Index {
 					"id" => $k 
 			] );
 			// 反查询刚才修改后的数据库里的值，用于前后端数据的一致性
-			$dbNew [$k] = $infotables->field ( implode ( ",", array_keys ( $v ) ) )->find ( $k );
+			$data = $infotables->where ( "id", $k )->find ();
+			foreach ( $v as $kk => $vv ) {
+				$dbNew [$k] [$kk] = $data->$kk;
+			}
 		}
 		return $this->result ( $dbNew, 1, $result );
 	}
@@ -323,7 +326,19 @@ class Manage extends Index {
 		$this->exportExcelFile ( $pFilename, 0, $cellValues, 'Xls', '资管系统导入数据' . date ( "Ymd_His" ) . '.xls' );
 	}
 	public function tt() {
-		return dump ( Vlantables::check("互联网","柴河局-华为",2999) );
+		$infotables = new Infotables ();
+		$data = [ ];
+		$id = 1;
+		$field = [ 
+				"ip" => "11",
+				"vlan" => "11" 
+		];
+		$pre = $infotables->where ( "id", 2 )->find ();
+		// $data= $infotables->where("id",2)->find()->ip;
+		foreach ( $field as $k => $v ) {
+			$data [$id] [$k] = $pre->$k;
+		}
+		return dump ( $data );
 		$spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load ( './sampleData/zg_import.xls' );
 		$worksheet = $spreadsheet->getSheet ( 0 );
 		
@@ -490,7 +505,7 @@ class Manage extends Index {
 		}
 	}
 	/**
-	 * 检查获取的数据与数据库中的ip/ipB是否重复
+	 * todo预分配时检查获取的数据与数据库中的ip/ipB是否重复
 	 *
 	 * @param unknown $info        	
 	 * @param unknown $data        	
@@ -526,7 +541,7 @@ class Manage extends Index {
 		return $data;
 	}
 	/**
-	 * 检查获取的vlan是否已分配，并记录
+	 * todo预分配时检查获取的vlan是否已分配，并记录
 	 *
 	 * @param unknown $data        	
 	 */

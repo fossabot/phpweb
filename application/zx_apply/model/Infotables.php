@@ -45,12 +45,7 @@ class Infotables extends Model {
 			] );
 			return is_int ( $ne ) ? $ne : null;
 		}
-	}
-	/*
-	 * public function setIpMask(){
-	 *
-	 * }
-	 */
+	}	 
 	public function getNeFactoryAttr($value) {
 		$zx_nefactory = [ 
 				0 => "华为",

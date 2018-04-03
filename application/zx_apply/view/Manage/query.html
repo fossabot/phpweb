@@ -12,9 +12,8 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		<div class="form-group has-success">
 			<select id="colName" class="form-control">
 				<option value="cName">客户名</option>
-				<option value="ip">ip</option>
 				<option value="instanceId">实例标识</option>
-				<option value="create_time">申请时间</option>
+				<option value="vlan">vlan</option>
 			</select> <input type="text" class="form-control" id="searchStr">
 		</div>
 		<button id="btn-search" type="submit" class="btn btn-default"
@@ -346,7 +345,11 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 				if(sessionStorage.getItem("updateConfirm")=="auto"){
 					$.post("?r=update&_method=POST",updates,function(data){
 						console.log("updates(:348)",updates);
-						dhtmlx.message("修改（"+changes.length+"条）：<br /><span style='color:red'>---<br />"+JSON.stringify(updates)+"<br />---</span><br />同步至服务器成功条数："+data.msg);
+						if(data.code){
+							dhtmlx.message("修改（"+changes.length+"条）：<br /><span style='color:red'>---<br />"+JSON.stringify(updates)+"<br />---</span><br />同步至服务器成功条数："+data.msg);
+						}else{
+							dhtmlx.alert({text:data.msg,callback:function(){location.href=data.url}});
+						}
 					});
 				}
 			}
