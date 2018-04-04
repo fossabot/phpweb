@@ -92,7 +92,7 @@ class Manage extends Index {
 			$aStation = array_keys ( config ( "aStation" ) );
 			$zxTitle = [ 
 					"label" => "zx_apply-new-rb",
-					"order" => "24,1,2,3,4,5,6,9,10,11,18,19,22,23,29,30,31,32,33,34,35,36,37" 
+					"order" => "24,1,4,5,6,9,10,11,19,22,23,26" 
 			];
 			$this->assign ( [ 
 					"aStationData" => implode ( ",", $aStation ),

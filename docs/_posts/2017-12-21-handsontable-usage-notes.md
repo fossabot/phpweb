@@ -1006,6 +1006,10 @@ Parameters:
 | `coords` | Object  | Hovered cell's visual coordinate object. |
 | `TD`     | Element | Cell's TD (or TH) element.               |
 
+#### afterScrollVertically
+
+垂直滚动后触发。无参数。
+
 ### 选项可选成员
 
 这里介绍构造时，`var hot = new Handsontable(container, settings);`settings的选项的成员。

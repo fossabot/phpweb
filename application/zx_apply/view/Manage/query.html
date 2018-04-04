@@ -2,6 +2,8 @@
 <link rel="STYLESHEET" type="text/css"
 	href="__STATIC__/handsontable-pro/handsontable.full.min.css">
 <script src="__STATIC__/handsontable-pro/handsontable.full.min.js"></script>
+<style id="headStyleDom">
+</style>
 {/block} {block name="leftmenu"} {include
 file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 <div class="htmltitle">
@@ -101,12 +103,12 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 	}, {
 		data : 'instanceId',
 		type : 'numeric'
-	}, {
+	/*}, {
 		data : 'zxType',
 		editor : 'select',
 		selectOptions : zxTypeData.split(","),
 	}, {
-		data : 'bandWidth',
+		data : 'bandWidth',*/
 	}, {
 		data : 'neFactory',
 		editor : 'select',
@@ -135,20 +137,20 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 	}, {
 		data : 'ipB',
 		validator : "my.ipstr"
-	//}, {
-	//	data: 'cPerson',
-	//}, {
-	//	data: 'cPhone',
-	//}, {
-	//	data: 'cEmail',
-	//}, {
-	//	data: 'mPerson',
-	//}, {
-	//	data: 'mPhone',
-	//}, {
-	//	data: 'mEmail',
+	/*}, {
+		data: 'cPerson',
 	}, {
-		data: 'marks',
+		data: 'cPhone',
+	}, {
+		data: 'cEmail',
+	}, {
+		data: 'mPerson',
+	}, {
+		data: 'mPhone',
+	}, {
+		data: 'mEmail',
+	}, {
+		data: 'marks',*/
 	}, {
 		data: 'ifOnu',
 		editor : 'select',
@@ -161,10 +163,10 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 	}, {
 		data: 'aEmail',
 		readOnly: true
-	//},  {
-	//	data: 'status',
-	//}, {
-	//	data: 'tags',
+	/*},  {
+		data: 'status',
+	}, {
+		data: 'tags',
 	}, {
 		data: 'extra.unitProperty',
 		type : 'numeric',
@@ -190,7 +192,11 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		type : 'numeric',
 	}, {
 		data: 'extra.appServType',
+		type : 'numeric',*/
+	} , {
+		data: 'status',
 		type : 'numeric',
+		readOnly: true
 	} ];
 	function initHandsontable(infoData){
 		if(typeof(hot)!="undefined")
@@ -226,25 +232,24 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 							script(data);
 						});
 					}
-					var r=new RegExp(','+key+',');
-					if(r.test(',export_zg,export_jtip,export_gxbip,')){
-						put(key);
+					else if (key === 'show_status') {
+						initStatus();
 					}
-					/*else if (key === 'export_zg') {
-						put(export_zg);
+					else{
+						var r=new RegExp(','+key+',');
+						if(r.test(',export_zg,export_jtip,export_gxbip,')){
+							put(key);
+						}
 					}
-					else if (key === 'export_jtip') {
-						put(export_jtip);
-					}
-					else if (key === 'export_gxbip') {
-						put(export_gxbip);
-					}*/
 				},
 				items : {
 					"about" : {
 						name : "**Power by Xianda"
 					},
 					"hsep1" : "---------",
+					"show_status":{
+						name : "临时显示当前页台账状态"
+					},
 					"script": {
 						name : "1.单条数据制作脚本生成",
 						disabled: function(){
@@ -289,12 +294,12 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 					"redo" : {
 						name : "还原"
 					},
-					"make_read_only" : {
+					/*"make_read_only" : {
 						name : "设为只读"
 					},
 					"alignment" : {
 						name : "对齐"
-					},
+					},*/
 				},
 			}
 		});
@@ -312,7 +317,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 				});
 			},
 			afterChange: function(changes, source){	// 修改后自动同步到数据库
-				console.log("afterChange:", changes, source);
+				console.log("afterChangeEnv:", changes, source);
 				var updates = {},
 					hotData = hot.getSourceData();
 				for(var i in changes){	// 记录变化到 updates
@@ -320,7 +325,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 					if(_change[2] == _change[3]){
 						break;
 					}
-					console.log("change["+i+"]",_change);
+					console.log("really_change["+i+"]",_change);
 					var _id = hotData[_change[0]].id,
 						key = _change[1],
 						value = _change[3];
@@ -343,8 +348,8 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 					});
 				}
 				if(sessionStorage.getItem("updateConfirm")=="auto"){
-					$.post("?r=update&_method=POST",updates,function(data){
-						console.log("updates(:348)",updates);
+					$.post("?r=update",updates,function(data){
+						console.log("ajaxResponse",updates);
 						if(data.code){
 							dhtmlx.message("修改（"+changes.length+"条）：<br /><span style='color:red'>---<br />"+JSON.stringify(updates)+"<br />---</span><br />同步至服务器成功条数："+data.msg);
 						}else{
@@ -352,6 +357,9 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 						}
 					});
 				}
+			},
+			afterScrollVertically: function(){
+				$("#headStyleDom").html("");
 			}
 		});
 	}
@@ -405,7 +413,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 			}
 			sessionStorage.setItem("searchResultSelectedIndex",index);
 			hot.selectCell(result[index].row,result[index].col);
-			hot.selectCell(result[index].row,result[index].col);
+			hot.scrollViewportTo(result[index].row);
 			//!!index && $(".wtHolder")[0].scrollBy(0,50);
 			showTips("当前定位到第"+(index+1)+"个结果。",result.length);
 			checkWindows("_input");
@@ -414,7 +422,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 	/* 定位数据 */
 	function selectCell(result){
 		hot.selectCell(result[0].row,result[0].col);
-		hot.selectCell(result[0].row,result[0].col);
+		hot.scrollViewportTo(result[0].row);
 		if(result.length==1){
 			//sessionStorage.removeItem("searchResult");
 			showTips("1个结果。");
@@ -439,20 +447,27 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 			checkWindows("_input");
 			return;
 		}
+		var color=["#0f0","#f0ad4e","#5bc0de","#5cb85c","#fff","","","","","#ccc"];
 		var d = infoData[row];
-		var keys = {"instanceId":"实例标识","cName":"客户名","cAddress":"客户地址","cNeeds":"客户需求","cPerson":"客户联系人","cPhone":"客户电话","cEmail":"客户邮箱","mPerson":"客户经理","mPhone":"客户经理电话","mEmail":"客户经理邮箱","tags":"标签","marks":"备注"};
-		var str = "<p style='padding:5px;'>";
+		dhtmlx.message(d.status);
+		var keys = {"instanceId":"实例标识","cName":"客户名","cAddress":"客户地址","cNeeds":"客户需求","cPerson":"客户联系人","cPhone":"客户电话","cEmail":"客户邮箱","mPerson":"客户经理","mPhone":"客户经理电话","mEmail":"客户经理邮箱","tags":"标签","marks":"备注","status":"状态"};
+		var str = '<p style="padding:5px;background-color:'+color[d.status]+';">';
 		for(var i in keys){
 			str += "<b>"+keys[i]+"</b>： "+d[i]+"<br>";
 		}
-		str += '</p><hr><p class="h3 bg-info">更多操作尽在右键菜单</p>';
+		str += '</p><hr style="margin-bottom:0"><p class="text-muted">标记为</p><p style="padding:0 10px;">';
+		str += '<a class="btn btn-xs btn-warning" onclick="changeStatus('+(row+1)+',1)">预分配等待录资管</a>'
+			+ '<a class="btn btn-xs btn-info" onclick="changeStatus('+(row+1)+',2)">已录资管等待IP备案</a>'
+			+ '<a class="btn btn-xs btn-success" onclick="changeStatus('+(row+1)+',3)">已备案等待做数据</a>'
+			+ '<a class="btn btn-xs btn-default" onclick="changeStatus('+(row+1)+',4)">完成</a>';
+		str += '</p><p class="h3 bg-info">更多操作尽在右键菜单</p>';
 		str = str.replace(/null/g,"");
 		$("detail").html(str);
 		if(dhxWins.isWindow("_input")){
 			dhxWins.window("_input").attachHTMLString(str);
 			return;
 		}
-		dhxWins.createWindow("_input",0,50,400,600);
+		dhxWins.createWindow("_input",0,50,410,600);
 		var text = "详细信息&nbsp;&nbsp;&nbsp;&nbsp;<a onclick='checkWindows(\"_input\")'>点此关闭</a>";
 		dhxWins.window("_input").setText(text);
 		dhxWins.window("_input").attachHTMLString(str);
@@ -479,6 +494,17 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		}
 		ids = ids.sort(function(a,b){return a-b;});
 		return ids;
+	}
+	/* 设置状态显示（背景色）页面滚动后失效  */
+	function initStatus(){
+		for(var i in infoData){
+			changeStatus(i+1,infoData[i].status);
+		}
+	}
+	/* 标记台账状态 */
+	function changeStatus(row,status){
+		
+		$(".ht_master tr:nth-child("+row+") > td:nth-child(6)").css("background-color",color[status]);
 	}
 	/* 右键菜单操作 */
 	/************************/
