@@ -465,7 +465,7 @@ class Manage extends Index {
 						'colHeaderData' => $this->getHeader ( $zxInfoTitle ["label"], $zxInfoTitle ["order"] ),
 						"colWidthsData" => $this->getColWidths ( $zxInfoTitle ["order"] ) 
 				] );
-				return $this->fetch ();
+				return $this->fetch ("_ht_apply");
 			}
 		}
 	}

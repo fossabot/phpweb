@@ -25,8 +25,8 @@ handsontable-JavaScript Spreadsheet Component For Web Apps，这是官网的titl
 如使用pro版建议购买license尊重作者的劳动成果。
 
 {% if  site.url=="https://{{ site.github_username }}.github.io" %}
-<link rel="STYLESHEET" type="text/css" href="https://docs.handsontable.com/pro/1.15.0/bower_components/handsontable-pro/dist/handsontable.min.css">
-<script src="https://docs.handsontable.com/pro/1.15.0/bower_components/handsontable-pro/dist/handsontable.min.js"></script>
+<link rel="STYLESHEET" type="text/css" href="https://docs.handsontable.com/bower_components/handsontable-pro/dist/handsontable.min.css">
+<script src="https://docs.handsontable.com/bower_components/handsontable-pro/dist/handsontable.min.js"></script>
 {% else %}
 <link rel="STYLESHEET" type="text/css" href="/static/handsontable-pro/handsontable.full.min.css">
 <script src="/static/handsontable-pro/handsontable.full.min.js"></script>
@@ -66,9 +66,9 @@ afterChange: function () {}, # 修改显示后的回调函数
 manualColumnMove：  # 列移动 
 manualRowMove: true # 行移动 
 manualColMove: true # 列移动 true
-// https://docs.handsontable.com/pro/1.15.0/demo-moving.html
+// https://docs.handsontable.com/demo-moving.html
 stretchH:           # 拉伸高度 默认:"none" 可选 "last" "all" 用于父级不可滚动时
-// https://docs.handsontable.com/pro/1.15.0/demo-stretching.html
+// https://docs.handsontable.com/demo-stretching.html
 copyPaste:          # 复制粘贴选项
 search:             # 启动搜索插件
 contextMenu: true   # 右键菜单 可以自定义数组 []
@@ -321,7 +321,7 @@ colHeaders: ['ID', 'First Name', 'Last Name', 'Address'],
 ```
 > 官网有个高级用法，感兴趣可自己阅读理解一下：
 >
-> <https://docs.handsontable.com/pro/1.15.0/tutorial-data-sources.html#page-property-schema>
+> <https://docs.handsontable.com/tutorial-data-sources.html#page-property-schema>
 
 
 
@@ -497,11 +497,11 @@ The Cascading Configuration model is based on prototypal inheritance. It is much
 
 ## Using callbacks
 
-Please visit：<https://docs.handsontable.com/pro/1.15.0/tutorial-using-callbacks.html>
+Please visit：<https://docs.handsontable.com/tutorial-using-callbacks.html>
 
 ## Styling
 
-> <https://docs.handsontable.com/pro/1.15.0/tutorial-styling.html>
+> <https://docs.handsontable.com/tutorial-styling.html>
 
 Commonly used styles:
 
@@ -855,7 +855,7 @@ hot.validateCells();
 - borders (with Custom Borders turned on)
 - commentsAddEdit, commentsRemove (with Comments turned on)
 
-[自定义菜单](https://docs.handsontable.com/pro/1.15.0/demo-context-menu.html#page-custom)：
+[自定义菜单](https://docs.handsontable.com/demo-context-menu.html#page-custom)：
 
 ``` javascript
 var

@@ -130,7 +130,8 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 	}, {
 		data : 'vlan',
 		type : 'numeric',
-		allowEmpty: false
+		validator : /^2[0-9]{3}$/,
+		//allowEmpty: false
 	}, {
 		data : 'ip',
 		validator : "my.ipstr",
@@ -267,39 +268,12 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 					"export_gxbip": {
 						name : "4.工信部IP备案数据导出"
 					},
-					/*"row_above" : {
-						name : "在上面插入一行"
-					},
-					"row_below" : {
-						name : "在下面插入一行"
-					},
-					"hsep1" : "---------",
-					"col_left" : {
-						name : "在左侧插入一列"
-					},
-					"col_right" : {
-						name : "在右侧插入一列"
-					},
-					"hsep2" : "---------",
-					"remove_row" : {
-						name : "移除此行"
-					},
-					"remove_col" : {
-						name : "移除次列"
-					},
-					"hsep3" : "---------",*/
 					"undo" : {
 						name : "撤销"
 					},
 					"redo" : {
 						name : "还原"
 					},
-					/*"make_read_only" : {
-						name : "设为只读"
-					},
-					"alignment" : {
-						name : "对齐"
-					},*/
 				},
 			}
 		});
@@ -319,6 +293,8 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 			afterChange: function(changes, source){	// 修改后自动同步到数据库
 				console.log("afterChangeEnv:", changes, source);
 				var updates = {},
+					_id = [],
+					rows= [],
 					hotData = hot.getSourceData();
 				for(var i in changes){	// 记录变化到 updates
 					var _change = changes[i];
@@ -326,11 +302,12 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 						break;
 					}
 					console.log("really_change["+i+"]",_change);
-					var _id = hotData[_change[0]].id,
-						key = _change[1],
+					_id.push(hotData[_change[0]].id);
+					rows.push(_change[0]);
+					var key = _change[1],
 						value = _change[3];
-					updates[_id] = {};
-					updates[_id][ _change[1]] = _change[3];
+					updates[_id[i]] = {};
+					updates[_id[i]][ _change[1]] = _change[3];	// example: updates={17:{vlan:"2222",ip:"223.100.108.2"}}
 				}
 				if($.isEmptyObject(updates)){	// 无变化，函数返回
 					return;
@@ -343,23 +320,36 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 						ok : "确认",
 						cancel : "取消",
 						callback : function(result){
-							result && sessionStorage.setItem("updateConfirm","auto");
+							result && updateChanges(updates);
 						}
 					});
 				}
 				if(sessionStorage.getItem("updateConfirm")=="auto"){
-					$.post("?r=update",updates,function(data){
-						console.log("ajaxResponse",updates);
-						if(data.code){
-							dhtmlx.message("修改（"+changes.length+"条）：<br /><span style='color:red'>---<br />"+JSON.stringify(updates)+"<br />---</span><br />同步至服务器成功条数："+data.msg);
-						}else{
-							dhtmlx.alert({text:data.msg,callback:function(){location.href=data.url}});
-						}
-					});
+					updateChanges(updates);
 				}
 			},
 			afterScrollVertically: function(){
 				$("#headStyleDom").html("");
+			}
+		});
+	}
+	/* 同步修改的数据到服务器 用在afterChangeEnv */
+	function updateChanges(updates){
+		sessionStorage.setItem("updateConfirm","auto");
+		hot.validateRows(rows,function(valid){
+			if(!valid){	// 验证修改是否符合验证规则
+				dhtmlx.confirm({text:"修改操作不合规，未同步至服务器。是否撤销？",callback(result){
+					result && hot.undo();;
+				}});
+			}else {
+				$.post("?r=update",updates,function(data){
+					console.log("ajaxResponse_update",updates);
+					if(data.code){
+						dhtmlx.message("修改（"+changes.length+"条）：<br /><span style='color:red'>---<br />"+JSON.stringify(updates)+"<br />---</span><br />同步至服务器成功条数："+data.msg);
+					}else{
+						dhtmlx.alert({text:data.msg,callback:function(){location.href=data.url}});
+					}
+				});
 			}
 		});
 	}
@@ -447,11 +437,9 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 			checkWindows("_input");
 			return;
 		}
-		var color=["#0f0","#f0ad4e","#5bc0de","#5cb85c","#fff","","","","","#ccc"];
 		var d = infoData[row];
-		dhtmlx.message(d.status);
 		var keys = {"instanceId":"实例标识","cName":"客户名","cAddress":"客户地址","cNeeds":"客户需求","cPerson":"客户联系人","cPhone":"客户电话","cEmail":"客户邮箱","mPerson":"客户经理","mPhone":"客户经理电话","mEmail":"客户经理邮箱","tags":"标签","marks":"备注","status":"状态"};
-		var str = '<p style="padding:5px;background-color:'+color[d.status]+';">';
+		var str = '<p style="padding:5px;background-color:'+backgroundColor[d.status]+';">';
 		for(var i in keys){
 			str += "<b>"+keys[i]+"</b>： "+d[i]+"<br>";
 		}
@@ -497,16 +485,19 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 	}
 	/* 设置状态显示（背景色）页面滚动后失效  */
 	function initStatus(){
+		var stylrStr = "";
 		for(var i in infoData){
-			changeStatus(i+1,infoData[i].status);
+			//changeStatus(i+1,infoData[i].status);
+			stylrStr += ".ht_master tr:nth-child("+(i+1)+") > td:nth-child(4){background-color:"+backgroundColor[infoData[i].status]+"}";
+			//$("#queryTable table.htCore tbody tr:eq(0) td:eq(4)").text()
 		}
+		$("#headStyleDom").text(stylrStr);
 	}
 	/* 标记台账状态 */
 	function changeStatus(row,status){
-		
-		$(".ht_master tr:nth-child("+row+") > td:nth-child(6)").css("background-color",color[status]);
+		$(".ht_master tr:nth-child("+row+") > td:nth-child(4)").css("background-color",backgroundColor[status]);
 	}
-	/* 右键菜单操作 */
+	/* 右键菜单操作 start */
 	/************************/
 	function put(key){
 		var args ={_method: "PUT",r: key,id: getSelectedIds()};
@@ -559,8 +550,10 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		
 	}
 	/************************/
+	/* 右键菜单操作 end */
 	function checkWindows(id){
 		dhxWins.isWindow(id) && dhxWins.window(id).close();
 	}
+	var backgroundColor={0:"#5cb85c",1:"#f0ad4e",2:"#5bc0de",3:"#5cb85c",4:"#fff",5:"",6:"",7:"",8:"",9:"#ccc"};
 </script>
 {/block}
