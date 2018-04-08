@@ -49,9 +49,9 @@ class Manage extends Index {
 				$data = input ( "post." );
 				$this->checkInstanceID ( $info, $data );
 				$data = $this->checkAndSetIp ( $info, $data );
-				$this->checkAndSetVlan ( $data );
-				// $data ["status"] = 1;
-				// return dump ( $data );
+				$this->checkAndSetVlan ( $data ); // 更新vlan
+				                                  // $data ["status"] = 1;
+				                                  // return dump ( $data );
 				$result = $this->updateInfo ( $data );
 				if ($result) {
 					return $this->success ( "操作成功", null, $this->refleshTodoList () );
@@ -140,11 +140,12 @@ class Manage extends Index {
 		$new = [ ];
 		$infotables = new Infotables ();
 		foreach ( $updateData as $k => $v ) {
-			$result += $infotables->isUpdate ( true )->save ( $v, [ 
-					"id" => $k 
+			$line_and_id = explode ( "-", $k );
+			$result += $infotables->isUpdate ( true )->allowField ( true )->save ( $v, [ 
+					"id" => $line_and_id [1] 
 			] );
 			// 反查询刚才修改后的数据库里的值，用于前后端数据的一致性
-			$data = $infotables->where ( "id", $k )->find ();
+			$data = $infotables->where ( "id", $line_and_id [1] )->find ();
 			foreach ( $v as $kk => $vv ) {
 				$dbNew [$k] [$kk] = $data->$kk;
 			}
@@ -325,8 +326,73 @@ class Manage extends Index {
 		$pFilename = './sampleData/zg_import.xls';
 		$this->exportExcelFile ( $pFilename, 0, $cellValues, 'Xls', '资管系统导入数据' . date ( "Ymd_His" ) . '.xls' );
 	}
+	protected function generateJtIp($ids = null) {
+		$row = 4;
+		$cellValues = [ ];
+		$default = [ 
+				"D" => "其他",
+				"F" => "企业",
+				"G" => "辽宁",
+				"H" => "铁岭",
+				"Q" => "静态",
+				"T" => "互联网专线",
+				"U" => "占用",
+				"V" => "已启用",
+				"AA" => "铁岭移动客户响应中心",
+				"AB" => "卜玉",
+				"AC" => 18841050815,
+				"AD" => "buyu.tl@ln.chinamobile.com" 
+		];
+		foreach ( $ids as $id ) {
+			foreach ( $default as $k => $v ) {
+				$cellValues [$k . $row] = $v;
+			}
+			$data = Infotables::get ( $id )->toArray ();
+			$cellValues ["B" . $row] = $data ["ip"] . "/32"; // ip
+			$cellValues ["C" . $row] = $data ["cName"]; // 客户名
+			$cellValues ["L" . $row] = $data ["cAddress"]; // 客户地址
+			$cellValues ["M" . $row] = $data ["cPerson"]; // 客户联系人
+			$cellValues ["N" . $row] = $data ["cPhone"] + 0; // 客户电话
+			$cellValues ["O" . $row] = $data ["cEmail"]; // 客户邮箱
+			$cellValues ["R" . $row] = $data ["create_time"]; // 分配时间
+			$row ++;
+		}
+		$pFilename = './sampleData/ip_jt.xlsx';
+		$this->exportExcelFile ( $pFilename, 1, $cellValues, 'Xlsx', '集团IP备案导入数据' . date ( "Ymd_His" ) . '.xlsx' );
+	}
+	protected function generateGxbIp($ids = null) {
+		$row = 2;
+		$cellValues = [ ];
+		$default = [ 
+				"D" => "其他",
+				"F" => "企业",
+				"Q" => "静态" 
+		];
+		foreach ( $ids as $id ) {
+			foreach ( $default as $k => $v ) {
+				$cellValues [$k . $row] = $v;
+			}
+			$data = Infotables::get ( $id )->toArray ();
+			$cellValues ["A" . $row] = $data ["ip"]; // ip
+			$cellValues ["B" . $row] = $data ["ip"]; // ip
+			$cellValues ["C" . $row] = $data ["cName"]; // 客户名
+			$cellValues ["L" . $row] = $data ["cAddress"]; // 客户地址
+			$cellValues ["M" . $row] = $data ["cPerson"]; // 客户联系人
+			$cellValues ["N" . $row] = $data ["cPhone"] + 0; // 客户电话
+			$cellValues ["O" . $row] = $data ["cEmail"]; // 客户邮箱
+			$cellValues ["R" . $row] = $data ["create_time"]; // 分配时间
+			$cellValues ["F" . $row] = "企业";
+			$cellValues ["G" . $row] = $data ["extra"] ["province"];
+			$cellValues ["H" . $row] = $data ["extra"] ["city"];
+			$row ++;
+		}
+		$pFilename = './sampleData/ip_gxb.xls';
+		$this->exportExcelFile ( $pFilename, 4, $cellValues, 'Xls', '工信部IP备案导入数据' . date ( "Ymd_His" ) . '.xls' );
+	}
 	public function tt() {
 		$infotables = new Infotables ();
+		// $infotables->isUpdate(true)->allowField($field)
+		return dump ( $infotables->get ( 1 )->toArray () );
 		$data = [ ];
 		$id = 1;
 		$field = [ 
@@ -357,16 +423,6 @@ class Manage extends Index {
 		unset ( $spreadsheet );
 		unset ( $writer );
 		return dump ( Infotables::get ( 12 )->toArray () );
-	}
-	protected function generateJtIp($id = null) {
-		$data = Infotables::get ( $id );
-		$script = 1;
-		return $data;
-	}
-	protected function generateGxbIp($id = null) {
-		$data = Infotables::get ( $id );
-		$script = 1;
-		return $data;
 	}
 	/**
 	 * 导出到excel
@@ -465,7 +521,7 @@ class Manage extends Index {
 						'colHeaderData' => $this->getHeader ( $zxInfoTitle ["label"], $zxInfoTitle ["order"] ),
 						"colWidthsData" => $this->getColWidths ( $zxInfoTitle ["order"] ) 
 				] );
-				return $this->fetch ("_ht_apply");
+				return $this->fetch ( "_ht_apply" );
 			}
 		}
 	}

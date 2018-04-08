@@ -43,6 +43,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		var tt = Date.now();
 		initHandsontable(infoData);
 		initSearch();
+		initStatusSync();
 		console.info("\t\t渲染用时:", Date.now() - tt, "ms");
 		hot.initTimes = Date.now();
 		$('[data-toggle="tooltip"]').tooltip();
@@ -224,7 +225,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 							// timeout is used to make sure the menu collapsed before alert is shown
 							parent.dhtmlx.alert({
 								title : "特别鸣谢",
-								text : "本菜单由 Xianda 汉化。感谢Xianda"
+								text : "本菜单由 Xianda 自定义。感谢Xianda"
 							});
 						}, 100);
 					}
@@ -234,7 +235,18 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 						});
 					}
 					else if (key === 'show_status') {
-						initStatus();
+						if(sessionStorage.getItem("tableStatus")==undefined){
+							sessionStorage.setItem("tableStatus","yes");
+							initStatusSync();
+						}else{
+							sessionStorage.removeItem("tableStatus");
+							hot.render();
+							//$("#headStyleDom").html("");
+						}
+					}else if (key === 'modify'){
+						openModify();
+					}else if (key === 'export_all'){
+						export_all();
 					}
 					else{
 						var r=new RegExp(','+key+',');
@@ -248,8 +260,9 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 						name : "**Power by Xianda"
 					},
 					"hsep1" : "---------",
-					"show_status":{
-						name : "临时显示当前页台账状态"
+					"modify": {
+						name : "打开修改页-开发中",
+						disabled : true
 					},
 					"script": {
 						name : "1.单条数据制作脚本生成",
@@ -269,11 +282,25 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 						name : "4.工信部IP备案数据导出"
 					},
 					"undo" : {
-						name : "撤销"
+						name : "撤销修改"
 					},
 					"redo" : {
-						name : "还原"
+						name : "还原修改"
 					},
+					"show_status":{
+						name : function(){
+							var name;
+							if(sessionStorage.getItem("tableStatus")=="yes") {
+								name = "隐藏台账状态";
+							}else{
+								name = "显示台账状态";
+							}
+							return name;
+						}
+					},
+					"export_all":{
+						name: "导出台账（全量）"
+					}
 				},
 			}
 		});
@@ -305,9 +332,10 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 					_id.push(hotData[_change[0]].id);
 					rows.push(_change[0]);
 					var key = _change[1],
-						value = _change[3];
-					updates[_id[i]] = {};
-					updates[_id[i]][ _change[1]] = _change[3];	// example: updates={17:{vlan:"2222",ip:"223.100.108.2"}}
+						value = _change[3],
+						_update_key = _change[0]+"-"+_id[i];
+					updates[_update_key] = {};
+					updates[_update_key][ _change[1]] = _change[3];	// example: updates={"16-17":{vlan:"2222",ip:"223.100.108.2"}}
 				}
 				if($.isEmptyObject(updates)){	// 无变化，函数返回
 					return;
@@ -316,40 +344,53 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 					dhtmlx.confirm({
 						type: "confirm-warning",
 						title : "您已修改台账信息，是否同步更新到服务器？",
-						text : "确认后所有的修改会同步到服务器，本次登陆期间不再提醒。取消则本次不会同步。。。。。。<br><br>【请注意】：若多人同时操作会以最后一次修改为准。操作请谨慎。。&nbsp;&nbsp;%^_^% +_+ %^_^%",
+						text : "确认后所有的修改会同步到服务器，本次登陆期间不再提醒。不会验证数据是否合规，慎用！！<br><br>【请注意】：若多人同时操作会以最后一次修改为准。操作请谨慎。。&nbsp;&nbsp;%^_^% +_+ %^_^%",
 						ok : "确认",
 						cancel : "取消",
 						callback : function(result){
-							result && updateChanges(updates);
+							if(result){
+								sessionStorage.setItem("updateConfirm","auto");
+								updateChanges(rows, updates);
+							}
 						}
 					});
 				}
-				if(sessionStorage.getItem("updateConfirm")=="auto"){
-					updateChanges(updates);
-				}
+				updateChanges(rows, updates);
 			},
-			afterScrollVertically: function(){
-				$("#headStyleDom").html("");
+			afterRender: function(){
+				initStatusSync();
 			}
 		});
 	}
 	/* 同步修改的数据到服务器 用在afterChangeEnv */
-	function updateChanges(updates){
-		sessionStorage.setItem("updateConfirm","auto");
+	function updateChanges(rows, updates){
+		if(sessionStorage.getItem("updateConfirm")===null){
+			return;
+		}
 		hot.validateRows(rows,function(valid){
 			if(!valid){	// 验证修改是否符合验证规则
-				dhtmlx.confirm({text:"修改操作不合规，未同步至服务器。是否撤销？",callback(result){
+				dhtmlx.confirm({text:"修改操作明显不合规，<b>未同步至服务器。</b>是否撤销修改？",callback(result){
 					result && hot.undo();;
 				}});
 			}else {
-				$.post("?r=update",updates,function(data){
-					console.log("ajaxResponse_update",updates);
-					if(data.code){
-						dhtmlx.message("修改（"+changes.length+"条）：<br /><span style='color:red'>---<br />"+JSON.stringify(updates)+"<br />---</span><br />同步至服务器成功条数："+data.msg);
-					}else{
-						dhtmlx.alert({text:data.msg,callback:function(){location.href=data.url}});
+				postUpdate(updates);
+			}
+		});
+	}
+	/* 发起post请求更新台账信息，并同步在前端render 用于 updateChanges、updateStatus */
+	function postUpdate(updates){
+		$.post("?r=update",updates,function(data){
+			console.log("ajaxResponse_update",updates);
+			if(data.code){
+				dhtmlx.message("成功同步至服务器条数："+data.msg+"<br /><span style='color:red'>---<br />"+JSON.stringify(updates)+"<br />---</span>");
+				for(var i in data.data){
+					for(var ii in data.data[i]){
+						infoData[i.split("-")[0]][ii] = data.data[i][ii];	// 前端台账强制与服务器端更新同步
 					}
-				});
+				}
+				hot.render();
+			}else{
+				dhtmlx.alert({text:data.msg,callback:function(){location.href=data.url}});	//异常时跳转
 			}
 		});
 	}
@@ -444,10 +485,10 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 			str += "<b>"+keys[i]+"</b>： "+d[i]+"<br>";
 		}
 		str += '</p><hr style="margin-bottom:0"><p class="text-muted">标记为</p><p style="padding:0 10px;">';
-		str += '<a class="btn btn-xs btn-warning" onclick="changeStatus('+(row+1)+',1)">预分配等待录资管</a>'
-			+ '<a class="btn btn-xs btn-info" onclick="changeStatus('+(row+1)+',2)">已录资管等待IP备案</a>'
-			+ '<a class="btn btn-xs btn-success" onclick="changeStatus('+(row+1)+',3)">已备案等待做数据</a>'
-			+ '<a class="btn btn-xs btn-default" onclick="changeStatus('+(row+1)+',4)">完成</a>';
+		str += '<a class="btn btn-xs btn-warning" onclick="updateStatus('+row+',1)">预分配等待录资管</a>'
+			+ '<a class="btn btn-xs btn-info" onclick="updateStatus('+row+',2)">已录资管等待IP备案</a>'
+			+ '<a class="btn btn-xs btn-success" onclick="updateStatus('+row+',3)">已备案等待做数据</a>'
+			+ '<a class="btn btn-xs btn-default" onclick="updateStatus('+row+',4)">完成</a>';
 		str += '</p><p class="h3 bg-info">更多操作尽在右键菜单</p>';
 		str = str.replace(/null/g,"");
 		$("detail").html(str);
@@ -483,38 +524,13 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		ids = ids.sort(function(a,b){return a-b;});
 		return ids;
 	}
-	/* 设置状态显示（背景色）页面滚动后失效  */
-	function initStatus(){
-		var stylrStr = "";
-		for(var i in infoData){
-			//changeStatus(i+1,infoData[i].status);
-			stylrStr += ".ht_master tr:nth-child("+(i+1)+") > td:nth-child(4){background-color:"+backgroundColor[infoData[i].status]+"}";
-			//$("#queryTable table.htCore tbody tr:eq(0) td:eq(4)").text()
-		}
-		$("#headStyleDom").text(stylrStr);
-	}
-	/* 标记台账状态 */
-	function changeStatus(row,status){
-		$(".ht_master tr:nth-child("+row+") > td:nth-child(4)").css("background-color",backgroundColor[status]);
-	}
 	/* 右键菜单操作 start */
 	/************************/
-	function put(key){
-		var args ={_method: "PUT",r: key,id: getSelectedIds()};
-		var form = $("<form method='post' action ='' name='_export'></form>");
-		for (arg in args) {
-			var input = $("<input type='hidden'>");
-			input.attr({
-				"name" : arg
-			});
-			input.val(args[arg]);
-			form.append(input);
-		}
-		$(document.body).append(form);
-		form.submit();
-		setTimeout("document.forms._export.parentNode.removeChild(document.forms._export)",0);
-		console.log("\t\tsubmit:",args);
+	/* 打开修改页 */
+	function openModify(){
+		
 	}
+	/* 加载数据制作脚本的资源并显示 */
 	function script(scriptArr){
 		window.postScript=scriptArr;
 		if(typeof(show_bas)=="undefined"){
@@ -528,6 +544,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		}
 		checkWindows("_input");
 	}
+	/* 显示数据制作脚本 用在 script */
 	function showScript(scriptArr){
 		if(typeof(scriptArr.bas01!="undefined")){
 			show_bas("01",scriptArr.bas01);
@@ -539,14 +556,69 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 			show_9312(scriptArr.the93[0],scriptArr.the93[1]);
 		}
 	}
-	function export_zg(data){
-		console.log(data);
+	/* 导出到其他系统模板 */
+	function put(key){
+		var args ={_method: "PUT",r: key,id: getSelectedIds()};
+		var form = $("<form method='post' action ='' name='_export'></form>");
+		for (arg in args) {
+			var input = $("<input type='hidden'>");
+			input.attr({
+				"name" : arg
+			});
+			input.val(args[arg]);
+			form.append(input);
+		}
+		$(document.body).append(form);
+		form.submit();
+		setTimeout("document.forms._export.parentNode.removeChild(document.forms._export)",0);	//	在DOM中移除 刚生成的form
+		console.log("\t\tput(key):submit:",args);
 	}
-	function export_jtip(data){
-		console.log(arguments[2]==undefined);
-		data == 1 && console.table({a:1,b:2});
+	/* 设置状态显示（背景色）页面滚动后失效  暂时未用*/
+	function initStatus(){
+		var stylrStr = "";
+		for(var i in infoData){
+			//changeStatus(parseInt(i)+1,infoData[i].status);
+			stylrStr += ".ht_master tr:nth-child("+(parseInt(i)+1)+") > td:nth-child(6){background-color:"+backgroundColor[infoData[i].status]+"}";
+		}
+		$("#headStyleDom").text(stylrStr);
 	}
-	function export_gxbip(){
+	/* 设置状态显示（背景色）页面滚动同步刷新显示  */
+	function initStatusSync(){
+		if(sessionStorage.getItem("tableStatus")==undefined){
+			return ;
+		}
+		var _statusVal,stylrStr = "";
+		var dataObj = $("#queryTable table.htCore tbody tr");
+		for(var i in dataObj){
+			_statusVal = $("#queryTable table.htCore tbody tr:eq("+i+") td:last").text();
+			stylrStr += "#queryTable table.htCore tbody tr:nth-child("+(parseInt(i)+1)+") > td{background-color:"+backgroundColor[_statusVal]+"}";
+		}
+		$("#headStyleDom").text(stylrStr);
+	}
+	function initStatusSync(){
+		if(sessionStorage.getItem("tableStatus")==undefined){
+			return ;
+		}
+		var _statusVal;
+		var dataObj = $("#queryTable table.htCore tbody tr");
+		for(var i in dataObj){
+			_statusVal = $("#queryTable table.htCore tbody tr:eq("+i+") td:last").text();
+			changeStatus(parseInt(i)+1,_statusVal);
+		}
+	}
+	/* 标记台账状态 */
+	function changeStatus(row,status){
+		$(".ht_master tr:eq("+row+") > td").css("background-color",backgroundColor[status]);
+	}
+	/* 更新台账状态 */
+	function updateStatus(row,status){
+		var newData = {};
+		newData[row+"-"+infoData[row].id] = {"status":status};
+		postUpdate(newData);
+		//changeStatus(row,status);
+	}
+	/* 导出台账 （全量） */
+	function export_all(){
 		
 	}
 	/************************/
@@ -554,6 +626,6 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 	function checkWindows(id){
 		dhxWins.isWindow(id) && dhxWins.window(id).close();
 	}
-	var backgroundColor={0:"#5cb85c",1:"#f0ad4e",2:"#5bc0de",3:"#5cb85c",4:"#fff",5:"",6:"",7:"",8:"",9:"#ccc"};
+	var backgroundColor={0:"#5cb85c",1:"#f0ad4e",2:"#5bc0de",3:"#5cb85c",4:"#fff",5:"",6:"",7:"",8:"",9:"#aaa"};
 </script>
 {/block}

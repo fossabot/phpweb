@@ -1010,6 +1010,16 @@ Parameters:
 
 垂直滚动后触发。无参数。
 
+#### afterRender
+
+Callback fired after the Handsontable table is rendered.
+
+Parameters:
+
+| Name       | Type    | Description                                                  |
+| ---------- | ------- | ------------------------------------------------------------ |
+| `isForced` | Boolean | Is `true` if rendering was triggered by a change of settings or data; or `false` ifrendering was triggered by scrolling or moving selection. |
+
 ### 选项可选成员
 
 这里介绍构造时，`var hot = new Handsontable(container, settings);`settings的选项的成员。
