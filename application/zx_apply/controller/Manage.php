@@ -107,7 +107,7 @@ class Manage extends Index {
 			// return $this->getInfoData();
 			input ( "post.r" ) == "info" && $data = $this->getInfoData ()->toArray ();
 			input ( "post.r" ) == "detail" && $data = Infotables::get ( input ( "post.id" ) )->toJson ();
-			input ( "post.r" ) == "search" && $data = collection ( Infotables::where ( input ( "post.where/a" ) [0], "like", "%" . input ( "post.where/a" ) [2] . "%" )->order ( "id desc" )->select () )->toArray ();
+			input ( "post.r" ) == "search" && $data = $this->querySearch ( input ( "post." ) );
 			input ( "get.r" ) == "update" && $data = $this->queryUpdateInfo ( input ( "post." ) );
 			return $data;
 		}
@@ -129,6 +129,12 @@ class Manage extends Index {
 	private function getInfoData($limit = 100) {
 		return collection ( Infotables::order ( "id" )->limit ( $limit )->select () );
 	}
+	private function querySearch($data) {
+		return dump ( $data);
+		$result = collection ( Infotables::where (  $data["where"][0], "like", "%" .  $data["where"][2]. "%" )->order ( "id desc" )->select () )->toArray ();
+		return $result;
+	}
+	
 	/**
 	 * 从query.html更新台账
 	 *

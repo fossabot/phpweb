@@ -16,7 +16,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block}{block name="main"}
 </div>
 <div id="fillInNotice">
 	还可以
-	<button id="btn_manual" class="btn btn-xs btn-link">手动录入</button>
+	<a href="../index/apply.html" class="btn btn-xs btn-link">手动录入</a>
 </div>
 <div id="fillInDiv" style="display: none;">
 	<div id="_form"></div>
@@ -52,21 +52,6 @@ file="Common/leftmenu_zx_apply_manage" /} {/block}{block name="main"}
 		}else{
 			confirmTable();
 		}//StandardPost(location.href,encodeURI(data));
-	});
-	$("#btn_manual").on("click", function() {
-		dhtmlx.alert({
-			title:"手动填表开发中",
-			text:"复制粘贴操作更简单，不是吗？",
-			type:"alert-warning",
-			callback:function(){
-				$("#inp_area textarea").select();
-			}
-		});
-		setTimeout(function(){
-			if($(".dhtmlx_popup_button div")){
-				$(".dhtmlx_popup_button div")[0].click();
-			}
-		},4000);
 	});
 	function AsyncLoad(V_tag,V_src) {
 		if (V_tag == "script") {

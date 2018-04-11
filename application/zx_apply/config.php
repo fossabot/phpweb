@@ -55,7 +55,7 @@ return [
 		// 登陆后跳转到manage模块的账号
 		'manageEmails' => [ 
 				"yuxianda.tl",
-				"yangjiet.tl" 
+				"yangjietl.tl" 
 		],
 		
 		// 不再使用（直接在index/apply.html里定义）

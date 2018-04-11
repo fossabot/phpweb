@@ -30,7 +30,6 @@ class Index extends Common {
 	 */
 	public function tt() {
 		$data = Infotables::get ( 62 )->toArray ();
-		
 	}
 	
 	/**
@@ -101,14 +100,15 @@ class Index extends Common {
 			return $this->fetch ();
 		} else if (request ()->isPost ()) {
 			$data = input ( "post." );
-			$this->checkInstanceID ( null, $data["instanceId"] ); // 检查instanceId
+			$this->checkInstanceID ( null, $data ["instanceId"] ); // 检查instanceId
 			$extraHeader = config ( "extraInfo" );
 			foreach ( $extraHeader as $k => $v ) {
 				$data ["extra"] [$v] = $data [$v];
 				unset ( $data [$v] );
 			}
 			$result = Infotables::createInfo ( $data, "apply" );
-			return $this->result ( null, $result );
+			$redirectUrl = "../" . session ( "user.role" ) . "/query.html";
+			return $this->result ( null, $result, $redirectUrl );
 			// return json_encode ( $data, 256 );
 		}
 	}
