@@ -24,10 +24,10 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="head"}
 </div>
 
 <div id="list_container"></div>
-<div id="form_container"></div>
-
-<div id="myForm_tip" style="display: none;">
-	<p style="color: blue; padding: 50px 50px;">点击左侧列表查看详细信息</p>
+<div id="form_container">
+	<div id="myForm_tip">
+		<p style="color: blue; padding: 150px 50px;">点击左侧列表查看详细信息</p>
+	</div>
 </div>
 <script>
 	$("#list_container").css("height",
@@ -54,7 +54,6 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="head"}
 		var index = myList.indexById(id);
 		var formData = dataList[index];
 		//form_init(formData);	//初始化
-		
 		$.post("?req=getDetail",{"id":id},function(dData){
 			if(dData.url){
 				dhtmlx.alert({text:"登陆超时！",callback:function(){location.href=dData.url;}});
@@ -82,6 +81,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="head"}
  * 初始化 表单
  */
 function form_init(formData){
+	window.dd=formData;
 	$("#form_container").html("");
 	//formStructure;
 	myForm = null;
@@ -104,13 +104,17 @@ function form_init(formData){
 				//myData["ipB"]=="" && delete myData["ipB"];
 				//myData["req"]="distribution";
 				$.post("?req=distribution",myData,function(data){
+					if(data.url){
+						dhtmlx.alert({text:"登陆超时！",callback:function(){location.href=dData.url;}});
+					}
 					dhtmlx.alert({
-						type: data.code ? "alert" : "alert-error",
+						type: data.code ? "alert" : "alert-warning",
 						title: "&nbsp;",
-						text: data.msg + (data.code ? "" :"<br>已分配给:" + data.data),
+						text: data.msg + (data.code ? "" : "<br>已分配给:" + data.data),
 						callback: function(){
 							//location.href = "query.html";
 							if(data.code){
+								if(data.code > 1) return;	// 无修改
 								myList.clearAll();
 								data.data && myList.parse(data.data,"json");
 								$("#form_container").html("");

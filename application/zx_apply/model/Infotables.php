@@ -3,8 +3,11 @@
 namespace app\zx_apply\model;
 
 use think\Model;
+use traits\model\SoftDelete;
 
 class Infotables extends Model {
+	use SoftDelete;
+	protected $deleteTime = 'delete_time';
 	protected $autoWriteTimestamp = true;
 	protected $dateFormat = 'Y-m-d';
 	protected $type = [ 

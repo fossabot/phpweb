@@ -49,14 +49,14 @@ class Manage extends Index {
 				$data = input ( "post." );
 				$this->checkInstanceID ( $info, $data );
 				$data = $this->checkAndSetIp ( $info, $data );
-				$this->checkAndSetVlan ( $data ); // 更新vlan
-				                                  // $data ["status"] = 1;
-				                                  // return dump ( $data );
+				$this->checkAndSetVlan ( $data );
+				// $data ["status"] = 1;
+				// return dump ( $data );
 				$result = $this->updateInfo ( $data );
 				if ($result) {
 					return $this->success ( "操作成功", null, $this->refleshTodoList () );
 				} else {
-					return $this->error ( "操作异常。请刷新重试", null, $this->refleshTodoList () );
+					return $this->result ( null, 2, "本次提交信息并未修改" );
 				}
 			}
 		}
@@ -130,8 +130,8 @@ class Manage extends Index {
 		return collection ( Infotables::order ( "id" )->limit ( $limit )->select () );
 	}
 	private function querySearch($data) {
-		return dump ( $data);
-		$result = collection ( Infotables::where (  $data["where"][0], "like", "%" .  $data["where"][2]. "%" )->order ( "id desc" )->select () )->toArray ();
+		return dump ( $data );
+		$result = collection ( Infotables::where ( $data ["where"] [0], "like", "%" . $data ["where"] [2] . "%" )->order ( "id desc" )->select () )->toArray ();
 		return $result;
 	}
 	
