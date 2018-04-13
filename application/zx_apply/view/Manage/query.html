@@ -485,12 +485,12 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 			str += "<b>"+keys[i]+"</b>： "+d[i]+"<br>";
 		}
 		str += '</p><hr style="margin-bottom:0"><p class="text-muted">标记为</p><p style="padding:0 10px;">';
-		str += '<a class="btn btn-xs btn-default" onclick="updateStatus('+row+',0)">刚申请</a>'
+		str += '<a class="btn btn-xs btn-default" style="background-color:#aaa" onclick="updateStatus('+row+',9)">历史导入</a>'
+			+ '<a class="btn btn-xs btn-default" onclick="updateStatus('+row+',0)">刚申请</a>'
 			+ '<a class="btn btn-xs btn-warning" onclick="updateStatus('+row+',1)">预分配等待录资管</a>'
 			+ '<a class="btn btn-xs btn-info" onclick="updateStatus('+row+',2)">已录资管等待IP备案</a>'
 			+ '<a class="btn btn-xs btn-success" onclick="updateStatus('+row+',3)">已备案等待做数据</a>'
-			+ '<a class="btn btn-xs btn-default" onclick="updateStatus('+row+',4)">完成</a>'
-			+ '<a class="btn btn-xs btn-default" onclick="updateStatus('+row+',9)">历史导入</a>';
+			+ '<a class="btn btn-xs btn-default" onclick="updateStatus('+row+',4)">完成</a>';
 		str += '</p><p class="h3 bg-info">更多操作尽在右键菜单</p>';
 		str = str.replace(/null/g,"");
 		$("detail").html(str);

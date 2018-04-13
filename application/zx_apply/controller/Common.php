@@ -13,7 +13,7 @@ class Common extends CCommon {
 	public function _initialize() {
 		$this->checkAuth ();
 		parent::_initialize ();
-		$this->assign("title","专线开通全流程辅助--Xianda");
+		$this->assign("title","数据专线开通-全流程辅助--Xianda");
 	}
 	private function checkAuth() {
 		$u = input ( 'get.y' );
@@ -24,7 +24,8 @@ class Common extends CCommon {
 		foreach ( $users as $k => $v ) {
 			if ($k == $u) {
 				session ( "user", [ 
-						'name' => $v 
+						'name' => $v,
+						'role' => 'manage'
 				] );
 			}
 		}

@@ -9,17 +9,17 @@ class Vlantables extends Model {
 	/**
 	 * 录入vlan
 	 *
-	 * @param string $device        	
+	 * @param string $aStation        	
 	 * @param string $vlan        	
 	 * @param string $cName        	
 	 */
-	public static function createVlan($device = "", $vlan = "", $description = "") {
+	public static function createVlan($aStation= "", $vlan = "", $description = "") {
 		$vlantables = new static ();
-		$deviceConf = config ( "aStation" );
-		if (array_key_exists ( $device, $deviceConf )) {
+		$aStationConf = config ( "aStation" );
+		if (array_key_exists ( $aStation, $aStationConf )) {
 			// 根据a端匹配到9312名，则保存vlan
 			$data = [ 
-					"deviceName" => $deviceConf [$device],
+					"deviceName" => $aStationConf [$aStation],
 					"vlan" => $vlan == 0 ? null : $vlan,
 					"description" => $description 
 			];

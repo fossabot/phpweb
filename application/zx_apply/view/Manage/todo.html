@@ -29,6 +29,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="head"}
 		<p style="color: blue; padding: 150px 50px;">点击左侧列表查看详细信息</p>
 	</div>
 </div>
+{/block} {block name="script"}
 <script>
 	$("#list_container").css("height",
 			$(".main").height() - $(".htmltitle").height() - 30 - 10 + "px");
@@ -77,35 +78,35 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="head"}
 		{type:"input",label:"互联ip",name:"ip",validate:"ipstr",required:true},
 		{type:"input",label:"业务ip",name:"ipB",validate:"ipstr"}
 	]};
+	var buttons = {type:"button",name:"predistri",value:"自动预分配"};
 /**
  * 初始化 表单
  */
 function form_init(formData){
-	window.dd=formData;
+	//sessionStorage.setItem("formData",JSON.stringify(formData));
 	$("#form_container").html("");
-	//formStructure;
 	myForm = null;
 	myForm = new dhtmlXForm('form_container',formStructure);
-	//for(var i=0;i<ipStructure.length;i++){
-		myForm.addItem("ip_bak",ipStructure,0,0);
-	//}
+	myForm.addItem("ip_bak",ipStructure,0,0);
 	myForm.removeItem("readme");
-	//myForm.setItemLabel("readme","填写分配信息");
 	myForm.enableLiveValidation(true);
 	initCombo();
 	myForm.loadStruct({data: formData});	//加载数据
+	sessionStorage.setItem("formDataBackups",myForm.saveBackup());
 	//formStructure = null;
 	evId == null ||	myForm.detachEvent("evId");
 	evId = myForm.attachEvent("onButtonClick", function(id){
 		var mainId = myList.getSelected();
-		if(id=="commit"){
+		if(id=="predistri"){
+			$.get("generateVlan.html?d="+myForm.getItemValue(),function(data){
+				
+			});
+		}else if(id=="commit"){
 			if(myForm.validate()){
 				var myData = myForm.getFormData();
-				//myData["ipB"]=="" && delete myData["ipB"];
-				//myData["req"]="distribution";
 				$.post("?req=distribution",myData,function(data){
 					if(data.url){
-						dhtmlx.alert({text:"登陆超时！",callback:function(){location.href=dData.url;}});
+						dhtmlx.alert({text:"登陆超时！",callback:function(){location.href=data.url;}});
 					}
 					dhtmlx.alert({
 						type: data.code ? "alert" : "alert-warning",
@@ -130,10 +131,12 @@ function form_init(formData){
 			}else{
 				dhtmlx.alert({type: "alert-error", title: "数据验证有误", text: "请检查填写是否完整或格式类型是否正确。"});
 			}
-			
+		} else if(id=="cancel"){
+			//form_init(JSON.parse(sessionStorage.getItem("formData")));
+			myForm.restoreBackup(sessionStorage.getItem("formDataBackups"));
+			dhtmlx.message("表单已重置");
 		} else if(id){
-			console.info(id);
-			alert(id+",Error!");
+			dhtmlx.alert({type:"alert-warning",title:"warning",text:"按钮事件未定义："+id});
 		}
 	});
 }
@@ -147,4 +150,4 @@ function ipstr(value){
 	return c&&!!(c[1]<=255&&c[2]<=255&&c[3]<=255&&c[4]<=255)&&b||false;
 }
 </script>
-{/block} {block name="script"} {/block}
+{/block}

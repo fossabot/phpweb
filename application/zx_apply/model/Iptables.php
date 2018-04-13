@@ -26,16 +26,16 @@ class Iptables extends Model {
 	 * @return number|string
 	 */
 	public static function generateIP($zxType = "互联网") {
-		$ips = Db::name ( "infotables" )->where ( "zxType", $zxType )->where ( "ip", "NOT NULL" )->order ( "ip desc" )->limit ( 1 )->column ( "ip" );
-		if ($ips) {
-			return $ips [0] + 1;
+		$lastIp = Db::name ( "infotables" )->where ( "zxType", $zxType )->where ( "ip", "NOT NULL" )->order ( "create_time desc" )->limit ( 1 )->value ( "ip" );
+		if ($lastIp) {
+			return $lastIp + 1;
 		} else {
 			return "暂无参考，请手动分配";
 		}
 	}
 	/**
 	 * 是否已分配
-	 * 
+	 *
 	 * @param unknown $zxType        	
 	 * @param string $ip_str        	
 	 * @param string $filed        	
@@ -115,7 +115,7 @@ class Iptables extends Model {
 		if ($subnet_mask == - 1 | $subnet_mask == "") {
 			return long2ip ( $long );
 		} else {
-			$suffix = strlen ( preg_replace ( "/0/", "", decbin ( $subnet_mask ) ) );	// 十进制转二进制 统计32-bits的二进制中1的个数
+			$suffix = strlen ( preg_replace ( "/0/", "", decbin ( $subnet_mask ) ) ); // 十进制转二进制 统计32-bits的二进制中1的个数
 			return long2ip ( $long ) . "/" . $suffix;
 		}
 	}

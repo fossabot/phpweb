@@ -61,6 +61,18 @@ class Manage extends Index {
 			}
 		}
 	}
+	public function tt() {
+		return dump($this->generateVlan());
+	}
+	public function generateVlan(){
+		$aStation= "";
+		$aStationConf = config ( "aStation" );
+		if (array_key_exists ( input("get.d"), $aStationConf )) {
+			$device = $aStationConf [$aStation];
+		}
+		return Vlantables::generateVlan($device,"预分配",1);
+		
+	}
 	protected function updateInfo($data = "") {
 		$extraHeader = config ( "extraInfo" );
 		foreach ( $extraHeader as $k => $v ) {
@@ -394,41 +406,6 @@ class Manage extends Index {
 		}
 		$pFilename = './sampleData/ip_gxb.xls';
 		$this->exportExcelFile ( $pFilename, 4, $cellValues, 'Xls', '工信部IP备案导入数据' . date ( "Ymd_His" ) . '.xls' );
-	}
-	public function tt() {
-		$infotables = new Infotables ();
-		// $infotables->isUpdate(true)->allowField($field)
-		return dump ( $infotables->get ( 1 )->toArray () );
-		$data = [ ];
-		$id = 1;
-		$field = [ 
-				"ip" => "11",
-				"vlan" => "11" 
-		];
-		$pre = $infotables->where ( "id", 2 )->find ();
-		// $data= $infotables->where("id",2)->find()->ip;
-		foreach ( $field as $k => $v ) {
-			$data [$id] [$k] = $pre->$k;
-		}
-		return dump ( $data );
-		$spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load ( './sampleData/zg_import.xls' );
-		$worksheet = $spreadsheet->getSheet ( 0 );
-		
-		$worksheet->setCellValueByColumnAndRow ( 1, 1, 'Test_Xianda啦' );
-		$writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter ( $spreadsheet, 'Xls' );
-		$writerType = "Xls";
-		if ($writerType == "Xls") {
-			header ( 'Content-Type: application/vnd.ms-excel' ); // 告诉浏览器将要输出excel03文件
-		} else {
-			header ( 'Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ); // 告诉浏览器数据excel07文件
-		}
-		header ( 'Content-Disposition: attachment;filename="' . "测试test.xls" . '"' ); // 告诉浏览器将输出文件的名称
-		header ( 'Cache-Control: max-age=0' ); // 禁止缓存
-		$writer->save ( "php://output" );
-		$spreadsheet->disconnectWorksheets ();
-		unset ( $spreadsheet );
-		unset ( $writer );
-		return dump ( Infotables::get ( 12 )->toArray () );
 	}
 	/**
 	 * 导出到excel
