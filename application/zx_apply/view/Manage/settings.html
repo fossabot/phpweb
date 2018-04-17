@@ -31,7 +31,7 @@ var updateLastIP_formStructure = [
 	{type:"settings",labelWidth:100,inputWidth:200},
 	{type:"fieldset",name:"updateLastIP",label:"1.更新最后一次分配的IP",width:350,offsetLeft:15,list:[
 		{type:"select",name:"zxType",label:"专线类别",required:true},
-		{type:"input",name:"ip",label:"IP",validate:"ValidIPv4",required:true},
+		{type:"input",name:"lastIpStr",label:"IP",validate:"ValidIPv4",required:true},
 		{type:"block",inputWidth:"auto",offsetLeft:30,list:[
 			{type:"button",name:"ok_ip",value:"确定"},
 			{type:"newcolumn"},
@@ -77,8 +77,11 @@ myForm.attachEvent("onButtonClick", function(id) {
 			var data = myForm.getFormData();
 			data["exec"] = id;
 			$.post("",data,function(d){
-				console.log(d);
-				dhtmlx.alert("ok");
+				if(d){
+					dhtmlx.alert({title:"ok",text:"更新最后分配的IP成功"});
+				}else{
+					dhtmlx.alert({type:"alert-warning",title:"?_?",text:"更新值与记录一致或更新失败。无更新。"});
+				}
 			});
 		}else{
 			dhtmlx.alert({type:"alert-error",title:"数据验证有误",text:"请检查填写是否完整或格式类型是否正确。"});
@@ -91,7 +94,7 @@ myForm.attachEvent("onButtonClick", function(id) {
 			var data = myForm.getFormData();
 			data["exec"] = id;
 			$.post("",data,function(d){
-				var text = "成功识别有效 vlan："+d.count+"<br>成功导入："+d.validation+"，已存在："+(d.count-d.validation);
+				var text = "成功识别有效 vlan："+d.total+"<br>属于专线业务："+d.count+"<br>成功导入："+d.validation+"，已存在："+(d.count-d.validation);
 				dhtmlx.alert({title:"操作成功",text:text});
 			});
 		}else{

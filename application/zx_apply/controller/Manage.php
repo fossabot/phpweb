@@ -7,6 +7,7 @@ use app\zx_apply\model\Vlantables;
 use app\zx_apply\model\Infotables;
 use app\zx_apply\model\Iptables;
 use Overtrue\Pinyin\Pinyin;
+use think\Db;
 
 class Manage extends Index {
 	protected $beforeActionList = [ 
@@ -62,16 +63,18 @@ class Manage extends Index {
 		}
 	}
 	public function tt() {
-		return dump($this->generateVlan());
+		$res = Iptables::generateIP ();
+		return dump ( $res );
+		return dump ( Db::name ( "vlantables" )->where ( "deviceName", 'CHJ-21' )->column ( "vlan" ) );
+		return dump ( $this->generateVlan () );
 	}
-	public function generateVlan(){
-		$aStation= "";
+	public function generateVlan() {
+		$aStation = "";
 		$aStationConf = config ( "aStation" );
-		if (array_key_exists ( input("get.d"), $aStationConf )) {
-			$device = $aStationConf [$aStation];
+		if (array_key_exists ( input ( "get.d" ), $aStationConf )) {
+			$device = $aStationConf [input ( "get.d" )];
+			return Vlantables::generateVlan ( $device, "预分配", 1 );
 		}
-		return Vlantables::generateVlan($device,"预分配",1);
-		
 	}
 	protected function updateInfo($data = "") {
 		$extraHeader = config ( "extraInfo" );
@@ -199,7 +202,7 @@ class Manage extends Index {
 		$data ["desc"] = $desc; // 3. 描述
 		$device9312 = json_decode ( config ( "device9312" ), true ) [$data ["sw93"]];
 		function bas($bas, $device9312, $data) {
-			$trunk = $device9312 ['bas01_down_port'];
+			$trunk = $device9312 ['bas' . $bas . '_down_port'];
 			$rbp = $device9312 ['rbp_name'];
 			$_bas_name = [ 
 					"01" => "01-CHJ",
@@ -537,6 +540,7 @@ class Manage extends Index {
 			return $this->fetch ();
 		} else if (request ()->isPost ()) {
 			if (input ( "post.exec" ) == "ok_ip") {
+				return Iptables::setLastIp ( input ( "post.lastIpStr" ) );
 			}
 			if (input ( "post.exec" ) == "ok_vlan") {
 				return Vlantables::importUsedVlan ( input ( "post.device" ), input ( "post.vlanImport" ) );
@@ -551,7 +555,7 @@ class Manage extends Index {
 	 */
 	protected function checkAndSetIp($info, $data) {
 		if ($info ["ip"] != $data ["ip"]) { // 获取的ip有变化，则检查是否冲突
-			$ip = Iptables::check ( $data ["zxType"], $data ["ip"] );
+			$ip = Iptables::check ( $data ["ip"], "ip", $data ["zxType"] );
 			if ($ip)
 				return $this->error ( "互联ip冲突，", null, $ip ["cName"] );
 		}
@@ -566,7 +570,7 @@ class Manage extends Index {
 			return $data;
 		}
 		if ($info ["ipB"] != $data ["ipB"]) {
-			$ipB = Iptables::check ( $data ["zxType"], $data ["ipB"], "ipB" );
+			$ipB = Iptables::check ( $data ["ipB"], "ipB", $data ["zxType"] );
 			if ($ipB)
 				return $this->error ( "业务ip冲突，", null, $ipB ["cName"] );
 		}

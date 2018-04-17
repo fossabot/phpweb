@@ -20,33 +20,52 @@ class Iptables extends Model {
 	 */
 	
 	/**
-	 * 自动预分配ip
+	 * 自动预分配ip，并确保未使用
 	 *
 	 * @param string $zxType        	
 	 * @return number|string
 	 */
 	public static function generateIP($zxType = "互联网") {
-		$lastIp = Db::name ( "infotables" )->where ( "zxType", $zxType )->where ( "ip", "NOT NULL" )->order ( "create_time desc" )->limit ( 1 )->value ( "ip" );
+		// $lastIp = Db::name ( "infotables" )->where ( "zxType", $zxType )->where ( "ip", "NOT NULL" )->order ( "create_time desc" )->limit ( 1 )->value ( "ip" );
+		$lastIp = Db::table ( "phpweb_sysinfo" )->where ( "label", "zx_apply-lastIP" )->value ( "value" );
 		if ($lastIp) {
-			return $lastIp + 1;
+			// lastIp检测是否已使用，已使用则自增，直至返回未使用的ip，并记录
+			do {
+				$nextIpStr = self::ip_export ( $lastIp ++ );
+				$valid = self::check ( $nextIpStr, "ip", $zxType );
+			} while ( $valid );
+			self::setLastIp ( $nextIpStr );
+			return $nextIpStr;
 		} else {
-			return "暂无参考，请手动分配";
+			return "暂无参考，请在系统设置中设置或手动分配";
 		}
+	}
+	/**
+	 * 设置最后分配的ip
+	 *
+	 * @param string $ipStr        	
+	 * @return number
+	 */
+	public static function setLastIp($ipStr = "") {
+		$ip = self::ip_parse ( $ipStr ) [2];
+		$result = Db::table ( "phpweb_sysinfo" )->where ( "label", "zx_apply-lastIP" )->setField ( "value", $ip );
+		return $result;
 	}
 	/**
 	 * 是否已分配
 	 *
 	 * @param unknown $zxType        	
 	 * @param string $ip_str        	
-	 * @param string $filed        	
+	 * @param string $filed
+	 *        	ip (defalut) or ipB
 	 * @return array|\think\db\false|PDOStatement|string|\think\Model
 	 */
-	public static function check($zxType, $ip_str = "", $filed = "ip") {
+	public static function check($ip_str = "", $filed = "ip", $zxType = "互联网") {
 		$ip = self::ip_parse ( $ip_str );
 		$data = Db::name ( "infotables" )->where ( [ 
 				"zxType" => $zxType,
-				$filed => $ip [2],
-				$filed . "Mask" => $ip [1] 
+				$filed => $ip [2] 
+			// $filed . "Mask" => $ip [1]
 		] )->field ( "id,cName" )->find ();
 		return $data;
 	}

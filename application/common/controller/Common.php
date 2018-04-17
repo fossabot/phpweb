@@ -266,7 +266,7 @@ class Common extends Controller {
 	 * @return string 参数值
 	 */
 	public static function getSysInfo($label = '') {
-		return Db::name ( "sysinfo" )->where ( "label", $label )->value ( "value" );
+		return Db::table ( "phpweb_sysinfo" )->where ( "label", $label )->value ( "value" );
 	}
 	public function bugReport() {
 		if (Request::instance ()->isGet ()) {

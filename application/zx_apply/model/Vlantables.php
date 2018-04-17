@@ -13,7 +13,7 @@ class Vlantables extends Model {
 	 * @param string $vlan        	
 	 * @param string $cName        	
 	 */
-	public static function createVlan($aStation= "", $vlan = "", $description = "") {
+	public static function createVlan($aStation = "", $vlan = "", $description = "") {
 		$vlantables = new static ();
 		$aStationConf = config ( "aStation" );
 		if (array_key_exists ( $aStation, $aStationConf )) {
@@ -36,9 +36,9 @@ class Vlantables extends Model {
 	 * @return number|string
 	 */
 	public static function generateVlan($device = "", $cName = "", $manual = false) {
-		$vlans = Db::name ( "vlantables" )->where ( "deviceName", $device )->column ( "vlan" );
-		for($vlan = 2049; $vlan < 3071; $vlan ++) {
-			if (! in_array ( $vlan, $vlans )) {
+		$usedVlans = Db::name ( "vlantables" )->where ( "deviceName", $device )->column ( "vlan" );
+		for($vlan = 2111; $vlan < 3071; $vlan ++) {
+			if (! in_array ( $vlan, $usedVlans )) {
 				$preVlan = $vlan;
 				break;
 			}
@@ -47,9 +47,8 @@ class Vlantables extends Model {
 			// 手动分类，推荐空闲vlan
 			$result = [ 
 					"preVlan" => $preVlan,
-					"vlans" => $vlans 
+					"usedVlans" => $usedVlans 
 			];
-			return $result;
 		} else {
 			Db::name ( "vlantables" )->insert ( [ 
 					"deviceName" => $device,
@@ -75,7 +74,7 @@ class Vlantables extends Model {
 		$array = explode ( " ", $str );
 		$result = [ ];
 		$count = count ( $array );
-		for($i = 0; $i < $count;) {
+		for($i = 0; $i < $count; $i ++) {
 			// 遍历数组，替换to，补充连续的vlan
 			if ($array [$i] == "to") {
 				array_splice ( $array, $i, 1 );
@@ -84,34 +83,34 @@ class Vlantables extends Model {
 					$array [] = $j;
 				}
 			}
-			$array [$i] = ( int ) $array [$i]; // 前端获取的默认是string类型
-			$i ++;
 		}
 		sort ( $array, SORT_NUMERIC ); // 排序
+		$count = 0;
 		$validation = 0;
 		foreach ( $array as $v ) {
-			if ($array [$i] < 2000 || $array [$i] > 3000) {
+			if ($v > 2000 && $v< 3071) {
 				// 范围之外的vlan，无操作
-				continue;
-			}
-			// 已有，则放弃
-			$vlanInfo = Db::name ( "vlantables" )->where ( [ 
-					"deviceName" => $deviceName,
-					"vlan" => $v 
-			] )->select ();
-			if (! $vlanInfo) {
-				// 无信息，则insert
-				$vlanInfo = Db::name ( "vlantables" )->insert ( [ 
+				$count ++;
+				// 已有，则放弃
+				$vlanInfo = Db::name ( "vlantables" )->where ( [ 
 						"deviceName" => $deviceName,
-						"vlan" => $v,
-						"description" => "手动导入-" . date ( "Y-m-d h:i:s", time () ) 
-				] );
-				$validation ++;
+						"vlan" => $v 
+				] )->select ();
+				if (! $vlanInfo) {
+					// 无信息，则insert
+					$vlanInfo = Db::name ( "vlantables" )->insert ( [ 
+							"deviceName" => $deviceName,
+							"vlan" => $v,
+							"description" => "手动导入-" . date ( "Y-m-d h:i:s", time () ) 
+					] );
+					$validation ++;
+				}
 			}
 		}
 		return [ 
-				"count" => count ( $array ),
-				"validation" => $validation 
+				"total" => count($array),
+				"count" => $count,
+				"validation" => $validation
 		];
 	}
 	/**
@@ -135,7 +134,7 @@ class Vlantables extends Model {
 			if (array_key_exists ( $aStation, $deviceConf )) {
 				$data = $data->where ( "deviceName", $deviceConf [$aStation] );
 				$data = $data->field ( "id,description as cName" )->find ();
-				if ($data) {	// 修改以区别于查询infotables的结果Vlantables::check()。line:126
+				if ($data) { // 修改以区别于查询infotables的结果Vlantables::check()。line:126
 					$data = $data->toArray ();
 					$data ["id"] .= "_vlan";
 				}
