@@ -45,8 +45,19 @@ class Manage extends Index {
 			unset ( $detail ["extra"] );
 			if ($req == "getDetail") {
 				return json ( $detail ); // 返回单条数据
-			}
-			if ($req == "distribution") {
+			} else if ($req == "auto_pre") {
+				$device = config ( "aStation" ) [$detail["aStation"]];
+				$genIp = Iptables::generateIP ( $detail["zxType"] );
+				$genVlan = Vlantables::generateVlan ( $device, null, 1 );
+				$preVlan = $genVlan ["preVlan"];
+				$usedVlans = $genVlan ["usedVlans"];
+				return  [ 
+						"genIp" => $genIp,
+						"preVlan" => $preVlan,
+						"usedVlans" => $usedVlans,
+						"device" => $device
+				] ;
+			} else if ($req == "distribution") {
 				$data = input ( "post." );
 				$this->checkInstanceID ( $info, $data );
 				$data = $this->checkAndSetIp ( $info, $data );

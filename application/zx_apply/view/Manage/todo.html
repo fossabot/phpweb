@@ -64,6 +64,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="head"}
 			}else{
 				$.get("../Common/_formStructure.html",function(data1){
 					$("body").after(data1);
+					formStructure[2].list.unshift(buttons);
 					$.get("../Common/_formConfig.html",function(data2){
 						$("body").append(data2);
 						window._formAjax=1;
@@ -73,12 +74,6 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="head"}
 			}
 		});
 	});
-	var ipStructure = {type:"label",label:"填写分配信息",list:[
-		{type:"input",label:"vlan",name:"vlan",validate:"^[2-3][0-9]{3}$",required:true},
-		{type:"input",label:"互联ip",name:"ip",validate:"ipstr",required:true},
-		{type:"input",label:"业务ip",name:"ipB",validate:"ipstr"}
-	]};
-	var buttons = {type:"button",name:"predistri",value:"自动预分配"};
 /**
  * 初始化 表单
  */
@@ -97,9 +92,13 @@ function form_init(formData){
 	evId == null ||	myForm.detachEvent("evId");
 	evId = myForm.attachEvent("onButtonClick", function(id){
 		var mainId = myList.getSelected();
-		if(id=="predistri"){
-			$.get("generateVlan.html?d="+myForm.getItemValue(),function(data){
-				
+		if(id=="auto_pre"){
+			var data = {id: myForm.getFormData().id};
+			$.post("?req=auto_pre",data,function(d){
+				myForm.setItemValue("vlan",d.preVlan);
+				myForm.setItemValue("ip",d.genIp);
+				var str = calculateUsedVlans(d.usedVlans);
+				dhtmlx.alert({width: "700px", title: d.device+" 已使用vlan(集客部分)", text: str});
 			});
 		}else if(id=="commit"){
 			if(myForm.validate()){
@@ -148,6 +147,33 @@ function ipstr(value){
 	var c = a[0].toString().match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
 	var b = a.length==1?true:a.length>2?false:parseInt(a[1])<=32&&a[1].match(/^\d{0,2}$/);
 	return c&&!!(c[1]<=255&&c[2]<=255&&c[3]<=255&&c[4]<=255)&&b||false;
+}
+/**
+ * 将数组格式的已使用vlan变成 vlan batch格式
+ */
+function calculateUsedVlans(usedVlans){
+	usedVlans = usedVlans.sort();
+	var array = [];
+	array.push(usedVlans[0]);
+	var v_1,v0;
+	for(var i=1;i<usedVlans.length;i++){
+		v_1 = usedVlans[i-1];
+		v0 = usedVlans[i];
+		if(v0 == v_1+1){
+			if(array[array.length-1] != "to"){
+				array.push("to");
+			}
+		}else {
+			if(array[array.length-1] == "to"){
+				array.push(v_1);
+				array.push(v0);
+			}else{
+				array.push(v0);
+			}
+		}
+	}
+	var str = array.join(" ");
+	return str;
 }
 </script>
 {/block}

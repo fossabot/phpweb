@@ -1,7 +1,7 @@
 <script>
 var formStructure = [
 	{type:"settings",labelWidth:100,inputWidth:200},
-	{type:"fieldset",label:"专线基本信息",width:350,offsetLeft:15,list:[
+	{type:"fieldset",label:"专线基本信息",name:"basic",width:350,offsetLeft:15,list:[
 		{type:"input",name:"instanceId",label:"产品实例标识",validate:"^[0-9]{11}$",required:true},
 		{type:"select",name:"zxType",label:"专线类别",required:true},
 		{type:"input",name:"bandWidth",label:"带宽",value:"10M",validate:"^[0-9Mm]+$"},
@@ -18,13 +18,13 @@ var formStructure = [
 		{type:"input",name:"mEmail",label:"客户经理邮箱",validate:"ValidEmail",required:true},
 		{type:"input",name:"marks",label:"备注"},
 	]},
-	{type:"block",name:"btn",inputWidth:"auto",offsetLeft:100,list:[
+	{type:"block",name:"btn",inputWidth:"auto",offsetLeft:30,list:[
 		{type:"newcolumn"},
-		{type:"button",name:"commit",value:"提交"},
+		{type:"button",name:"commit",value:"提交",offsetLeft:30},
 		{type:"newcolumn"},
-		{type:"button",name:"cancel",value:"重置",offsetLeft:60},
+		{type:"button",name:"cancel",value:"重置",offsetLeft:30},
 	]},
-	{type:"newcolumn",offset:15},
+	{type:"newcolumn",name:"newcol1",offset:15},
 	{type:"fieldset",name:"ip_bak",label:"IP备案附加信息",width:420,list:[
 		{type:"label",name:"readme",label:"说明：表中数据为推荐值，均可修改<br><br><br><br><br>",labelWidth:230,offsetLeft:20,offsetTop:17,readonly:true},
 	    {type:"checkbox",name:"ifOnu",label:"onu带的业务",labelWidth:80,labelAlign:"right",position:"label-right",offsetLeft:20,list:[
@@ -50,7 +50,12 @@ var formStructure = [
 		{type:"button",name:"test",value:"测试数据"},
 	]},
 ];
-
+var ipStructure = {type:"label",label:"填写分配信息",list:[
+	{type:"input",label:"vlan",name:"vlan",validate:"^[2-3][0-9]{3}$",required:true},
+	{type:"input",label:"互联ip",name:"ip",validate:"ipstr",required:true},
+	{type:"input",label:"业务ip",name:"ipB",validate:"ipstr"}
+]};
+var buttons = {type:"button",name:"auto_pre",value:"自动预分配"};
 function initCombo(){
 	var combo;
 	for (var cfg_d in config["default"]){
