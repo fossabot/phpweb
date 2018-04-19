@@ -4,8 +4,12 @@ namespace app\zx_apply\model;
 
 use think\Model;
 use think\Db;
+use traits\model\SoftDelete;
 
 class Vlantables extends Model {
+	use SoftDelete;
+	protected $deleteTime = 'delete_time';
+	protected $autoWriteTimestamp = false;
 	/**
 	 * 录入vlan
 	 *
@@ -13,15 +17,17 @@ class Vlantables extends Model {
 	 * @param string $vlan        	
 	 * @param string $cName        	
 	 */
-	public static function createVlan($aStation = "", $vlan = "", $description = "") {
+	public static function createVlan($aStation = "", $vlan = "", $description = "",$infoId = null) {
 		$vlantables = new static ();
+		//	todo: 根据infoId，如果已存在则更新，否则新增。
 		$aStationConf = config ( "aStation" );
 		if (array_key_exists ( $aStation, $aStationConf )) {
 			// 根据a端匹配到9312名，则保存vlan
 			$data = [ 
 					"deviceName" => $aStationConf [$aStation],
 					"vlan" => $vlan == 0 ? null : $vlan,
-					"description" => $description 
+					"description" => $description,
+					"infoId" => $infoId
 			];
 			$vlantables->isUpdate ( false )->allowField ( true )->save ( $data );
 		}
@@ -36,7 +42,7 @@ class Vlantables extends Model {
 	 * @return number|string
 	 */
 	public static function generateVlan($device = "", $cName = "", $manual = false) {
-		$usedVlans = Db::name ( "vlantables" )->where ( "deviceName", $device )->column ( "vlan" );
+		$usedVlans = self::where ( "deviceName", $device )->column ( "vlan" );
 		for($vlan = 2111; $vlan < 3071; $vlan ++) {
 			if (! in_array ( $vlan, $usedVlans )) {
 				$preVlan = $vlan;
@@ -92,13 +98,13 @@ class Vlantables extends Model {
 				// 范围之外的vlan，无操作
 				$count ++;
 				// 已有，则放弃
-				$vlanInfo = Db::name ( "vlantables" )->where ( [ 
+				$vlanInfo = self::where ( [ 
 						"deviceName" => $deviceName,
 						"vlan" => $v 
 				] )->select ();
 				if (! $vlanInfo) {
 					// 无信息，则insert
-					$vlanInfo = Db::name ( "vlantables" )->insert ( [ 
+					$vlanInfo = self::create( [ 
 							"deviceName" => $deviceName,
 							"vlan" => $v,
 							"description" => "手动导入-" . date ( "Y-m-d h:i:s", time () ) 
@@ -122,7 +128,7 @@ class Vlantables extends Model {
 	 * @return array
 	 */
 	public static function check($zxType = "", $aStation = "", $vlan = 0) {
-		$data = Db::name ( "infotables" )->where ( [ 
+		$data = Infotables::where ( [ 
 				"zxType" => $zxType,
 				"aStation" => $aStation,
 				"vlan" => $vlan 

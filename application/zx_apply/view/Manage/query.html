@@ -6,9 +6,6 @@
 </style>
 <style>
 #form_container {
-	position: absolute;
-	top: 10px;
-	left: 250px;
 	width: 800px;
 	height: auto;
 }
@@ -44,7 +41,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 	style="overflow: hidden; visibility: hidden;">
 	<div id='queryTable'></div>
 </div>
-<div id="form_container" style="overflow: hidden; visibility: hidden;"></div>
+<div id="form_container" style="overflow: hidden; 	: hidden;"></div>
 {/block} {block name="script"}
 <script>
 	$(function($) {
@@ -142,13 +139,16 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		data : 'vlan',
 		type : 'numeric',
 		validator : /^2[0-9]{3}$/,
+		readOnly: true
 		//allowEmpty: false
 	}, {
 		data : 'ip',
 		validator : "my.ipstr",
+		readOnly: true
 	}, {
 		data : 'ipB',
-		validator : "my.ipstr"
+		validator : "my.ipstr",
+		readOnly: true
 	/*}, {
 		data: 'cPerson',
 	}, {
@@ -230,7 +230,10 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		hot.updateSettings({
 			contextMenu: {
 				callback : function(key, options) {
-					if (key === 'about') {
+					hot.disableShowDetail = true;
+					if(hot.getSelectedRange()===undefined){
+						dhtmlx.alert("空白处右键操作是无效的~");
+					}else if (key === 'about') {
 						setTimeout(function() {
 							// timeout is used to make sure the menu collapsed before alert is shown
 							parent.dhtmlx.alert({
@@ -238,13 +241,11 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 								text : "本菜单由 Xianda 自定义。感谢Xianda"
 							});
 						}, 100);
-					}
-					else if (key === 'script') {
+					}else if (key === 'script') {
 						$.post("",{_method: "PUT",r: key,id: getSelectedIds()},function(data){
 							script(data);
 						});
-					}
-					else if (key === 'show_status') {
+					}else if (key === 'show_status') {
 						if(sessionStorage.getItem("tableStatus")==undefined){
 							sessionStorage.setItem("tableStatus","yes");
 							initStatusSync();
@@ -253,12 +254,11 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 							hot.render();
 							//$("#headStyleDom").html("");
 						}
-					}else if (key === 'modify'){
-						openModify();
+					}else if (key === 'delete'){
+						postDelete();
 					}else if (key === 'export_all'){
 						export_all();
-					}
-					else{
+					}else{
 						var r=new RegExp(','+key+',');
 						if(r.test(',export_zg,export_jtip,export_gxbip,')){
 							put(key);
@@ -269,17 +269,15 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 					"about" : {
 						name : "**Power by Xianda"
 					},
-					"hsep1" : "---------",
-					"modify": {
-						name : "打开修改页-开发中",
-						disabled : true
-					},
+					"hsep1" : "---------",	
 					"script": {
 						name : "1.单条数据制作脚本生成",
 						disabled: function(){
-							var a = hot.getSelected().length > 1;
-							var b = hot.getSelectedRange()[0].from.row != hot.getSelectedRange()[0].to.row;
-							return a || b || !hot.currentRowValid.valid;
+							var s = hot.getSelectedRange();
+							var a = s && s.length > 1;
+							var b = s && s[0].from.row != s[0].to.row;
+							var v = hot.currentRowValid && hot.currentRowValid.valid;
+							return a || b || !v;
 						}
 					},
 					"export_zg": {
@@ -290,6 +288,9 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 					},
 					"export_gxbip": {
 						name : "4.工信部IP备案数据导出"
+					},
+					"delete": {
+						name : "**删除所选条目",
 					},
 					"undo" : {
 						name : "撤销修改"
@@ -484,6 +485,11 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 	}
 	/* 显示单条数据详细信息 */
 	function showDetail(row){
+		if(hot.disableShowDetail === true){
+			hot.disableShowDetail = false;
+			checkWindows("_input");
+			return;
+		}
 		if(row<0){
 			checkWindows("_input");
 			return;
@@ -541,24 +547,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 	/* 打开修改页 */
 	function openModify(){
 		var info = infoData[hot.getSelectedRange()[0].from.row];
-		if(typeof _formAjax != "undefined"){
-			form_init(info);
-		}else{
-			$.get("../Common/_formStructure.html",function(data){
-				$("body").append(data);
-				formStructure[2].list.unshift(buttons);
-				form_init(info);
-			});
-		}
-	}
-	/* 初始化修改页 */
-	function form_init(formData){
-		myForm = null;
-		myForm = new dhtmlXForm('form_container',formStructure);
-		myForm.addItem("ip_bak",ipStructure,0,0);
-		myForm.removeItem("readme");
-		myForm.enableLiveValidation(true);
-		
+		dhtmlx.alert("本操作等同于标记为【刚申请】，然后移步至【待办】页面即可修改。");
 	}
 	/* 加载数据制作脚本的资源并显示 */
 	function script(scriptArr){
@@ -602,6 +591,16 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		form.submit();
 		setTimeout("document.forms._export.parentNode.removeChild(document.forms._export)",0);	//	在DOM中移除 刚生成的form
 		console.log("\t\tput(key):submit:",args);
+	}
+	function postDelete(){
+		var ids = getSelectedIds();
+		$.post("", {r: "delete",id: ids}, function(data){
+			if(data == ids.length){
+				// hot 前端组件同步删除
+			}else{
+				dhtmlx.alert("操作异常，建议刷新页面后重试。");
+			}
+		});
 	}
 	/* 设置状态显示（背景色）页面滚动后失效  暂时未用*/
 	function initStatus(){

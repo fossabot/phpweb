@@ -46,17 +46,17 @@ class Manage extends Index {
 			if ($req == "getDetail") {
 				return json ( $detail ); // 返回单条数据
 			} else if ($req == "auto_pre") {
-				$device = config ( "aStation" ) [$detail["aStation"]];
-				$genIp = Iptables::generateIP ( $detail["zxType"] );
+				$device = config ( "aStation" ) [$detail ["aStation"]];
+				$genIp = Iptables::generateIP ( $detail ["zxType"] );
 				$genVlan = Vlantables::generateVlan ( $device, null, 1 );
 				$preVlan = $genVlan ["preVlan"];
 				$usedVlans = $genVlan ["usedVlans"];
-				return  [ 
+				return [ 
 						"genIp" => $genIp,
 						"preVlan" => $preVlan,
 						"usedVlans" => $usedVlans,
-						"device" => $device
-				] ;
+						"device" => $device 
+				];
 			} else if ($req == "distribution") {
 				$data = input ( "post." );
 				$this->checkInstanceID ( $info, $data );
@@ -66,18 +66,12 @@ class Manage extends Index {
 				// return dump ( $data );
 				$result = $this->updateInfo ( $data );
 				if ($result) {
-					return $this->success ( "操作成功", null, $this->refleshTodoList () );
+					return $this->result ( $this->refleshTodoList (), 1, "操作成功" );
 				} else {
 					return $this->result ( null, 2, "本次提交信息并未修改" );
 				}
 			}
 		}
-	}
-	public function tt() {
-		$res = Iptables::generateIP ();
-		return dump ( $res );
-		return dump ( Db::name ( "vlantables" )->where ( "deviceName", 'CHJ-21' )->column ( "vlan" ) );
-		return dump ( $this->generateVlan () );
 	}
 	public function generateVlan() {
 		$aStation = "";
@@ -87,12 +81,13 @@ class Manage extends Index {
 			return Vlantables::generateVlan ( $device, "预分配", 1 );
 		}
 	}
-	protected function updateInfo($data = "") {
+	protected function updateInfo($data) {
 		$extraHeader = config ( "extraInfo" );
 		foreach ( $extraHeader as $k => $v ) {
 			$data ["extra"] [$v] = $data [$v];
 			unset ( $data [$v] );
 		}
+		unset ( $data ["delete_time"] );
 		$infotables = new Infotables ();
 		$result = $infotables->isUpdate ( true )->save ( $data, [ 
 				"id" => $data ["id"] 
@@ -135,6 +130,7 @@ class Manage extends Index {
 			input ( "post.r" ) == "detail" && $data = Infotables::get ( input ( "post.id" ) )->toJson ();
 			input ( "post.r" ) == "search" && $data = $this->querySearch ( input ( "post." ) );
 			input ( "get.r" ) == "update" && $data = $this->queryUpdateInfo ( input ( "post." ) );
+			input ( "post.r" ) == "delete" && $data = $this->queryDelete ( input ( "post." ) );
 			return $data;
 		}
 		if (request ()->isPut ()) {
@@ -156,7 +152,6 @@ class Manage extends Index {
 		return collection ( Infotables::order ( "id" )->limit ( $limit )->select () );
 	}
 	private function querySearch($data) {
-		return dump ( $data );
 		$result = collection ( Infotables::where ( $data ["where"] [0], "like", "%" . $data ["where"] [2] . "%" )->order ( "id desc" )->select () )->toArray ();
 		return $result;
 	}
@@ -183,6 +178,23 @@ class Manage extends Index {
 			}
 		}
 		return $this->result ( $dbNew, 1, $result );
+	}
+	/**
+	 * 从query.html删除台账条目
+	 * 
+	 * @param unknown $input        	
+	 */
+	private function queryDelete($input) {
+		$result = Infotables::destroy ( $input ["id"] );
+		// 同步删除vlantables
+		foreach ($input ["id"] as $id){
+			Vlantables::destroy(["infoId"=>$id]);
+		}
+		return $result;
+	}
+	public function tt() {
+		$res = Vlantables::destroy(["infoId"=>2]);
+		return dump ( $res );
 	}
 	protected function generateScript($id = null) {
 		$data = Infotables::get ( $id );
@@ -604,7 +616,7 @@ class Manage extends Index {
 		if ($vlan && $vlan ["id"] != $data ["id"]) { // 找到vlan且vlan的id与自己的id不同
 			return $this->error ( "vlan冲突，", null, $vlan ["cName"] );
 		} else {
-			Vlantables::createVlan ( $data ["aStation"], $data ["vlan"], $data ["cName"] );
+			Vlantables::createVlan ( $data ["aStation"], $data ["vlan"], $data ["cName"], $data ["id"] );
 		}
 	}
 	/**

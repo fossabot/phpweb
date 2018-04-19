@@ -172,6 +172,9 @@ function calculateUsedVlans(usedVlans){
 			}
 		}
 	}
+	if(array[array.length-1] == "to"){
+		array.push(usedVlans[usedVlans.length-1]);
+	}
 	var str = array.join(" ");
 	return str;
 }
