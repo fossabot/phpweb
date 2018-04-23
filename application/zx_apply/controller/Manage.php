@@ -181,19 +181,23 @@ class Manage extends Index {
 	}
 	/**
 	 * 从query.html删除台账条目
-	 * 
+	 *
 	 * @param unknown $input        	
 	 */
 	private function queryDelete($input) {
 		$result = Infotables::destroy ( $input ["id"] );
 		// 同步删除vlantables
-		foreach ($input ["id"] as $id){
-			Vlantables::destroy(["infoId"=>$id]);
+		foreach ( $input ["id"] as $id ) {
+			Vlantables::destroy ( [ 
+					"infoId" => $id 
+			] );
 		}
 		return $result;
 	}
 	public function tt() {
-		$res = Vlantables::destroy(["infoId"=>2]);
+		$res = Vlantables::destroy ( [ 
+				"infoId" => 2 
+		] );
 		return dump ( $res );
 	}
 	protected function generateScript($id = null) {
@@ -426,8 +430,8 @@ class Manage extends Index {
 			$cellValues ["O" . $row] = $data ["cEmail"]; // 客户邮箱
 			$cellValues ["R" . $row] = $data ["create_time"]; // 分配时间
 			$cellValues ["F" . $row] = "企业";
-			$cellValues ["G" . $row] = $data ["extra"] ["province"];
-			$cellValues ["H" . $row] = $data ["extra"] ["city"];
+			$cellValues ["G" . $row] = isset($data ["extra"] ["province"])?$data ["extra"] ["province"]:"";
+			$cellValues ["H" . $row] = isset($data ["extra"] ["city"])?$data ["extra"] ["city"]:"";
 			$row ++;
 		}
 		$pFilename = './sampleData/ip_gxb.xls';
@@ -498,16 +502,20 @@ class Manage extends Index {
 			// 获取数据库的列名
 			$dataHeader = explode ( ",", $dataHeader );
 			// 根据列名和数据转成php数组
-			// $postData = substr ( $postData, 3 ); // 莫名奇妙的前三个字节是垃圾数据。3天才研究出来，只能这样解决！！！
+			// $postData = substr ( $postData, 3 ); // 莫名奇妙的前三个字节是垃圾数据。3天才研究出来，只能这样解决！！！(目前已在前端解决)
 			$data = $this->csv_to_array ( $dataHeader, $postData );
 			// return dump($data);
 			// 获取额外的字段
 			$extraHeader = config ( "extraInfo" );
 			foreach ( $data as $k => $v ) {
+				// 清除空元素
+				$data [$k] = array_filter ( $v );
 				$temp = [ ];
 				foreach ( $extraHeader as $kk => $vv ) {
-					$data [$k] ["extra"] [$vv] = $v [$vv];
-					unset ( $data [$k] [$vv] );
+					if (isset ( $data [$k] [$vv] )) {
+						$data [$k] ["extra"] [$vv] = $data [$k] [$vv];
+						unset ( $data [$k] [$vv] );
+					}
 				}
 				if ($v ["aStation"] == "柴河局") {
 					$data [$k] ["aStation"] .= "-" . $data [$k] ["neFactory"];
@@ -541,13 +549,7 @@ class Manage extends Index {
 	 * @return mixed|string
 	 */
 	public function import() {
-		// 前端根据参数自动获取title并组织好数据显示。
 		// 发送_ht_apply给服务器cvs格式，php根据title和csv处理成可以如数据库的array格式。
-		$zxInfoTitle = [ 
-				"label" => "zx_apply-new-rb",
-				"order" => "0,1,2,3,4,5,6,7,8,9,10,12,13,14,15,16,17,18,19,29,30,31,32,33,34,35,36,37" 
-		];
-		$this->assign ( 'zxInfoTitle', json_encode ( $zxInfoTitle, 256 ) );
 		return $this->fetch ();
 	}
 	/**

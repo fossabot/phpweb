@@ -48,7 +48,7 @@ class Infotables extends Model {
 			] );
 			return is_int ( $ne ) ? $ne : null;
 		}
-	}	 
+	}
 	public function getNeFactoryAttr($value) {
 		$zx_nefactory = [ 
 				0 => "华为",
@@ -57,17 +57,17 @@ class Infotables extends Model {
 		];
 		return is_null ( $value ) ? null : $zx_nefactory [$value];
 	}
-// 	public function getStatusAttr($value) {
-// 		$statusArr = [ 
-// 				0 => "申请",
-// 				1 => "预分配",
-// 				2 => "已流程",
-// 				3 => "已备ip",
-// 				4 => "已做数据",
-// 				9 => "历史导入" 
-// 		];
-// 		return array_key_exists ( $value, $statusArr ) ? $statusArr [$value] : "";
-// 	}
+	// public function getStatusAttr($value) {
+	// $statusArr = [
+	// 0 => "申请",
+	// 1 => "预分配",
+	// 2 => "已流程",
+	// 3 => "已备ip",
+	// 4 => "已做数据",
+	// 9 => "历史导入"
+	// ];
+	// return array_key_exists ( $value, $statusArr ) ? $statusArr [$value] : "";
+	// }
 	/**
 	 * 新增Info，type可选导入、申请
 	 *
@@ -84,14 +84,15 @@ class Infotables extends Model {
 						"tags" => "导入",
 						"status" => 9 
 				], $data [$k] );
-				// Iptables::createIp ( $data [$k] ["zxType"], $data [$k] ["ip"] );
+				// 清除空元素
+				$data [$k] = array_filter ( $data [$k] );
+				// $result [] = $data [$k];
+				$infotables->isUpdate ( false )->allowField ( true )->save ( $data [$k], [ ] );
+				$result [$k] = $infotables->id;
 				if ($data [$k] ["vlan"]) {
 					// 如果vlan不为空，则记录vlan表
-					Vlantables::createVlan ( $data [$k] ["aStation"], $data [$k] ["vlan"], $data [$k] ["cName"] );
+					Vlantables::createVlan ( $data [$k] ["aStation"], $data [$k] ["vlan"], $data [$k] ["cName"], $result [$k] );
 				}
-				$data [$k] = array_filter ( $data [$k] ); // 清除空元素
-				                                          // $result [] = $data [$k];
-				$result [] = $infotables->isUpdate ( false )->allowField ( true )->save ( $data [$k], [ ] );
 			}
 		}
 		if ($type == "apply") {
