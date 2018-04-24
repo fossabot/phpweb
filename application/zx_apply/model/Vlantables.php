@@ -20,7 +20,7 @@ class Vlantables extends Model {
 	 */
 	public static function createVlan($aStation = "", $vlan = "", $description = "", $infoId = null) {
 		if (is_null ( $infoId )) {
-			return;
+			return;	// 仅内部调用，infoId不会为空。
 		}
 		$vlantables = new static ();
 		// todo: 根据infoId，如果已存在则更新，否则新增。

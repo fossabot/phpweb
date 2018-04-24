@@ -521,13 +521,14 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 	}
 	/* 获取当前选择列的ids return Array */
 	// 多选的行号合并、去重并获取其数据的id数组
-	function getSelectedIds(){
+	function getSelectedIds(arg){
 		if(hot.getSelected() === undefined){
 			return;
 		}
+		arg = arg == undefined ? true : false;
 		var hotData = hot.getSourceData(),
 			obj = {},
-			ids = [],
+			result = [],
 			selectedRange = hot.getSelectedRange();
 		for(var range in selectedRange){	// 每一个selectedRange
 			var from = selectedRange[range].from.row,
@@ -535,12 +536,16 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 			for(var i = Math.min(from, to); i <= Math.max(from, to); i++){	// from.row 与 to.row从大到小
 				if(!obj[i]){	// 去重
 					obj[i] = 1;
-					ids.push(hotData[i].id);
+					if(arg){
+						result.push(hotData[i].id);
+					}else{
+						result.push(i);
+					}
 				}
 			}
 		}
-		ids = ids.sort(function(a,b){return a-b;});
-		return ids;
+		result = result.sort(function(a,b){return a-b;});
+		return result;
 	}
 	/* 右键菜单操作 start */
 	/************************/
@@ -594,9 +599,14 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 	}
 	function postDelete(){
 		var ids = getSelectedIds();
+		var ranges = getSelectedIds(false);
 		$.post("", {r: "delete",id: ids}, function(data){
 			if(data == ids.length){
 				// hot 前端组件同步删除
+				for (var i in ranges){
+					infoData.splice(ranges[i],1);
+				}
+				hot.render();
 			}else{
 				dhtmlx.alert("操作异常，建议刷新页面后重试。");
 			}
