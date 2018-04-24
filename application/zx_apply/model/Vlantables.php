@@ -15,11 +15,15 @@ class Vlantables extends Model {
 	 *
 	 * @param string $aStation        	
 	 * @param string $vlan        	
-	 * @param string $cName        	
+	 * @param string $description        	
+	 * @param unknown $infoId        	
 	 */
-	public static function createVlan($aStation = "", $vlan = "", $description = "",$infoId = null) {
+	public static function createVlan($aStation = "", $vlan = "", $description = "", $infoId = null) {
+		if (is_null ( $infoId )) {
+			return;
+		}
 		$vlantables = new static ();
-		//	todo: 根据infoId，如果已存在则更新，否则新增。
+		// todo: 根据infoId，如果已存在则更新，否则新增。
 		$aStationConf = config ( "aStation" );
 		if (array_key_exists ( $aStation, $aStationConf )) {
 			// 根据a端匹配到9312名，则保存vlan
@@ -27,9 +31,17 @@ class Vlantables extends Model {
 					"deviceName" => $aStationConf [$aStation],
 					"vlan" => $vlan == 0 ? null : $vlan,
 					"description" => $description,
-					"infoId" => $infoId
+					"infoId" => $infoId 
 			];
-			$vlantables->isUpdate ( false )->allowField ( true )->save ( $data );
+			$where = [ 
+					"infoId" => $data ["infoId"] 
+			];
+			$dbData = self::get($where);
+			if ($dbData) {
+				$vlantables->isUpdate ( true )->allowField ( true )->save ( $data,["id"=>$dbData->id]);
+			} else {
+				$vlantables->isUpdate ( false )->allowField ( true )->save ( $data );
+			}
 		}
 	}
 	/**
@@ -94,7 +106,7 @@ class Vlantables extends Model {
 		$count = 0;
 		$validation = 0;
 		foreach ( $array as $v ) {
-			if ($v > 2000 && $v< 3071) {
+			if ($v > 2000 && $v < 3071) {
 				// 范围之外的vlan，无操作
 				$count ++;
 				// 已有，则放弃
@@ -104,7 +116,7 @@ class Vlantables extends Model {
 				] )->select ();
 				if (! $vlanInfo) {
 					// 无信息，则insert
-					$vlanInfo = self::create( [ 
+					$vlanInfo = self::create ( [ 
 							"deviceName" => $deviceName,
 							"vlan" => $v,
 							"description" => "手动导入-" . date ( "Y-m-d h:i:s", time () ) 
@@ -114,9 +126,9 @@ class Vlantables extends Model {
 			}
 		}
 		return [ 
-				"total" => count($array),
+				"total" => count ( $array ),
 				"count" => $count,
-				"validation" => $validation
+				"validation" => $validation 
 		];
 	}
 	/**

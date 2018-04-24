@@ -174,7 +174,7 @@
 					name : "移除此行"
 				},
 				"remove_col" : {
-					name : "移除次列"
+					name : "移除此列"
 				},
 				"hsep3" : "---------",
 				"undo" : {
@@ -183,13 +183,12 @@
 				"redo" : {
 					name : "还原"
 				},
-				"make_read_only" : {
+				/*"make_read_only" : {
 					name : "设为只读"
 				},
 				"alignment" : {
 					name : "对齐"
-				},
-
+				},*/
 			},
 		}
 	});
@@ -213,6 +212,13 @@
 					for ( var j in itemAttr) { // j一定是数字，且从0自增
 						_data[colHeaders[j]] = itemAttr[j];
 					}*/
+					if (/柴河/.test(itemArr[5])) {
+						if(itemArr[0].substr(0,4)<2017){
+							itemArr[5] = "柴河局";
+						}else{
+							itemArr[5] = "柴河局" + "-" + itemArr[4];
+						}
+					}
 					data.push(itemArr);
 				}
 			}
@@ -232,23 +238,33 @@
 		return null;
 	}
 	//	确认录入提交
-	$("#confirm-commit").on("click",function() {
-		var ht_data = hot.getPlugin("exportFile")
-				.exportAsString("csv");
-		// 导出的csv字符串会带有不可见的BOM，
-		// 在JavaScript中占一个单位，在php中占3个单位，
-		// 把它去掉，解决了每次传递csv格式数据第一行的第一列的数据总会有异常的bug
-		ht_data = ht_data.substr(1);
-		var _data = {
-			data : ht_data,
-			type : "import",
-		};
-		// 页面滚动到左上角位置
-		pageScroll();
-		$.post("",_data,function(data) {
-			$("#xhr_response").html(data).before("<p>下面是存入结果：若为空则导入失败，请联系管理员。导入结束可点击右上方关闭本弹窗。</p>");
-		});
-	});
+	$("#confirm-commit")
+			.on(
+					"click",
+					function() {
+						var ht_data = hot.getPlugin("exportFile")
+								.exportAsString("csv");
+						// 导出的csv字符串会带有不可见的BOM，
+						// 在JavaScript中占一个单位，在php中占3个单位，
+						// 把它去掉，解决了每次传递csv格式数据第一行的第一列的数据总会有异常的bug
+						ht_data = ht_data.substr(1);
+						var _data = {
+							data : ht_data,
+							type : "import",
+						};
+						// 页面滚动到左上角位置
+						pageScroll();
+						$
+								.post(
+										"",
+										_data,
+										function(data) {
+											$("#xhr_response")
+													.html(data)
+													.before(
+															"<p>下面是存入结果：若为空则导入失败，请联系管理员。导入结束可点击右上方关闭本弹窗。</p>");
+										});
+					});
 	function pageScroll() {
 		window.scrollBy(-5, -10);
 		scrolldelay = setTimeout('pageScroll()', 5);

@@ -195,9 +195,7 @@ class Manage extends Index {
 		return $result;
 	}
 	public function tt() {
-		$res = Vlantables::destroy ( [ 
-				"infoId" => 2 
-		] );
+		$res = Vlantables::createVlan("柴河局-华为",2345,"984",15);
 		return dump ( $res );
 	}
 	protected function generateScript($id = null) {
@@ -358,7 +356,7 @@ class Manage extends Index {
 			}
 			$data = Infotables::get ( $id )->toArray ();
 			$ip = $data ["ip"];
-			$segment = substr ( $ip, 0, strripos ( $ip, "." ) ) . ".0/24";
+			$segment = "223.100.96.0/20";
 			$gateway = substr ( $ip, 0, strripos ( $ip, "." ) ) . ".1";
 			$cellValues ["B" . $row] = $ip; // ip
 			$cellValues ["F" . $row] = $segment; // 上一级子网名
@@ -549,7 +547,7 @@ class Manage extends Index {
 	 * @return mixed|string
 	 */
 	public function import() {
-		// 发送_ht_apply给服务器cvs格式，php根据title和csv处理成可以如数据库的array格式。
+		// post数据传给 _ht_apply()
 		return $this->fetch ();
 	}
 	/**
