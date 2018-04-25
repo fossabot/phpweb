@@ -86,10 +86,9 @@ class Infotables extends Model {
 				], $data [$k] );
 				// 清除空元素
 				$data [$k] = array_filter ( $data [$k] );
-				// $result [] = $data [$k];
 				$infotables->isUpdate ( false )->allowField ( true )->save ( $data [$k], [ ] );
 				$result [$k] = $infotables->id;
-				if ($data [$k] ["vlan"]) {
+				if (isset($data [$k] ["vlan"])) {
 					// 如果vlan不为空，则记录vlan表
 					Vlantables::createVlan ( $data [$k] ["aStation"], $data [$k] ["vlan"], $data [$k] ["cName"], $result [$k] );
 				}

@@ -7,7 +7,6 @@ use app\zx_apply\model\Vlantables;
 use app\zx_apply\model\Infotables;
 use app\zx_apply\model\Iptables;
 use Overtrue\Pinyin\Pinyin;
-use think\Db;
 
 class Manage extends Index {
 	protected $beforeActionList = [ 
@@ -139,6 +138,7 @@ class Manage extends Index {
 			input ( "post.r" ) == "export_zg" && $data = $this->generateZgWorkflow ( explode ( ",", input ( "post.id" ) ) );
 			input ( "post.r" ) == "export_jtip" && $data = $this->generateJtIp ( explode ( ",", input ( "post.id" ) ) );
 			input ( "post.r" ) == "export_gxbip" && $data = $this->generateGxbIp ( explode ( ",", input ( "post.id" ) ) );
+			input ( "post.r" ) == "export" && $data = $this->queryExport();
 			return $data;
 		}
 	}
@@ -149,10 +149,10 @@ class Manage extends Index {
 	 * @return string
 	 */
 	private function getInfoData($limit = 100) {
-		return collection ( Infotables::order ( "id" )->limit ( $limit )->select () );
+		return collection ( Infotables::order ( "create_time desc" )->limit ( $limit )->select () );
 	}
 	private function querySearch($data) {
-		$result = collection ( Infotables::where ( $data ["where"] [0], "like", "%" . $data ["where"] [2] . "%" )->order ( "id desc" )->select () )->toArray ();
+		$result = collection ( Infotables::where ( $data ["where"] [0], "like", "%" . $data ["where"] [2] . "%" )->order ( "create_time desc" )->select () )->toArray ();
 		return $result;
 	}
 	
@@ -194,10 +194,12 @@ class Manage extends Index {
 		}
 		return $result;
 	}
-	public function tt() {
-		$res = Vlantables::createVlan("柴河局-华为",2345,"984",15);
-		return dump ( $res );
+	private function queryExport(){
+		$data = collection ( Infotables::order ( "create_time" )->select () )->toArray();
+		return dump($data,false);
+		$this->array_to_csv();
 	}
+	
 	protected function generateScript($id = null) {
 		$data = Infotables::get ( $id );
 		if ($data ["zxType"] == "互联网") {
