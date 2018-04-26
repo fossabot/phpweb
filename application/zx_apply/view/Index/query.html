@@ -7,48 +7,560 @@ file="Common/leftmenu_zx_apply_index" /} {/block} {block name="main"}
 <div class="htmltitle">
 	<h2>信息查询</h2>
 </div>
-<div></div>
-<div id='example'></div>
-<div id='example1'></div>
-
-11
+<div>此处可查看自己申请过的专线信息</div>
+<div style="margin-bottom: 3px;">
+	<form class="form-inline" onsubmit="javascript:return false;">
+		<div class="form-group has-success">
+			<select id="colName" class="form-control">
+				<option value="cName">客户名</option>
+				<option value="instanceId">实例标识</option>
+				<option value="vlan">vlan</option>
+			</select> <input type="text" class="form-control" id="searchStr">
+		</div>
+		<button id="btn-search" type="submit" class="btn btn-default"
+			data-toggle="tooltip" data-placement="top" title="当前页搜索不限制列名，可搜索任意字段">当前页搜索</button>
+		<button id="btn-searchAll" class="btn btn-default"
+			data-toggle="tooltip" data-placement="top" title="全局搜索需根据列名搜索">全局搜索</button>
+		<div id="tips" class="form-group"
+			style="display: none; margin-left: 20px;">
+			<span id="tips-text" class="text-primary"></span>
+			<button id="tips-btn" class="btn btn-xs btn-primary">定位到下一个</button>
+		</div>
+		<div id="tips-msg" class="form-group text-muted"
+			style="margin-left: 20px;"></div>
+	</form>
+</div>
+<div class="fixed-container"
+	style="overflow: hidden; visibility: hidden;">
+	<div id='queryTable'></div>
+</div>
 {/block} {block name="script"}
 <script>
-$(function($){
-	$(".wtHolder")[0].style.height="";	//修复wtHolder层height过大。
+$.ajaxSetup({ 
+	cache: true 
 });
-var data;
-/*$.get("/static/demo-data.csv",function(_data){
-	data = _data;
-	var header = "申请时间,产品实例标识,专线类别,带宽,网元厂家,A端基站,客户名,客户地址,客户需求,ipId,vlanId,客户联系人姓名,客户联系人电话,客户联系人邮箱,客户经理姓名,客户经理电话,客户经理邮箱,单位性质,备注";
-	var container = document.getElementById('example');
-	var hot = new Handsontable(container, {
-	  data: data,
-	  rowHeaders: true,
-	  colHeaders: header.split(","),
-	  filters: true,
-	  dropdownMenu: true,
+$(function($) {
+	//$(".wtHolder")[0].style.height="";	//修复wtHolder层（handsontable右键菜单）height过大。
+	$(".fixed-container").css("height",(_htmlHeight-190)+"px");
+	var tt = Date.now();
+	initHandsontable(infoData);
+	initSearch();
+	initStatusSync();
+	console.info("\t\t渲染用时:", Date.now() - tt, "ms");
+	hot.initTimes = Date.now();
+	$('[data-toggle="tooltip"]').tooltip();
+});
+dhtmlx.message({id:"_msg",text:"loading..."});
+var xx =  Date.now();
+var _loading = setTimeout(function(){
+	dhtmlx.message.hide("_msg");
+	dhtmlx.message({id:"_msg",text:"数据加载完毕~<hr>数据验证用时:    "+(Date.now()-hot.initTimes)/1000+" s"});
+	$(".fixed-container").css("visibility","");
+	console.info("\t\t数据验证用时:", Date.now() - hot.initTimes, "ms");
+},500);
+var colWidthsData = "{$colWidthsData}";
+var zxTypeData = "互联网,营业厅,平安校园,点对点,卫生网,教育网,IMS,其他";
+var aStationData = "{$aStationData}";
+var neFactoryData = "请选择,华为,中兴";
+var colHeaderData = "{$colHeaderData}";
+var container = document.getElementById('queryTable');
+var infoData, hot, columnsData, contextMenuData;
+infoData = {$data};
+columnsData = [ {
+	data: 'create_time',
+	type : "date",
+	dateFormat : "YYYY-MM-DD",
+	correctFormat : true,
+	validator : "date",
+	readOnly: true
+}, {
+	data : 'instanceId',
+	type : 'numeric'
+}, {
+	data : 'zxType',
+	editor : 'select',
+	selectOptions : zxTypeData.split(","),
+}, {
+	data : 'bandWidth',
+}, {
+	data : 'neFactory',
+	editor : 'select',
+	selectOptions : neFactoryData.split(","),
+}, {
+	data : 'aStation',
+	strict : true,
+	type : 'autocomplete',
+	source : aStationData.split(","),
+	//editor : 'select',
+	//selectOptions : aStationData.split(","),
+}, {
+	data : 'cName',
+	allowEmpty: false
+}, {
+	data : 'cAddress',
+}, {
+	data : 'cNeeds',
+}, {
+	data : 'vlan',
+	type : 'numeric',
+	validator : /^2[0-9]{3}$/,
+	readOnly: true
+	//allowEmpty: false
+}, {
+	data : 'ip',
+	readOnly: true
+/*}, {
+	data : 'ipB',
+	readOnly: true*/
+}, {
+	data: 'cPerson',
+}, {
+	data: 'cPhone',
+}, {
+	data: 'cEmail',
+}, {
+	data: 'mPerson',
+}, {
+	data: 'mPhone',
+}, {
+	data: 'mEmail',
+}, {
+	data: 'marks',
+}, {
+	data: 'ifOnu',
+	editor : 'select',
+	selectOptions : [0,1],
+}, {
+	data: 'oltName',
+}, {
+	data: 'extra.unitProperty',
+	type : 'numeric',
+}, {
+	data: 'extra.unitCategory',
+	type : 'numeric',
+}, {
+	data: 'extra.industryCategory',
+	type : 'numeric',
+}, {
+	data: 'extra.credential',
+	type : 'numeric',
+}, {
+	data: 'extra.credentialnum',
+}, {
+	data: 'extra.province',
+	type : 'numeric',
+}, {
+	data: 'extra.city',
+	type : 'numeric',
+}, {
+	data: 'extra.county',
+	type : 'numeric',
+}, {
+	data: 'extra.appServType',
+	type : 'numeric',
+} , {
+	data: 'status',
+	type : 'numeric',
+	readOnly: true
+}, {
+	data: 'aPerson',
+	readOnly: true
+}, {
+	data: 'aEmail',
+	readOnly: true
+}];
+function initHandsontable(infoData){
+	if(typeof(hot)!="undefined")
+		hot=null;
+	container.innerHTML=null;
+	var extra = "unitProperty,unitCategory,industryCategory,credential,credentialnum,province,city,county,appServType".split(",");
+	for(var i in infoData){
+		if(infoData[i]["extra"] == undefined ){
+			infoData[i]["extra"] = [];
+		}
+		for(var j in extra){
+			if(infoData[i]["extra"][extra[j]] == undefined){
+				infoData[i]["extra"][extra[j]] = "";
+			}
+		}
+	}
+	hot = new Handsontable(container, {
+		data : infoData,
+		rowHeaders : true,
+		colWidths : colWidthsData.split(","),
+		//autoColumnSize : true,
+		//filters : true,
+		search : true,
+		//minSpareRows : 1,
+		manualColumnResize : true,
+		colHeaders : colHeaderData.split(","),
+		columns : columnsData,
 	});
-});*/
-	// ******************
-	  var
-	    data1 = [
-	      ['', 'Tesla', 'Nissan', 'Toyota', 'Honda', 'Mazda', 'Ford', 'Tesla','Honda', 'Mazda', 'Ford', 'Tesla', 'Nissan', 'Toyota', 'Honda', 'Mazda', 'Ford', 'ffffffffffff'],
-	      ['2017', 10, 11, 12, 13, 15, 16],
-	      ['2018', 10, 11, 12, 13, 15, 16],
-	      ['2019', 10, 11, 12, 13, 15, 16],
-	      ['2020', 10, 11, 12, 13, 15, 16],
-	      ['2021', 10, 11, 12, 13, 15, 16]
-	    ],
-	    container1 = document.getElementById('example1'),
-	    settings1 = {
-	      data: data1,
-	      
-	    },
-	    hot1;
-
-	  hot1 = new Handsontable(container1, settings1);
-	  data1[0][1] = 'Forddddd';  // change "Kia" to "Ford" programmatically
-	 // hot1.render();
+	hot.validateCells();
+	hot.updateSettings({
+		contextMenu: {
+			callback : function(key, options) {
+				hot.disableShowDetail = true;
+				if(hot.getSelectedRange()===undefined){
+					dhtmlx.alert("空白处右键操作是无效的~");
+				}else if (key === 'about') {
+					setTimeout(function() {
+						// timeout is used to make sure the menu collapsed before alert is shown
+						parent.dhtmlx.alert({
+							title : "特别鸣谢",
+							text : "本菜单由 Xianda 自定义。感谢Xianda"
+						});
+					}, 100);
+				}else if (key === 'show_status') {
+					if(sessionStorage.getItem("tableStatus")==undefined){
+						sessionStorage.setItem("tableStatus","yes");
+						initStatusSync();
+					}else{
+						sessionStorage.removeItem("tableStatus");
+						hot.render();
+						//$("#headStyleDom").html("");
+					}
+				}else if (key === 'export_all'){
+					export_all();
+				}
+			},
+			items : {
+				"about" : {
+					name : "**Power by Xianda"
+				},
+				"hsep1" : "---------",	
+				"undo" : {
+					name : "撤销修改"
+				},
+				"redo" : {
+					name : "还原修改"
+				},
+				"show_status":{
+					name : function(){
+						var name;
+						if(sessionStorage.getItem("tableStatus")=="yes") {
+							name = "隐藏台账状态";
+						}else{
+							name = "显示台账状态";
+						}
+						return name;
+					}
+				},
+				"export_all":{
+					name: "导出台账（全量）"
+				}
+			},
+		}
+	});
+	hot.updateSettings({
+		afterOnCellMouseOver: function(event,coords,td){
+			//console.log(event,coords,td);
+			hot.validateRows([coords.row],function(valid){
+				hot.currentRowValid = {row: coords.row,valid: valid};	// 触发设置当前行的验证结果
+			});
+		},
+		afterChange: function(changes, source){	// 修改后自动同步到数据库
+			console.log("afterChangeEnv:", changes, source);
+			var updates = {},
+				_id = [],
+				rows= [],
+				hotData = hot.getSourceData();
+			for(var i in changes){	// 记录变化到 updates
+				var _change = changes[i];
+				if(_change[2] == _change[3]){
+					break;
+				}
+				console.log("really_change["+i+"]",_change);
+				_id.push(hotData[_change[0]].id);
+				rows.push(_change[0]);
+				var key = _change[1],
+					value = _change[3],
+					_update_key = _change[0]+"-"+_id[i];
+				updates[_update_key] = {};
+				updates[_update_key][ _change[1]] = _change[3];	// example: updates={"16-17":{vlan:"2222",ip:"223.100.108.2"}}
+			}
+			if($.isEmptyObject(updates)){	// 无变化，函数返回
+				return;
+			}
+			if(sessionStorage.getItem("updateConfirm")==null){
+				dhtmlx.confirm({
+					type: "confirm-warning",
+					title : "您已修改台账信息，是否同步更新到服务器？",
+					text : "确认后所有的修改会同步到服务器，本次登陆期间不再提醒。不会验证数据是否合规，慎用！！<br><br>【请注意】：若多人同时操作会以最后一次修改为准。操作请谨慎。。&nbsp;&nbsp;%^_^% +_+ %^_^%",
+					ok : "确认",
+					cancel : "取消",
+					callback : function(result){
+						if(result){
+							sessionStorage.setItem("updateConfirm","auto");
+							updateChanges(rows, updates);
+						}
+					}
+				});
+			}
+			updateChanges(rows, updates);
+		},
+		afterRender: function(){
+			initStatusSync();
+		}
+	});
+}
+/* 同步修改的数据到服务器 用在afterChangeEnv */
+function updateChanges(rows, updates){
+	if(sessionStorage.getItem("updateConfirm")===null){
+		return;
+	}
+	hot.validateRows(rows,function(valid){
+		if(!valid){	// 验证修改是否符合验证规则
+			dhtmlx.confirm({text:"修改操作明显不合规，<b>未同步至服务器。</b>是否撤销修改？",callback(result){
+				result && hot.undo();;
+			}});
+		}else {
+			postUpdate(updates);
+		}
+	});
+}
+/* 发起post请求更新台账信息，并同步在前端render 用于 updateChanges、updateStatus */
+function postUpdate(updates){
+	$.post("?r=update",updates,function(data){
+		console.log("ajaxResponse_update",updates);
+		if(data.code){
+			dhtmlx.message("成功同步至服务器条数："+data.msg+"<br /><span style='color:red'>---<br />"+JSON.stringify(updates)+"<br />---</span>");
+			for(var i in data.data){
+				for(var ii in data.data[i]){
+					infoData[i.split("-")[0]][ii] = data.data[i][ii];	// 前端台账强制与服务器端更新同步
+				}
+			}
+			hot.render();
+		}else{
+			dhtmlx.alert({text:data.msg,callback:function(){location.href=data.url}});	//异常时跳转
+		}
+	});
+}
+function initSearch(){
+	/* 当前页搜索按钮 */
+	$("#searchStr").on("focus",function(){
+		checkWindows("_input");
+	});
+	$("#btn-search").on("click",function(){
+		var str = $("#searchStr").val();
+		if(str == ""){
+			showTips("");
+		}else{
+			var result = hot.search.query(str);
+			result.length == 0 && showTips("未找到");
+			result.length > 0 && selectCell(result);
+			sessionStorage.setItem("searchResult",JSON.stringify(result));
+			sessionStorage.setItem("searchResultSelectedIndex",0);
+			checkWindows("_input");
+		}
+	});
+	/* 数据库搜索按钮 */
+	$("#btn-searchAll").on("click",function(){
+		var str = $("#searchStr").val();
+		if(str == ""){
+			showTips("");
+			$.post("",{r:"info"},function(data){
+				infoData = data;
+				hot.updateSettings({data: infoData});
+				hot.validateCells();
+			});
+		}else{
+			showTips("");
+			var _where = [];
+			_where[0] = $("#colName").val();
+			_where[2] = str;
+			$.post("",{r:"search",where:_where},function(data){
+				infoData = data;
+				hot.updateSettings({data: infoData});
+				hot.validateCells();
+			});
+		}
+	});
+	/* 定位下一个按钮 */
+	$("#tips-btn").on("click",function(){
+		var result = JSON.parse(sessionStorage.getItem("searchResult"));
+		var index = parseInt(sessionStorage.getItem("searchResultSelectedIndex"));
+		if(++index == result.length){
+			index = 0;
+			dhtmlx.alert("返回到第一个搜索结果");
+		}
+		sessionStorage.setItem("searchResultSelectedIndex",index);
+		hot.selectCell(result[index].row,result[index].col);
+		hot.scrollViewportTo(result[index].row);
+		//!!index && $(".wtHolder")[0].scrollBy(0,50);
+		showTips("当前定位到第"+(index+1)+"个结果。",result.length);
+		checkWindows("_input");
+	});
+}
+/* 定位数据 */
+function selectCell(result){
+	hot.selectCell(result[0].row,result[0].col);
+	hot.scrollViewportTo(result[0].row);
+	if(result.length==1){
+		//sessionStorage.removeItem("searchResult");
+		showTips("1个结果。");
+	}else{
+		showTips("可以继续定位到下一个。",result.length);
+	}
+}
+/* 按钮后面的提示信息 */
+function showTips(msg,muti){
+	if(typeof(muti)!="undefined"){
+		$("#tips-msg").html(msg);
+		$("#tips").fadeIn(500);
+		$("#tips-text").html("找到 "+muti+" 个结果。");
+	}else{
+		$("#tips-msg").html(msg);
+		$("#tips").fadeOut(500);
+	}
+}
+/* 获取当前选择列的ids return Array */
+// 多选的行号合并、去重并获取其数据的id数组
+function getSelectedIds(arg){
+	if(hot.getSelected() === undefined){
+		return;
+	}
+	arg = arg == undefined ? true : false;
+	var hotData = hot.getSourceData(),
+		obj = {},
+		result = [],
+		selectedRange = hot.getSelectedRange();
+	for(var range in selectedRange){	// 每一个selectedRange
+		var from = selectedRange[range].from.row,
+			to = selectedRange[range].to.row;
+		for(var i = Math.min(from, to); i <= Math.max(from, to); i++){	// from.row 与 to.row从大到小
+			if(!obj[i]){	// 去重
+				obj[i] = 1;
+				if(arg){
+					result.push(hotData[i].id);
+				}else{
+					result.push(i);
+				}
+			}
+		}
+	}
+	result = result.sort(function(a,b){return a-b;});
+	return result;
+}
+/* 右键菜单操作 start */
+/************************/
+/* 设置状态显示（背景色）页面滚动同步刷新显示  */
+function initStatusSync(){
+	if(sessionStorage.getItem("tableStatus")==undefined){
+		return ;
+	}
+	var _statusVal;
+	var dataObj = $("#queryTable table.htCore tbody tr");
+	console.log("dataObj",dataObj,"infoData",infoData);
+	for(var i in dataObj){
+		_statusVal = infoData[i]["status"];
+		changeStatus(parseInt(i)+1,_statusVal);
+	}
+}
+/* 标记台账状态 */
+function changeStatus(row,status){
+	$(".ht_master tr:eq("+row+") > td").css("background-color",backgroundColor[status]);
+}
+/* 更新台账状态 */
+function updateStatus(row,status){
+	var newData = {};
+	newData[row+"-"+infoData[row].id] = {"status":status};
+	postUpdate(newData);
+	//changeStatus(row,status);
+}
+/* 导出台账 （全量） */
+function export_all(){
+	if(typeof(XLSX) == "undefined"){
+		$.getScript("__STATIC__/sheetjs/xlsx.full.min.js",function(){
+			wrFiles();
+		});
+	}else{
+		wrFiles();
+	}
+	function wrFiles(){
+		
+		/* original data */
+		var filename = "new-223-net-ip-tables-" + (new Date()).pattern("yyyy-MM-dd") + ".xlsx";
+		$.post("",{_method: "PUT", r: "export"},function(data){
+			var exportData = data.data;
+			var colHeader = typeof(data.colHeader) != "undefined" && data.colHeader.split(",");
+			var colName = typeof(data.colName) != "undefined" && data.colName.split(",");
+			data = [];
+			var extra = "";
+			if(colHeader){
+				for(var i in exportData){
+					data[i] = [];
+					for(var j in colName){
+						if(/extra/.test(colName[j])){
+							extra = exportData[i]["extra"];
+							if(extra != null) data[i].push(extra[colName[j].split(".")[1]]);
+						}else{
+							data[i].push(exportData[i][colName[j]]);
+						}
+					}
+				}
+			}
+			data.unshift(colHeader);
+			var ws_name = "data";
+			var wb = XLSX.utils.book_new(), ws = XLSX.utils.aoa_to_sheet(data);
+			/* add worksheet to workbook */
+			XLSX.utils.book_append_sheet(wb, ws, ws_name);
+			/* write workbook */
+			XLSX.writeFile(wb, filename);
+		});
+	}
+}
+/************************/
+/* 右键菜单操作 end */
+function checkWindows(id){
+	dhxWins.isWindow(id) && dhxWins.window(id).close();
+}
+var backgroundColor={0:"#fff",1:"#f0ad4e",2:"#5bc0de",3:"#5cb85c",4:"#fff",5:"",6:"",7:"",8:"",9:"#aaa"};
+</script>
+<script>
+/**
+* 对Date的扩展，将 Date 转化为指定格式的String
+* 月(M)、日(d)、12小时(h)、24小时(H)、分(m)、秒(s)、周(E)、季度(q) 可以用 1-2 个占位符 * 年(y)可以用 1-4 个占位符，毫秒(S)只能用 1 个占位符(是 1-3 位的数字)
+* eg:
+* (new Date()).pattern("yyyy-MM-dd hh:mm:ss.S")==> 2006-07-02 08:09:04.423      
+* (new Date()).pattern("yyyy-MM-dd E HH:mm:ss") ==> 2009-03-10 二 20:09:04      
+* (new Date()).pattern("yyyy-MM-dd EE hh:mm:ss") ==> 2009-03-10 周二 08:09:04      
+* (new Date()).pattern("yyyy-MM-dd EEE hh:mm:ss") ==> 2009-03-10 星期二 08:09:04      
+* (new Date()).pattern("yyyy-M-d h:m:s.S") ==> 2006-7-2 8:9:4.18      
+*/
+Date.prototype.pattern = function(fmt) {
+	var o = {
+		"M+" : this.getMonth() + 1, //月份         
+		"d+" : this.getDate(), //日         
+		"h+" : this.getHours() % 12 == 0 ? 12 : this.getHours() % 12, //小时         
+		"H+" : this.getHours(), //小时         
+		"m+" : this.getMinutes(), //分         
+		"s+" : this.getSeconds(), //秒         
+		"q+" : Math.floor((this.getMonth() + 3) / 3), //季度         
+		"S" : this.getMilliseconds()//毫秒         
+	};
+	var week = {
+		"0" : "/u65e5",
+		"1" : "/u4e00",
+		"2" : "/u4e8c",
+		"3" : "/u4e09",
+		"4" : "/u56db",
+		"5" : "/u4e94",
+		"6" : "/u516d"
+	};
+	if (/(y+)/.test(fmt)) {
+		fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "")
+				.substr(4 - RegExp.$1.length));
+	}
+	if (/(E+)/.test(fmt)) {
+		fmt = fmt.replace(RegExp.$1,((RegExp.$1.length > 1) ? (RegExp.$1.length > 2 ? "/u661f/u671f" : "/u5468") : "") + week[this.getDay() + ""]);
+	}
+	for ( var k in o) {
+		if (new RegExp("(" + k + ")").test(fmt)) {
+			fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+		}
+	}
+	return fmt;
+}
 </script>
 {/block}

@@ -7,6 +7,7 @@ use think\Request;
 use think\Config;
 use think\Db;
 use think\Session;
+use think\Cache;
 
 class Common extends Controller {
 	
@@ -330,6 +331,14 @@ class Common extends Controller {
 		$mail->SetLanguage ( 'zh_cn' );
 		// $mail->SMTPDebug = 1;
 		$account = config ( "email" );
+		$account ['Username'] = Cache::remember("email_username", function(){
+			Config::parse("static/email_config","ini");
+			return Config::get("email_account.Username");
+		});
+		$account ['Password'] = Cache::remember("email_password", function(){
+			Config::parse("static/email_config","ini");
+			return Config::get("email_account.Password");
+		});
 		// return $account;
 		$mail->Host = $account ['SMTP']; // Specify main and backup SMTP servers
 		$mail->SMTPAuth = true; // Enable SMTP authentication

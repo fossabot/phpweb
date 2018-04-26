@@ -1014,6 +1014,8 @@ Parameters:
 
 Callback fired after the Handsontable table is rendered.
 
+（滚动后均会触发）
+
 Parameters:
 
 | Name       | Type    | Description                                                  |

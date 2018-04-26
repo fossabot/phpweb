@@ -112,7 +112,7 @@ class Manage extends Index {
 			$aStation = array_keys ( config ( "aStation" ) );
 			$zxTitle = [ 
 					"label" => "zx_apply-new-rb",
-					"order" => "24,1,4,5,6,9,10,11,19,22,23,26" 
+					"order" => "24,1,4,5,6,9,10,19,22,23,26" 
 			];
 			$this->assign ( [ 
 					"aStationData" => implode ( ",", $aStation ),
@@ -138,46 +138,9 @@ class Manage extends Index {
 			input ( "post.r" ) == "export_zg" && $data = $this->generateZgWorkflow ( explode ( ",", input ( "post.id" ) ) );
 			input ( "post.r" ) == "export_jtip" && $data = $this->generateJtIp ( explode ( ",", input ( "post.id" ) ) );
 			input ( "post.r" ) == "export_gxbip" && $data = $this->generateGxbIp ( explode ( ",", input ( "post.id" ) ) );
-			input ( "post.r" ) == "export" && $data = $this->queryExport();
+			input ( "post.r" ) == "export" && $data = $this->queryExport ();
 			return $data;
 		}
-	}
-	/**
-	 * 获取台账信息
-	 *
-	 * @param number $limit        	
-	 * @return string
-	 */
-	private function getInfoData($limit = 100) {
-		return collection ( Infotables::order ( "create_time desc" )->limit ( $limit )->select () );
-	}
-	private function querySearch($data) {
-		$result = collection ( Infotables::where ( $data ["where"] [0], "like", "%" . $data ["where"] [2] . "%" )->order ( "create_time desc" )->select () )->toArray ();
-		return $result;
-	}
-	
-	/**
-	 * 从query.html更新台账
-	 *
-	 * @param unknown $updateData        	
-	 * @return number|\think\false
-	 */
-	private function queryUpdateInfo($updateData) {
-		$result = 0;
-		$new = [ ];
-		$infotables = new Infotables ();
-		foreach ( $updateData as $k => $v ) {
-			$line_and_id = explode ( "-", $k );
-			$result += $infotables->isUpdate ( true )->allowField ( true )->save ( $v, [ 
-					"id" => $line_and_id [1] 
-			] );
-			// 反查询刚才修改后的数据库里的值，用于前后端数据的一致性
-			$data = $infotables->where ( "id", $line_and_id [1] )->find ();
-			foreach ( $v as $kk => $vv ) {
-				$dbNew [$k] [$kk] = $data->$kk;
-			}
-		}
-		return $this->result ( $dbNew, 1, $result );
 	}
 	/**
 	 * 从query.html删除台账条目
@@ -194,12 +157,16 @@ class Manage extends Index {
 		}
 		return $result;
 	}
-	private function queryExport(){
-		$data = collection ( Infotables::order ( "create_time" )->select () )->toArray();
-		return dump($data,false);
-		$this->array_to_csv();
+	private function queryExport() {
+		$data = collection ( Infotables::order ( "create_time" )->select () )->toArray ();
+		$colHeader = "申请时间,产品实例标识,专线类别,带宽,网元厂家,A端基站,客户名称,单位详细地址,客户需求说明(选填),VLAN,IP,联系人姓名(客户侧),联系电话(客户侧),联系人邮箱(客户侧)*,负责人姓名(移动侧)*,负责人电话(移动侧)*,负责人邮箱(移动侧)*,备注,是否ONU带\n(默认为否),单位性质*,单位分类*,行业分类*,使用单位证件类型*,使用单位证件号码*,单位所在省*,单位所在市*,单位所在县*,应用服务类型*";
+		$colName = "create_time,instanceId,zxType,bandWidth,neFactory,aStation,cName,cAddress,cNeeds,vlan,ip,cPerson,cPhone,cEmail,mPerson,mPhone,mEmail,marks,ifOnu,extra.unitProperty,extra.unitCategory,extra.industryCategory,extra.credential,extra.credentialnum,extra.province,extra.city,extra.county,extra.appServType";
+		return [ 
+				"data" => $data,
+				"colHeader" => $colHeader,
+				"colName" => $colName
+		];
 	}
-	
 	protected function generateScript($id = null) {
 		$data = Infotables::get ( $id );
 		if ($data ["zxType"] == "互联网") {
@@ -430,8 +397,8 @@ class Manage extends Index {
 			$cellValues ["O" . $row] = $data ["cEmail"]; // 客户邮箱
 			$cellValues ["R" . $row] = $data ["create_time"]; // 分配时间
 			$cellValues ["F" . $row] = "企业";
-			$cellValues ["G" . $row] = isset($data ["extra"] ["province"])?$data ["extra"] ["province"]:"";
-			$cellValues ["H" . $row] = isset($data ["extra"] ["city"])?$data ["extra"] ["city"]:"";
+			$cellValues ["G" . $row] = isset ( $data ["extra"] ["province"] ) ? $data ["extra"] ["province"] : "";
+			$cellValues ["H" . $row] = isset ( $data ["extra"] ["city"] ) ? $data ["extra"] ["city"] : "";
 			$row ++;
 		}
 		$pFilename = './sampleData/ip_gxb.xls';
