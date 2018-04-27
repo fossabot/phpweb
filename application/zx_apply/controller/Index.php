@@ -259,7 +259,7 @@ class Index extends Common {
 				"instanceId" => $instanceId 
 		] );
 		if ($info) {
-			return $this->error ( "实例标识重复，请重试", null, "该实例标识对应客户名为：<br>" . $info ["cName"] );
+			return $this->error ( "实例标识重复，请重试", null, "该实例标识对应客户名为：<br>" . $info ["cName"]."<br>申请人：".$info["aPerson"] );
 		}
 	}
 }

@@ -65,6 +65,8 @@ class Manage extends Index {
 				// return dump ( $data );
 				$result = $this->updateInfo ( $data );
 				if ($result) {
+					// 发邮件告知分配完成的ip/vlan
+					
 					return $this->result ( $this->refleshTodoList (), 1, "操作成功" );
 				} else {
 					return $this->result ( null, 2, "本次提交信息并未修改" );
