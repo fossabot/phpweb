@@ -160,15 +160,15 @@ class Index extends Common {
 		if (request ()->isGet ()) {
 			// 访问
 			$aStation = array_keys ( config ( "aStation" ) );
-			$zxTitle = [
+			$zxTitle = [ 
 					"label" => "zx_apply-new-rb",
-					"order" => "24,1,2,3,4,5,6,7,8,9,10,12,13,14,15,16,17,18,19,20,29,30,31,32,33,34,35,36,37,26,22,23"
+					"order" => "24,1,2,3,4,5,6,7,8,9,10,12,13,14,15,16,17,18,19,20,29,30,31,32,33,34,35,36,37,26,22,23" 
 			];
-			$this->assign ( [
+			$this->assign ( [ 
 					"aStationData" => implode ( ",", $aStation ),
 					"colHeaderData" => $this->getHeader ( $zxTitle ["label"], $zxTitle ["order"] ),
 					"colWidthsData" => $this->getColWidths ( $zxTitle ["order"] ),
-					"data" => $this->getInfoData ()->toJson ()
+					"data" => $this->getInfoData ()->toJson () 
 			] );
 			return $this->fetch ();
 		}
@@ -180,27 +180,23 @@ class Index extends Common {
 			input ( "get.r" ) == "update" && $data = $this->queryUpdateInfo ( input ( "post." ) );
 			return $data;
 		}
+		if (request ()->isPut ()) {
+			// 相关操作
+			input ( "post.r" ) == "export" && $data = $this->queryExport ();
+			return $data;
+		}
 	}
 	/**
 	 * 获取台账信息
 	 *
-	 * @param number $limit
+	 * @param number $limit        	
 	 * @return string
 	 */
 	private function getInfoData($limit = 100) {
-		return collection ( Infotables::order ( "create_time desc" )->limit ( $limit )->select () );
-		return collection ( Infotables::where("aPerson",session("user.name"))->order ( "create_time desc" )->limit ( $limit )->select () );
+		// return collection ( Infotables::order ( "create_time desc" )->limit ( $limit )->select () );
+		return collection ( Infotables::where ( "aPerson", session ( "user.name" ) )->order ( "create_time desc" )->limit ( $limit )->select () );
 	}
-	/**
-	 * 获取台账信息
-	 *
-	 * @param number $limit
-	 * @return string
-	 */
-	private function getInfoData($limit = 100) {
-		return collection ( Infotables::order ( "create_time desc" )->limit ( $limit )->select () );
-	}
-	private function querySearch($data) {
+	protected function querySearch($data) {
 		$result = collection ( Infotables::where ( $data ["where"] [0], "like", "%" . $data ["where"] [2] . "%" )->order ( "create_time desc" )->select () )->toArray ();
 		return $result;
 	}
@@ -208,17 +204,17 @@ class Index extends Common {
 	/**
 	 * 从query.html更新台账
 	 *
-	 * @param unknown $updateData
+	 * @param unknown $updateData        	
 	 * @return number|\think\false
 	 */
-	private function queryUpdateInfo($updateData) {
+	protected function queryUpdateInfo($updateData) {
 		$result = 0;
 		$new = [ ];
 		$infotables = new Infotables ();
 		foreach ( $updateData as $k => $v ) {
 			$line_and_id = explode ( "-", $k );
-			$result += $infotables->isUpdate ( true )->allowField ( true )->save ( $v, [
-					"id" => $line_and_id [1]
+			$result += $infotables->isUpdate ( true )->allowField ( true )->save ( $v, [ 
+					"id" => $line_and_id [1] 
 			] );
 			// 反查询刚才修改后的数据库里的值，用于前后端数据的一致性
 			$data = $infotables->where ( "id", $line_and_id [1] )->find ();
@@ -227,6 +223,16 @@ class Index extends Common {
 			}
 		}
 		return $this->result ( $dbNew, 1, $result );
+	}
+	protected function queryExport() {
+		$data = collection ( Infotables::where ( "aPerson", session ( "user.name" ) )->order ( "create_time" )->select () )->toArray ();
+		$colHeader = "申请时间,产品实例标识,专线类别,带宽,网元厂家,A端基站,客户名称,单位详细地址,客户需求说明(选填),VLAN,IP,联系人姓名(客户侧),联系电话(客户侧),联系人邮箱(客户侧)*,负责人姓名(移动侧)*,负责人电话(移动侧)*,负责人邮箱(移动侧)*,备注,是否ONU带\n(默认为否),单位性质*,单位分类*,行业分类*,使用单位证件类型*,使用单位证件号码*,单位所在省*,单位所在市*,单位所在县*,应用服务类型*";
+		$colName = "create_time,instanceId,zxType,bandWidth,neFactory,aStation,cName,cAddress,cNeeds,vlan,ip,cPerson,cPhone,cEmail,mPerson,mPhone,mEmail,marks,ifOnu,extra.unitProperty,extra.unitCategory,extra.industryCategory,extra.credential,extra.credentialnum,extra.province,extra.city,extra.county,extra.appServType";
+		return [ 
+				"data" => $data,
+				"colHeader" => $colHeader,
+				"colName" => $colName 
+		];
 	}
 	/**
 	 * 更新信息

@@ -143,6 +143,15 @@ class Manage extends Index {
 		}
 	}
 	/**
+	 * 获取台账信息
+	 *
+	 * @param number $limit
+	 * @return string
+	 */
+	private function getInfoData($limit = 100) {
+		return collection ( Infotables::order ( "create_time desc" )->limit ( $limit )->select () );
+	}
+	/**
 	 * 从query.html删除台账条目
 	 *
 	 * @param unknown $input        	
@@ -157,16 +166,7 @@ class Manage extends Index {
 		}
 		return $result;
 	}
-	private function queryExport() {
-		$data = collection ( Infotables::order ( "create_time" )->select () )->toArray ();
-		$colHeader = "申请时间,产品实例标识,专线类别,带宽,网元厂家,A端基站,客户名称,单位详细地址,客户需求说明(选填),VLAN,IP,联系人姓名(客户侧),联系电话(客户侧),联系人邮箱(客户侧)*,负责人姓名(移动侧)*,负责人电话(移动侧)*,负责人邮箱(移动侧)*,备注,是否ONU带\n(默认为否),单位性质*,单位分类*,行业分类*,使用单位证件类型*,使用单位证件号码*,单位所在省*,单位所在市*,单位所在县*,应用服务类型*";
-		$colName = "create_time,instanceId,zxType,bandWidth,neFactory,aStation,cName,cAddress,cNeeds,vlan,ip,cPerson,cPhone,cEmail,mPerson,mPhone,mEmail,marks,ifOnu,extra.unitProperty,extra.unitCategory,extra.industryCategory,extra.credential,extra.credentialnum,extra.province,extra.city,extra.county,extra.appServType";
-		return [ 
-				"data" => $data,
-				"colHeader" => $colHeader,
-				"colName" => $colName
-		];
-	}
+	
 	protected function generateScript($id = null) {
 		$data = Infotables::get ( $id );
 		if ($data ["zxType"] == "互联网") {

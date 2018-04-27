@@ -7,7 +7,7 @@ file="Common/leftmenu_zx_apply_index" /} {/block} {block name="main"}
 <div class="htmltitle">
 	<h2>信息查询</h2>
 </div>
-<div>此处可查看自己申请过的专线信息</div>
+<div>此处仅可查看自己申请过的专线信息(基于申请人姓名)</div>
 <div style="margin-bottom: 3px;">
 	<form class="form-inline" onsubmit="javascript:return false;">
 		<div class="form-group has-success">
@@ -450,9 +450,8 @@ function initStatusSync(){
 		return ;
 	}
 	var _statusVal;
-	var dataObj = $("#queryTable table.htCore tbody tr");
-	console.log("dataObj",dataObj,"infoData",infoData);
-	for(var i in dataObj){
+	//var dataObj = $("#queryTable table.htCore tbody tr");
+	for(var i in infoData){
 		_statusVal = infoData[i]["status"];
 		changeStatus(parseInt(i)+1,_statusVal);
 	}
