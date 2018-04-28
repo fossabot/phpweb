@@ -46,6 +46,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		var tt = Date.now();
 		initHandsontable(infoData);
 		initSearch();
+		sessionStorage.setItem("tableStatus","yes");
 		initStatusSync();
 		console.info("\t\t渲染用时:", Date.now() - tt, "ms");
 		hot.initTimes = Date.now();
@@ -155,9 +156,9 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 	}, {
 		data: 'mPhone',
 	}, {
-		data: 'mEmail',
+		data: 'mEmail',*/
 	}, {
-		data: 'marks',*/
+		data: 'marks',
 	}, {
 		data: 'ifOnu',
 		editor : 'select',
@@ -586,11 +587,6 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 	}
 	/* 右键菜单操作 start */
 	/************************/
-	/* 打开修改页 */
-	function openModify(){
-		var info = infoData[hot.getSelectedRange()[0].from.row];
-		dhtmlx.alert("本操作等同于标记为【刚申请】，然后移步至【待办】页面即可修改。");
-	}
 	/* 加载数据制作脚本的资源并显示 */
 	function script(scriptArr){
 		window.postScript=scriptArr;

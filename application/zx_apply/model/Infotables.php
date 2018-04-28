@@ -88,7 +88,7 @@ class Infotables extends Model {
 				$data [$k] = array_filter ( $data [$k] );
 				$infotables->isUpdate ( false )->allowField ( true )->save ( $data [$k], [ ] );
 				$result [$k] = $infotables->id;
-				if (isset($data [$k] ["vlan"])) {
+				if (isset($data [$k] ["vlan"])&& isset($data [$k] ["aStation"])) {
 					// 如果vlan不为空，则记录vlan表
 					Vlantables::createVlan ( $data [$k] ["aStation"], $data [$k] ["vlan"], $data [$k] ["cName"], $result [$k] );
 				}

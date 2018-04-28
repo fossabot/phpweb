@@ -261,7 +261,8 @@ function initHandsontable(infoData){
 		},
 		afterChange: function(changes, source){	// 修改后自动同步到数据库
 			console.log("afterChangeEnv:", changes, source);
-			var updates = {},
+			dhtmlx.message("修改请直接联系管理员，在此修改暂时不会同步到服务器。");
+			/*var updates = {},
 				_id = [],
 				rows= [],
 				hotData = hot.getSourceData();
@@ -297,7 +298,7 @@ function initHandsontable(infoData){
 					}
 				});
 			}
-			updateChanges(rows, updates);
+			updateChanges(rows, updates);*/
 		},
 		afterRender: function(){
 			initStatusSync();
