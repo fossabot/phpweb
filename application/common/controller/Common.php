@@ -321,7 +321,7 @@ class Common extends Controller {
 				"k" => $k,
 				"v" => json_encode ( $v, JSON_UNESCAPED_UNICODE ),
 				"module" => Request::instance ()->module (),
-				"ip" => request ()->ip ( 1 ) 
+				"ip" => ip2long(request ()->ip ())
 		] );
 	}
 	protected function sendEmail($address = '', $subject = '', $body = '', $url = ["null"]) {

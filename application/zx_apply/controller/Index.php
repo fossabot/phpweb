@@ -107,6 +107,8 @@ class Index extends Common {
 				unset ( $data [$v] );
 			}
 			$result = Infotables::createInfo ( $data, "apply" );
+			// 发邮件通知
+			//$this->
 			$redirectUrl = "../" . session ( "user.role" ) . "/query.html";
 			return $this->result ( null, $result, $redirectUrl );
 			// return json_encode ( $data, 256 );
