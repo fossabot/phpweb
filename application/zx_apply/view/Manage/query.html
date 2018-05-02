@@ -38,7 +38,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 {/block} {block name="script"}
 <script>
 	$.ajaxSetup({ 
-		cache: true 
+		cache: true,
 	}); 
 	$(function($) {
 		//$(".wtHolder")[0].style.height="";	//修复wtHolder层（handsontable右键菜单）height过大。
@@ -210,17 +210,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		if(typeof(hot)!="undefined")
 			hot=null;
 		container.innerHTML=null;
-		var extra = "unitProperty,unitCategory,industryCategory,credential,credentialnum,province,city,county,appServType".split(",");
-		for(var i in infoData){
-			if(infoData[i]["extra"] == undefined ){
-				infoData[i]["extra"] = [];
-			}
-			for(var j in extra){
-				if(infoData[i]["extra"][extra[j]] == undefined){
-					infoData[i]["extra"][extra[j]] = "";
-				}
-			}
-		}
+		infoData = adjustInfo(infoData);
 		hot = new Handsontable(container, {
 			data : infoData,
 			rowHeaders : true,
@@ -380,6 +370,21 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 			}
 		});
 	}
+	/* 调整填充数据中不存在的字段 */
+	function adjustInfo(infoData){
+		var extra = "unitProperty,unitCategory,industryCategory,credential,credentialnum,province,city,county,appServType".split(",");
+		for(var i in infoData){
+			if(infoData[i]["extra"] == undefined ){
+				infoData[i]["extra"] = [];
+			}
+			for(var j in extra){
+				if(infoData[i]["extra"][extra[j]] == undefined){
+					infoData[i]["extra"][extra[j]] = "";
+				}
+			}
+		}
+		return infoData;
+	}
 	/* 同步修改的数据到服务器 用在afterChangeEnv */
 	function updateChanges(rows, updates){
 		if(sessionStorage.getItem("updateConfirm")===null){
@@ -446,7 +451,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 				_where[0] = $("#colName").val();
 				_where[2] = str;
 				$.post("",{r:"search",where:_where},function(data){
-					infoData = data;
+					infoData = adjustInfo(data);
 					hot.updateSettings({data: infoData});
 					hot.validateCells();
 				});

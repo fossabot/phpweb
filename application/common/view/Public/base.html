@@ -216,6 +216,11 @@
 		//拯救 dhtmlx Layout组件导致的body over-flow:hidden 失效的问题
 		$("body").removeClass("dhxwins_vp_auto");
 		resizePage();
+		$.ajaxSetup({ 
+			error: function (XMLHttpRequest, textStatus, errorThrown) {
+				dhtmlx.alert({type: "alert-error", title: "Ajax Response Status: "+textStatus, text: errorThrown});
+			} 
+		});
 	});
 </script>
 {block name="script"} {/block}

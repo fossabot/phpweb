@@ -33,8 +33,8 @@ var formStructure = [
 	    ]},
 	    {type:"settings",labelWidth:130,inputWidth:200},
 	    {type:"block",inputWidth:"auto",offsetLeft:0,list:[
-	    	{type:"input",name:"aPerson",label:"信息申请人",value:"{$Think.session.user.name}",readonly:true,required:true},
-			{type:"input",name:"aEmail",label:"信息申请人邮箱",value:"{$Think.session.user.email}",readonly:true,required:true},
+	    	{type:"input",name:"aPerson",label:"信息申请人",value:"{$Think.session.user.name}",readonly:true},
+			{type:"input",name:"aEmail",label:"信息申请人邮箱",value:"{$Think.session.user.email}",readonly:true},
 			{type:"combo",name:"unitProperty",label:"单位性质id",required:true},
 			{type:"combo",name:"unitCategory",label:"单位分类id",required:true},
 			{type:"combo",name:"industryCategory",label:"行业分类id",required:true},
@@ -50,7 +50,7 @@ var formStructure = [
 		{type:"button",name:"test",value:"测试数据"},
 	]},
 ];
-var ipStructure = {type:"label",label:"填写分配信息",list:[
+var ipStructure = {type:"label",name:"ipStructure",label:"填写分配信息",list:[
 	{type:"input",label:"vlan",name:"vlan",validate:"^[2-3][0-9]{3}$",required:true},
 	{type:"input",label:"互联ip",name:"ip",validate:"ipstr",required:true},
 	{type:"input",label:"业务ip",name:"ipB",validate:"ipstr"}

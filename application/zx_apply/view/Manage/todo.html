@@ -93,6 +93,13 @@ function form_init(formData){
 	evId = myForm.attachEvent("onButtonClick", function(id){
 		var mainId = myList.getSelected();
 		if(id=="auto_pre"){
+			myForm.disableItem("ipStructure");
+			var valid = myForm.validate();
+			myForm.enableItem("ipStructure")
+			if(!valid){
+				dhtmlx.alert("请检查数据是否有效，然后重试");
+				return ;
+			}
 			var data = {id: myForm.getFormData().id};
 			$.post("?req=auto_pre",data,function(d){
 				myForm.setItemValue("vlan",d.preVlan);
