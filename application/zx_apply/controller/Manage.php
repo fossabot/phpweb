@@ -93,9 +93,9 @@ class Manage extends Index {
 		// 更新单条数据
 		$result = $infotables->isUpdate ( true )->save ( $data, [ 
 				"id" => $data ["id"] 
-		] ); 
+		] );
 		// 更新最后分配的IP
-		isset($data["ip"]) && Iptables::setLastIp($data["ip"]);
+		isset ( $data ["ip"] ) && Iptables::setLastIp ( $data ["ip"] );
 		$infotables->find ( $data ["id"] );
 		return $result;
 	}

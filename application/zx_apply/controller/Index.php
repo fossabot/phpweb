@@ -29,9 +29,8 @@ class Index extends Common {
 	 * @return void|string
 	 */
 	public function tt() {
-		$data = Infotables::get ( 62 )->toArray ();
+		return "This is <b>Index->tt";
 	}
-	
 	/**
 	 * 首页-登录
 	 *
@@ -108,7 +107,9 @@ class Index extends Common {
 			}
 			$result = Infotables::createInfo ( $data, "apply" );
 			// 发邮件通知
-			//$this->
+			$subject = "[待办通知]ip、vlan申请-" . $data ["cName"] . $data ["instanceId"];
+			$body = "<p>请登陆系统及时处理：</p><br> 内网： <a href='http://10.65.178.202/zx_apply/manage/todo.html'>http://10.65.178.202/zx_apply/manage/todo.html</a><br>外网： <a href='http://223.100.98.60:800/zx_apply/manage/todo.html'>http://223.100.98.60:800/zx_apply/manage/todo.html</a>";
+			$this->sendManageNotice ( $subject, $body );
 			$redirectUrl = "../" . session ( "user.role" ) . "/query.html";
 			return $this->result ( null, $result, $redirectUrl );
 			// return json_encode ( $data, 256 );
@@ -261,7 +262,20 @@ class Index extends Common {
 				"instanceId" => $instanceId 
 		] );
 		if ($info) {
-			return $this->error ( "实例标识重复，请重试", null, "该实例标识对应客户名为：<br>" . $info ["cName"]."<br>申请人：".$info["aPerson"] );
+			return $this->error ( "实例标识重复，请重试", null, "该实例标识对应客户名为：<br>" . $info ["cName"] . "<br>申请人：" . $info ["aPerson"] );
 		}
+	}
+	/**
+	 * 给管理员发送通知
+	 *
+	 * @param string $subject        	
+	 * @param string $body        	
+	 */
+	protected function sendManageNotice($subject = '', $body = '') {
+		$address = config ( "manageEmails" );
+		foreach ( $address as $k => $v ) {
+			$address [$k] = $v . "@ln.chinamobile.com";
+		}
+		$this->sendEmail ( $address, $subject, $body );
 	}
 }

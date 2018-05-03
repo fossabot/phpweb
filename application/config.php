@@ -12,9 +12,9 @@
 return [
 		'email' => [
 				'SMTP' => 'smtp.139.com',
+				'Port' => 465,
 				//'Username' => 'yxd9721@vip.qq.com',
 				//'Password' => 'tatjowlynmnwbcah',
-				'Port' => 25
 		],
     // +----------------------------------------------------------------------
     // | 应用设置
