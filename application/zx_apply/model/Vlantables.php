@@ -20,7 +20,7 @@ class Vlantables extends Model {
 	 */
 	public static function createVlan($aStation = "", $vlan = "", $description = "", $infoId = null) {
 		if (is_null ( $infoId )) {
-			return;	// 仅内部调用，infoId不会为空。
+			return; // 仅内部调用，infoId不会为空。
 		}
 		$vlantables = new static ();
 		// todo: 根据infoId，如果已存在则更新，否则新增。
@@ -36,9 +36,11 @@ class Vlantables extends Model {
 			$where = [ 
 					"infoId" => $data ["infoId"] 
 			];
-			$dbData = self::get($where);
+			$dbData = self::get ( $where );
 			if ($dbData) {
-				$vlantables->isUpdate ( true )->allowField ( true )->save ( $data,["id"=>$dbData->id]);
+				$vlantables->isUpdate ( true )->allowField ( true )->save ( $data, [ 
+						"id" => $dbData->id 
+				] );
 			} else {
 				$vlantables->isUpdate ( false )->allowField ( true )->save ( $data );
 			}
@@ -54,7 +56,7 @@ class Vlantables extends Model {
 	 * @return number|string
 	 */
 	public static function generateVlan($device = "", $cName = "", $manual = false) {
-		$usedVlans = self::where ( "deviceName", $device )->column ( "vlan" );
+		$usedVlans = self::where ( "deviceName", $device )->distinct ( true )->column ( "vlan" );
 		for($vlan = 2111; $vlan < 3071; $vlan ++) {
 			if (! in_array ( $vlan, $usedVlans )) {
 				$preVlan = $vlan;

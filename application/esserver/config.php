@@ -1,6 +1,6 @@
 <?php
 return [ 
-		'version' => "V2.0131.es", 
+		'version' => "V2.0131-es", 
 		'logDatabase' =>[
 				'type'           => 'mysql',
 				// 服务器地址

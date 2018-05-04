@@ -1,6 +1,6 @@
 <?php
 return [ 
-		'version' => "V1.0622.gz",
+		'version' => "V1.0622-gz",
 		'appDatabase' => [ 
 				// 数据库类型
 				'type' => 'Sqlsrv',
