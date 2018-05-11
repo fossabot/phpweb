@@ -39,7 +39,7 @@ class Manage extends Index {
 			foreach ( $extra as $k => $v ) {
 				$detail [$k] = $v;
 			}
-			$detail ["ip"] = $info ["ip"]; // 更正ip
+			$detail ["ip"] = $info ["ip"]; // 更正ip为 str 形式
 			$detail ["ipB"] = $info ["ipB"]; // 更正ipB
 			unset ( $detail ["extra"] );
 			if ($req == "getDetail") {
@@ -61,12 +61,15 @@ class Manage extends Index {
 				$this->checkInstanceID ( $info, $data );
 				$data = $this->checkAndSetIp ( $info, $data );
 				$this->checkAndSetVlan ( $data );
-				// $data ["status"] = 1;
+				$data ["status"] = 1;
 				// return dump ( $data );
 				$result = $this->updateInfo ( $data );
 				if ($result) {
 					// 发邮件告知分配完成的ip/vlan
-					
+// 					$title = '[申请已处理]数据专线开通-' . $data ['cName'] . '-' . $data ['instanceId'] . '-' . $data ['ip'] . '-' . $data ['vlan'];
+// 					$body = "<p>更多信息请登陆系统查看：</p><br>内网： <a href='http://10.65.178.202/zx_apply/index/query.html'>http://10.65.178.202/zx_apply/index/query.html</a><br>外网： <a href='http://223.100.98.60:800/zx_apply/index/query.html'>http://223.100.98.60:800/zx_apply/index/query.html</a>";
+// 					$body += "<hr><p>Tips: 系统内查看时可右键菜单，发现更多操作。</p>";
+// 					$this->sendEmail ( $data ['aEmail'], $title, $body );
 					return $this->result ( $this->refleshTodoList (), 1, "操作成功" );
 				} else {
 					return $this->result ( null, 2, "本次提交信息并未修改" );
@@ -560,6 +563,7 @@ class Manage extends Index {
 	 *
 	 * @param unknown $info        	
 	 * @param unknown $data        	
+	 * @return void|NULL|unknown
 	 */
 	protected function checkAndSetIp($info, $data) {
 		if ($info ["ip"] != $data ["ip"]) { // 获取的ip有变化，则检查是否冲突
@@ -584,7 +588,7 @@ class Manage extends Index {
 		}
 		// 设置ipBMask
 		$ipB_array = Iptables::ip_parse ( $data ["ipB"] );
-		/* 若为提供ipBMask，默认强制设置ipBMask为-8 */
+		/* 若未提供ipBMask，默认强制设置ipBMask为-8 */
 		$ipB_array [1] == - 1 && $ipB_array = Iptables::ip_parse ( Iptables::ip_export ( $ipB_array [0], - 8 ) );
 		/* 修正ip为ip_start */
 		$data ["ipB"] = $ipB_array [2];
