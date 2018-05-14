@@ -104,8 +104,11 @@ function form_init(formData){
 			$.post("?req=auto_pre",data,function(d){
 				myForm.setItemValue("vlan",d.preVlan);
 				myForm.setItemValue("ip",d.genIp);
-				var str = calculateUsedVlans(d.usedVlans);
-				dhtmlx.alert({width: "700px", title: d.device+" 已使用vlan(集客部分)", text: str});
+				$.get("../Common/_calculateUsedVlans.html",function(data){
+					$("body").append(data);
+					var str = calculateUsedVlans(d.usedVlans);
+					dhtmlx.alert({width: "700px", title: d.device+" 已使用vlan(集客部分)", text: str});
+				});
 			});
 		}else if(id=="commit"){
 			if(myForm.validate()){
@@ -155,35 +158,6 @@ function ipstr(value){
 	var b = a.length==1?true:a.length>2?false:parseInt(a[1])<=32&&a[1].match(/^\d{0,2}$/);
 	return c&&!!(c[1]<=255&&c[2]<=255&&c[3]<=255&&c[4]<=255)&&b||false;
 }
-/**
- * 将数组格式的已使用vlan变成 vlan batch格式
- */
-function calculateUsedVlans(usedVlans){
-	usedVlans = usedVlans.sort();
-	var array = [];
-	array.push(usedVlans[0]);
-	var v_1,v0;
-	for(var i=1;i<usedVlans.length;i++){
-		v_1 = usedVlans[i-1];
-		v0 = usedVlans[i];
-		if(v0 == v_1+1){
-			if(array[array.length-1] != "to"){
-				array.push("to");
-			}
-		}else {
-			if(array[array.length-1] == "to"){
-				array.push(v_1);
-				array.push(v0);
-			}else{
-				array.push(v0);
-			}
-		}
-	}
-	if(array[array.length-1] == "to"){
-		array.push(usedVlans[usedVlans.length-1]);
-	}
-	var str = array.join(" ");
-	return str;
-}
+
 </script>
 {/block}

@@ -58,10 +58,11 @@ myForm.enableLiveValidation(true);
 {include file="Common/_formConfig" /}
 <script>
 myForm.reloadOptions("zxType",config["default"]["zxType"]);
+myForm.setItemValue("lastIpStr","{$lastIp|default=''}");
 combo = myForm.getCombo("device");
 combo.clearAll();
 combo.setTemplate({
-	input:"#SW#-#position#",
+	input:"#SW#--#position#",
 	//header:false,//if you want to hide header
 	columns:[
 		{header:"设备名",width:60,option:"#SW#"},
@@ -70,6 +71,22 @@ combo.setTemplate({
 });
 combo.addOption(config["muticolumn"]["device"]);
 combo.enableFilteringMode("between");
+combo.attachEvent("onChange",function(value,text){
+	console.log(value,text);
+	var aStation = text.split("--")[1];
+	$.get("generateVlan.html?d="+aStation,function(data){
+		if(!data){
+			myForm.setItemValue("vlanImport", '');
+			return;
+		}
+		$.get("../Common/_calculateUsedVlans.html",function(data2){
+			window.ddd=data2;
+			$("body").append(data2);
+			var str = calculateUsedVlans(data.usedVlans);
+			myForm.setItemValue("vlanImport", str);
+		});
+	});
+});
 myForm.attachEvent("onButtonClick", function(id) {
 	if(id == "ok_ip"){
 		myForm.disableItem("updateUsedVlans");

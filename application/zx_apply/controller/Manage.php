@@ -7,6 +7,7 @@ use app\zx_apply\model\Vlantables;
 use app\zx_apply\model\Infotables;
 use app\zx_apply\model\Iptables;
 use Overtrue\Pinyin\Pinyin;
+use think\Db;
 
 class Manage extends Index {
 	protected $beforeActionList = [ 
@@ -66,10 +67,10 @@ class Manage extends Index {
 				$result = $this->updateInfo ( $data );
 				if ($result) {
 					// 发邮件告知分配完成的ip/vlan
-// 					$title = '[申请已处理]数据专线开通-' . $data ['cName'] . '-' . $data ['instanceId'] . '-' . $data ['ip'] . '-' . $data ['vlan'];
-// 					$body = "<p>更多信息请登陆系统查看：</p><br>内网： <a href='http://10.65.178.202/zx_apply/index/query.html'>http://10.65.178.202/zx_apply/index/query.html</a><br>外网： <a href='http://223.100.98.60:800/zx_apply/index/query.html'>http://223.100.98.60:800/zx_apply/index/query.html</a>";
-// 					$body += "<hr><p>Tips: 系统内查看时可右键菜单，发现更多操作。</p>";
-// 					$this->sendEmail ( $data ['aEmail'], $title, $body );
+					// $title = '[申请已处理]数据专线开通-' . $data ['cName'] . '-' . $data ['instanceId'] . '-' . $data ['ip'] . '-' . $data ['vlan'];
+					// $body = "<p>更多信息请登陆系统查看：</p><br>内网： <a href='http://10.65.178.202/zx_apply/index/query.html'>http://10.65.178.202/zx_apply/index/query.html</a><br>外网： <a href='http://223.100.98.60:800/zx_apply/index/query.html'>http://223.100.98.60:800/zx_apply/index/query.html</a>";
+					// $body += "<hr><p>Tips: 系统内查看时可右键菜单，发现更多操作。</p>";
+					// $this->sendEmail ( $data ['aEmail'], $title, $body );
 					return $this->result ( $this->refleshTodoList (), 1, "操作成功" );
 				} else {
 					return $this->result ( null, 2, "本次提交信息并未修改" );
@@ -107,7 +108,6 @@ class Manage extends Index {
 				"status" => 0 
 		];
 		$field = "id,cName,create_time,aPerson,instanceId,zxType,aStation";
-		// $info = new Infotables();
 		$data = Infotables::where ( $where )->field ( $field )->select (); // explode(",", $field)
 		return json_encode ( $data, 256 );
 	}
@@ -196,11 +196,11 @@ class Manage extends Index {
 		$pinyin = new Pinyin ();
 		$desc = substr ( $data ["sw93"], 0, stripos ( $data ["sw93"], "-" ) + 1 );
 		$desc = str_replace ( "CHJ", "TL", $desc );
-		$_desc = $pinyin->convert ( preg_replace ( "/[^\x{4e00}-\x{9fa5}A-Za-z-]/u", "", $data ["cName"] ) );
+		$_desc = $pinyin->convert ( preg_replace ( "/[^\x{4e00}-\x{9fa5}A-Za-z0-9-]/u", "", $data ["cName"] ) );
 		foreach ( $_desc as $v ) {
 			$desc .= ucfirst ( $v );
 		}
-		$data ["desc"] = $desc; // 3. 描述
+		$data ["desc"] = $desc . "_NET"; // 3. 描述
 		$device9312 = json_decode ( config ( "device9312" ), true ) [$data ["sw93"]];
 		function bas($bas, $device9312, $data) {
 			$trunk = $device9312 ['bas' . $bas . '_down_port'];
@@ -264,7 +264,7 @@ class Manage extends Index {
 		$pinyin = new Pinyin ();
 		$desc = substr ( $data ["sw93"], 0, stripos ( $data ["sw93"], "-" ) + 1 ); // 3. 描述
 		$desc = str_replace ( "CHJ", "TL", $desc );
-		$_desc = $pinyin->convert ( preg_replace ( "/[^\x{4e00}-\x{9fa5}A-Za-z-]/u", "", $data ["cName"] ) );
+		$_desc = $pinyin->convert ( preg_replace ( "/[^\x{4e00}-\x{9fa5}A-Za-z0-9-]/u", "", $data ["cName"] ) );
 		foreach ( $_desc as $v ) {
 			$desc .= ucfirst ( $v );
 		}
@@ -548,6 +548,10 @@ class Manage extends Index {
 			if (! strpos ( request ()->header ( "referer" ), request ()->action () )) {
 				session ( "settings_back_url", request ()->header ( "referer" ) );
 			}
+			$lastIp = Iptables::ip_export(Db::table ( "phpweb_sysinfo" )->where ( "label", "zx_apply-lastIP" )->value ( "value" ));
+			$this->assign ( [ 
+					"lastIp" => $lastIp,
+			] );
 			return $this->fetch ();
 		} else if (request ()->isPost ()) {
 			if (input ( "post.exec" ) == "ok_ip") {
@@ -637,5 +641,9 @@ class Manage extends Index {
 		$pool = new \Cache\Adapter\Redis\RedisCachePool ( $client );
 		$simpleCache = new \Cache\Bridge\SimpleCache\SimpleCacheBridge ( $pool );
 		\PhpOffice\PhpSpreadsheet\Settings::setCache ( $simpleCache );
+	}
+	public function tt() {
+		$result = strlen ( null ) ? 11 : 22;
+		return dump ( $result );
 	}
 }

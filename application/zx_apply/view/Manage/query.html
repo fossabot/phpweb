@@ -533,7 +533,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 				"marks":"备注",
 				"status":"状态"
 		};
-		var str = '<p style="padding:5px;font-size:12px;background-color:'+backgroundColor[d.status]+';position: relative;width: 100%;height: 400px;overflow: auto;">';
+		var str = '<p class="_detail_str" style="padding:5px;font-size:12px;background-color:'+backgroundColor[d.status]+';position: relative;width: 100%;height: 400px;overflow: auto;">';
 		for(var i in keys){
 			if(/\./.test(i)){
 				var arr = i.split(".");
@@ -692,7 +692,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		var newData = {};
 		newData[row+"-"+infoData[row].id] = {"status":status};
 		postUpdate(newData);
-		//changeStatus(row,status);
+		$("._detail_str").css('background-color',backgroundColor[status]);
 	}
 	/* 导出台账 （全量） */
 	function export_all(){
@@ -704,7 +704,6 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 			wrFiles();
 		}
 		function wrFiles(){
-			
 			/* original data */
 			var filename = "new-223-net-ip-tables-" + (new Date()).pattern("yyyy.MM.dd") + ".xlsx";
 			$.post("",{_method: "PUT", r: "export"},function(data){

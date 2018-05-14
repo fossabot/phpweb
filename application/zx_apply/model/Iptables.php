@@ -47,8 +47,24 @@ class Iptables extends Model {
 	 * @return number
 	 */
 	public static function setLastIp($ipStr = "") {
-		$ip = self::ip_parse ( $ipStr ) [2];
-		$result = Db::table ( "phpweb_sysinfo" )->where ( "label", "zx_apply-lastIP" )->setField ( "value", $ip );
+		if (is_numeric ( $ipStr )) {
+			$ip = $ipStr;
+		} else {
+			$ip = self::ip_parse ( $ipStr ) [2];
+		}
+		if (!strlen ( $ip )) {
+			return;
+		}
+		// 已存在则更新，不存在则新增
+		if (Db::table ( "phpweb_sysinfo" )->where ( "label", "zx_apply-lastIP" )->find ()) {
+			$result = Db::table ( "phpweb_sysinfo" )->where ( "label", "zx_apply-lastIP" )->setField ( "value", $ip );
+		} else {
+			$data = [ 
+					"label" => "zx_apply-lastIP",
+					"value" => $ip 
+			];
+			$result = Db::table ( "phpweb_sysinfo" )->insert ( $data );
+		}
 		return $result;
 	}
 	/**
@@ -61,10 +77,14 @@ class Iptables extends Model {
 	 * @return array|\think\db\false|PDOStatement|string|\think\Model
 	 */
 	public static function check($ip_str = "", $filed = "ip", $zxType = "互联网") {
-		$ip = self::ip_parse ( $ip_str );
-		$data = Db::name ( "infotables" )->where ( [ 
+		if ($ip_str == "") {
+			return;
+		}
+		$ip = self::ip_parse ( $ip_str ) [2];
+		$infotables = new Infotables ();
+		$data = $infotables->where ( [ 
 				"zxType" => $zxType,
-				$filed => $ip [2] 
+				$filed => $ip 
 			// $filed . "Mask" => $ip [1]
 		] )->field ( "id,cName" )->find ();
 		return $data;
