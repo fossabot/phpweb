@@ -104,11 +104,14 @@ function form_init(formData){
 			$.post("?req=auto_pre",data,function(d){
 				myForm.setItemValue("vlan",d.preVlan);
 				myForm.setItemValue("ip",d.genIp);
-				$.get("../Common/_calculateUsedVlans.html",function(data){
-					$("body").append(data);
-					var str = calculateUsedVlans(d.usedVlans);
-					dhtmlx.alert({width: "700px", title: d.device+" 已使用vlan(集客部分)", text: str});
-				});
+				if(typeof calculateUsedVlans =='function'){
+					dhtmlx.alert({width: "700px", title: d.device+" 已使用vlan(集客部分)", text: calculateUsedVlans(d.usedVlans)});
+				}else{
+					$.get("../Common/_calculateUsedVlans.html",function(data){
+						$("body").append(data);
+						dhtmlx.alert({width: "700px", title: d.device+" 已使用vlan(集客部分)", text: calculateUsedVlans(d.usedVlans)});
+					});
+				}
 			});
 		}else if(id=="commit"){
 			if(myForm.validate()){

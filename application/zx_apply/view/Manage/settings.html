@@ -72,21 +72,26 @@ combo.setTemplate({
 combo.addOption(config["muticolumn"]["device"]);
 combo.enableFilteringMode("between");
 combo.attachEvent("onChange",function(value,text){
-	console.log(value,text);
 	var aStation = text.split("--")[1];
 	$.get("generateVlan.html?d="+aStation,function(data){
 		if(!data){
 			myForm.setItemValue("vlanImport", '');
 			return;
 		}
-		$.get("../Common/_calculateUsedVlans.html",function(data2){
-			window.ddd=data2;
-			$("body").append(data2);
-			var str = calculateUsedVlans(data.usedVlans);
-			myForm.setItemValue("vlanImport", str);
-		});
+		if(typeof calculateUsedVlans =='function'){
+			showVlanBatch(data.usedVlans);
+		}else{
+			$.get("../Common/_calculateUsedVlans.html",function(data2){
+				$("body").append(data2);
+				showVlanBatch(data.usedVlans);
+			});
+		}
 	});
 });
+function showVlanBatch(data){
+	var str = calculateUsedVlans(data);
+	myForm.setItemValue("vlanImport", str);	
+}
 myForm.attachEvent("onButtonClick", function(id) {
 	if(id == "ok_ip"){
 		myForm.disableItem("updateUsedVlans");
