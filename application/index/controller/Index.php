@@ -3,7 +3,7 @@
 namespace app\index\controller;
 
 use think\Controller;
-use think\Session;
+use PHPMailer\PHPMailer\PHPMailer;
 
 class Index extends Controller {
 	public function index() {
@@ -18,7 +18,7 @@ class Index extends Controller {
 		}
 	}
 	public function testMail() {
-		$mail = new \PHPMailer ();
+		$mail = new PHPMailer();
 		$mail->isSMTP (); // Set mailer to use SMTP
 		$mail->CharSet = "utf-8";
 		$mail->SetLanguage ( 'zh_cn' );

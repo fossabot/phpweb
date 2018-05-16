@@ -2,20 +2,14 @@
 <ul id="leftMenu" class="nav nav-stacked nav-pills">
 	<li><a href="{$Think.session.settings_back_url}"><span
 			class="glyphicon glyphicon-chevron-left"></span>返回</a></li>
-	<li><a href="settings.html">系统设置</a></li>
+	<li><a href="settings.html">更多操作</a></li>
+	<li><a href="#lastIp">最后一次分配的ip</a></li>
 	<li><a href="#vlan">已使用vlan</a></li>
 </ul>
 {/block}{block name="main"}
 <div class="htmltitle">
-	<h2>系统设置</h2>
+	<h2>更多操作</h2>
 </div>
-<pre>
-1.更新最后一次分配的IP：（专线类别，ip） 
-2.修改vlan，专线换vlan。(todo!!)
-3.手动更新已使用vlan记录：（设备名，vlan，标记为手动标记已用）
-
-相关配置均在 applpcation/zx_apply/config.php 中 
-</pre>
 <div>
 	<div id="updateLastIP"></div>
 </div>
@@ -39,8 +33,8 @@ var updateLastIP_formStructure = [
 		]},
 	]},
 	{type:"fieldset",name:"updateUsedVlans",label:"3.更新已分配vlan记录",width:950,offsetLeft:15,list:[
-		{type:"combo",name:"device",label:"设备名",required:true},
-		{type:"input",name:"vlanImport",label:"全局配置",inputWidth:800,validate:"",rows:6,required:true},
+		{type:"combo",name:"device",label:"设备名",required:true,note:{text:"只能新增已使用的vlan，不支持删除"}},
+		{type:"input",name:"vlanImport",label:"全局配置",inputWidth:800,validate:"",rows:6,required:true,note:{text:"将9312的全局配置粘贴过来，或只粘贴 vlan batch 部分即可。"}},
 		{type:"block",inputWidth:"auto",offsetLeft:300,list:[
 			{type:"button",name:"ok_vlan",value:"确定"},
 			{type:"newcolumn"},

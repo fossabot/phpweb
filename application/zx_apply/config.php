@@ -1,6 +1,6 @@
 <?php
 return [ 
-		'version' => "V0.4.2-zx",
+		'version' => "V0.4.3-zx",
 		'db_esserver' => [ 
 				'type' => 'Sqlsrv',
 				// 服务器地址

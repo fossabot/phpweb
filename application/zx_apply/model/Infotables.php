@@ -22,7 +22,7 @@ class Infotables extends Model {
 		}
 	}
 	public function getIpAttr($value, $data) {
-		return Iptables::ip_export ( $value, $data ["ipMask"] );
+		return Iptables::ip_export ( $value, isset ( $data ["ipMask"] ) ? $data ["ipMask"] : - 1 );
 		return $value ? long2ip ( $value ) : null;
 	}
 	public function setIpBAttr($value) {
@@ -33,7 +33,7 @@ class Infotables extends Model {
 		}
 	}
 	public function getIpBAttr($value, $data) {
-		return Iptables::ip_export ( $value, $data ["ipBMask"] );
+		return Iptables::ip_export ( $value, isset ( $data ["ipBMask"] ) ? $data ["ipBMask"] : - 4 );
 	}
 	public function setNeFactoryAttr($value) {
 		// if (preg_match_all ( "/[0-9]/", $tt ) == strlen ( $tt )) {
@@ -88,7 +88,7 @@ class Infotables extends Model {
 				$data [$k] = array_filter ( $data [$k] );
 				$infotables->isUpdate ( false )->allowField ( true )->save ( $data [$k], [ ] );
 				$result [$k] = $infotables->id;
-				if (isset($data [$k] ["vlan"])&& isset($data [$k] ["aStation"])) {
+				if (isset ( $data [$k] ["vlan"] ) && isset ( $data [$k] ["aStation"] )) {
 					// 如果vlan不为空，则记录vlan表
 					Vlantables::createVlan ( $data [$k] ["aStation"], $data [$k] ["vlan"], $data [$k] ["cName"], $result [$k] );
 				}

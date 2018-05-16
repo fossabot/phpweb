@@ -3,7 +3,7 @@
 namespace app\zx_apply\controller;
 
 use think\Controller;
-use app\common\controller\Common;
+
 
 class Tool extends Common {
 	public function _initialize() {

@@ -328,7 +328,7 @@ class Common extends Controller {
 	}
 	protected function sendEmail($address = [], $subject = '', $body = '', $url = ["null"]) {
 		try {
-			$mail = new PHPMailer ();
+			$mail = new PHPMailer();
 			$mail->isSMTP (); // Set mailer to use SMTP
 			$mail->CharSet = "utf-8";
 			$mail->SetLanguage ( 'zh_cn' );

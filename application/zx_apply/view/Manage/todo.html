@@ -116,22 +116,30 @@ function form_init(formData){
 		}else if(id=="commit"){
 			if(myForm.validate()){
 				var myData = myForm.getFormData();
+				var emailData = {
+						id: myData.id,
+						address: myData.aEmail,
+						zxType: myData.zxType,
+						cName: myData.cName,
+						vlan: myData.vlan,
+						ip: myData.ip,
+						ipB: myData.ipB
+				};
+				sessionStorage.setItem("emailData",JSON.stringify(emailData));
 				$.post("?req=distribution",myData,function(data){
 					if(data.url){
 						dhtmlx.alert({text:"登陆超时！",callback:function(){location.href=data.url;}});
 					}
-					dhtmlx.alert({
-						type: data.code ? "alert" : "alert-warning",
+					dhtmlx.message({
+						type: ["alert-warning", "confirm", "alert"][data.code],
 						title: "&nbsp;",
-						text: data.msg + (data.code ? "" : "<br>已分配给:" + data.data),
-						callback: function(){
-							//location.href = "query.html";
-							if(data.code){
-								if(data.code > 1) return;	// 无修改
-								myList.clearAll();
-								data.data && myList.parse(data.data,"json");
-								$("#form_container").html("");
-							}
+						text: data.msg + (data.code ? "" : "已分配给:<br>" + data.data),
+						callback: function(result){
+							if(data.code != 1) return;	// 已给提示
+							result && sendResultEmail();
+							myList.clearAll();
+							data.data && myList.parse(data.data,"json");
+							$("#form_container").html("");
 						},
 					});
 					setTimeout(function(){
@@ -152,6 +160,17 @@ function form_init(formData){
 		}
 	});
 }
+/* 发送[申请已处理]邮件 */
+function sendResultEmail(){
+	var data = JSON.parse(sessionStorage.getItem("emailData"));
+	$.post("sendResultEmail.html",data,function(d){
+		if(d.code){
+			dhtmlx.message("邮件发送成功<br>"+JSON.parse(sessionStorage.getItem("emailData")).address);
+		}else{
+			dhtmlx.alert({title: "邮件发送失败", text: d.data});
+		}
+	});
+}
 /**
  * 验证是否符合ip字符串的格式:10.10.10.10/32
  */
@@ -161,6 +180,5 @@ function ipstr(value){
 	var b = a.length==1?true:a.length>2?false:parseInt(a[1])<=32&&a[1].match(/^\d{0,2}$/);
 	return c&&!!(c[1]<=255&&c[2]<=255&&c[3]<=255&&c[4]<=255)&&b||false;
 }
-
 </script>
 {/block}

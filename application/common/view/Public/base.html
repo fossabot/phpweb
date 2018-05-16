@@ -207,7 +207,7 @@
 		//var mypath = "{$Request.path}";
 		//mypath = mypath.substr(mypath.lastIndexOf("/") + 1, mypath.length);
 		var cur_page = $(".leftmenu ul li a[href='{$Request.action}.html']");
-		document.title = cur_page.text() + "-";
+		document.title = cur_page.text() + "-{$title|default=''}";
 		cur_page.parent().addClass("active");
 		//禁用<li>标签click事件
 		$(".leftmenu ul li.disabled").on("click", function() {

@@ -62,16 +62,12 @@ class Manage extends Index {
 				$this->checkInstanceID ( $info, $data );
 				$data = $this->checkAndSetIp ( $info, $data );
 				$this->checkAndSetVlan ( $data );
-				$data ["status"] = 1;
-				// return dump ( $data );
+				//$data ["status"] = 1;
 				$result = $this->updateInfo ( $data );
+				// 防止提前修改 status 导致 信息未修改无法识别
+				//Infotables::where("id",$data["id"])->setInc("status");
 				if ($result) {
-					// 发邮件告知分配完成的ip/vlan
-					// $title = '[申请已处理]数据专线开通-' . $data ['cName'] . '-' . $data ['instanceId'] . '-' . $data ['ip'] . '-' . $data ['vlan'];
-					// $body = "<p>更多信息请登陆系统查看：</p><br>内网： <a href='http://10.65.178.202/zx_apply/index/query.html'>http://10.65.178.202/zx_apply/index/query.html</a><br>外网： <a href='http://223.100.98.60:800/zx_apply/index/query.html'>http://223.100.98.60:800/zx_apply/index/query.html</a>";
-					// $body += "<hr><p>Tips: 系统内查看时可右键菜单，发现更多操作。</p>";
-					// $this->sendEmail ( $data ['aEmail'], $title, $body );
-					return $this->result ( $this->refleshTodoList (), 1, "操作成功" );
+					return $this->result ( $this->refleshTodoList (), 1, "操作成功。<br>是否发送邮件通知给申请人？" );
 				} else {
 					return $this->result ( null, 2, "本次提交信息并未修改" );
 				}
@@ -110,6 +106,24 @@ class Manage extends Index {
 		$field = "id,cName,create_time,aPerson,instanceId,zxType,aStation";
 		$data = Infotables::where ( $where )->field ( $field )->select (); // explode(",", $field)
 		return json_encode ( $data, 256 );
+	}
+	/**
+	 * 发邮件告知申请已处理
+	 */
+	public function sendResultEmail($address = '', $zxType = '', $cName = '[unknown cName]') {
+		$input = input ( "post." );
+		$address = $input ['address'];
+		$zxType = $input ['zxType'];
+		$cName = $input ['cName'];
+		$db = Infotables::field("zxType,cName,vlan,ip,ipB,aEmail")->find($input["id"]);
+		$address = $db->aEmail;
+		$title = '[申请已处理]' . $zxType . '专线-' . $cName;
+		$body = "";
+		$body .=dump($db->toArray(),false);
+		$body .= "<p>更多信息请登陆系统查看：</p><br>内网： <a href='http://10.65.178.202/zx_apply/index/query.html'>http://10.65.178.202/zx_apply/index/query.html</a><br>外网： <a href='http://223.100.98.60:800/zx_apply/index/query.html'>http://223.100.98.60:800/zx_apply/index/query.html</a>";
+		$body .= "<hr><p style='color: blue;'>Tips: 系统内查看时可右键菜单，发现更多操作。</p>";
+		$result = $this->sendEmail ( $address, $title, $body );
+		return $this->result ( $result, is_bool($result) ? 1 : 0 );
 	}
 	/**
 	 * 信息查询
@@ -548,9 +562,9 @@ class Manage extends Index {
 			if (! strpos ( request ()->header ( "referer" ), request ()->action () )) {
 				session ( "settings_back_url", request ()->header ( "referer" ) );
 			}
-			$lastIp = Iptables::ip_export(Db::table ( "phpweb_sysinfo" )->where ( "label", "zx_apply-lastIP" )->value ( "value" ));
+			$lastIp = Iptables::ip_export ( Db::table ( "phpweb_sysinfo" )->where ( "label", "zx_apply-lastIP" )->value ( "value" ) );
 			$this->assign ( [ 
-					"lastIp" => $lastIp,
+					"lastIp" => $lastIp 
 			] );
 			return $this->fetch ();
 		} else if (request ()->isPost ()) {
