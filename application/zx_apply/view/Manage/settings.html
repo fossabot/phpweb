@@ -84,7 +84,7 @@ combo.attachEvent("onChange",function(value,text){
 });
 function showVlanBatch(data){
 	var str = calculateUsedVlans(data);
-	myForm.setItemValue("vlanImport", str);	
+	myForm.setItemValue("vlanImport", "vlan batch " + str);	
 }
 myForm.attachEvent("onButtonClick", function(id) {
 	if(id == "ok_ip"){

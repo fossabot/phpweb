@@ -196,10 +196,18 @@ class Index extends Common {
 	 * @return string
 	 */
 	private function getInfoData($limit = 100) {
-		// return collection ( Infotables::order ( "create_time desc" )->limit ( $limit )->select () );
-		return collection ( Infotables::where ( "aPerson", session ( "user.name" ) )->order ( "create_time desc" )->limit ( $limit )->select () );
+		if (session ( "user.role" ) == "manage") {
+			return collection ( Infotables::order ( "create_time desc" )->limit ( $limit )->select () );
+		}
+		return collection ( Infotables::where ( "aEmail", session ( "user.email" ) )->order ( "create_time desc" )->limit ( $limit )->select () );
 	}
-	protected function querySearch($data) {
+	/**
+	 * 全局查询
+	 * 
+	 * @param unknown $data        	
+	 * @return array
+	 */
+	private function querySearch($data) {
 		$result = collection ( Infotables::where ( $data ["where"] [0], "like", "%" . $data ["where"] [2] . "%" )->order ( "create_time desc" )->select () )->toArray ();
 		return $result;
 	}

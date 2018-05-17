@@ -251,44 +251,9 @@ function initHandsontable(infoData){
 		},
 		afterChange: function(changes, source){	// 修改后自动同步到数据库
 			console.log("afterChangeEnv:", changes, source);
-			dhtmlx.message("修改请直接联系管理员，在此修改暂时不会同步到服务器。");
-			/*var updates = {},
-				_id = [],
-				rows= [],
-				hotData = hot.getSourceData();
-			for(var i in changes){	// 记录变化到 updates
-				var _change = changes[i];
-				if(_change[2] == _change[3]){
-					break;
-				}
-				console.log("really_change["+i+"]",_change);
-				_id.push(hotData[_change[0]].id);
-				rows.push(_change[0]);
-				var key = _change[1],
-					value = _change[3],
-					_update_key = _change[0]+"-"+_id[i];
-				updates[_update_key] = {};
-				updates[_update_key][ _change[1]] = _change[3];	// example: updates={"16-17":{vlan:"2222",ip:"223.100.108.2"}}
+			if(source == "edit"){
+				dhtmlx.confirm({title:"您刚进行了修改操作",text:"请微信群联系管理员修改，在此修改不会同步到服务器。",callback:function(result){!result&&hot.undo();}});
 			}
-			if($.isEmptyObject(updates)){	// 无变化，函数返回
-				return;
-			}
-			if(sessionStorage.getItem("updateConfirm")==null){
-				dhtmlx.confirm({
-					type: "confirm-warning",
-					title : "您已修改台账信息，是否同步更新到服务器？",
-					text : "确认后所有的修改会同步到服务器，本次登陆期间不再提醒。不会验证数据是否合规，慎用！！<br><br>【请注意】：若多人同时操作会以最后一次修改为准。操作请谨慎。。&nbsp;&nbsp;%^_^% +_+ %^_^%",
-					ok : "确认",
-					cancel : "取消",
-					callback : function(result){
-						if(result){
-							sessionStorage.setItem("updateConfirm","auto");
-							updateChanges(rows, updates);
-						}
-					}
-				});
-			}
-			updateChanges(rows, updates);*/
 		},
 		afterRender: function(){
 			initStatusSync();
@@ -310,38 +275,7 @@ function adjustInfo(infoData){
 	}
 	return infoData;
 }
-/* 同步修改的数据到服务器 用在afterChangeEnv */
-function updateChanges(rows, updates){
-	if(sessionStorage.getItem("updateConfirm")===null){
-		return;
-	}
-	hot.validateRows(rows,function(valid){
-		if(!valid){	// 验证修改是否符合验证规则
-			dhtmlx.confirm({text:"修改操作明显不合规，<b>未同步至服务器。</b>是否撤销修改？",callback(result){
-				result && hot.undo();;
-			}});
-		}else {
-			postUpdate(updates);
-		}
-	});
-}
-/* 发起post请求更新台账信息，并同步在前端render 用于 updateChanges、updateStatus */
-function postUpdate(updates){
-	$.post("?r=update",updates,function(data){
-		console.log("ajaxResponse_update",updates);
-		if(data.code){
-			dhtmlx.message("成功同步至服务器条数："+data.msg+"<br /><span style='color:red'>---<br />"+JSON.stringify(updates)+"<br />---</span>");
-			for(var i in data.data){
-				for(var ii in data.data[i]){
-					infoData[i.split("-")[0]][ii] = data.data[i][ii];	// 前端台账强制与服务器端更新同步
-				}
-			}
-			hot.render();
-		}else{
-			dhtmlx.alert({text:data.msg,callback:function(){location.href=data.url}});	//异常时跳转
-		}
-	});
-}
+
 function initSearch(){
 	/* 当前页搜索按钮 */
 	$("#searchStr").on("focus",function(){
@@ -466,13 +400,7 @@ function initStatusSync(){
 function changeStatus(row,status){
 	$(".ht_master tr:eq("+row+") > td").css("background-color",backgroundColor[status]);
 }
-/* 更新台账状态 */
-function updateStatus(row,status){
-	var newData = {};
-	newData[row+"-"+infoData[row].id] = {"status":status};
-	postUpdate(newData);
-	//changeStatus(row,status);
-}
+
 /* 导出台账 （全量） */
 function export_all(){
 	if(typeof(XLSX) == "undefined"){

@@ -62,11 +62,11 @@ class Manage extends Index {
 				$this->checkInstanceID ( $info, $data );
 				$data = $this->checkAndSetIp ( $info, $data );
 				$this->checkAndSetVlan ( $data );
-				//$data ["status"] = 1;
+				// $data ["status"] = 1;
 				$result = $this->updateInfo ( $data );
 				// 防止提前修改 status 导致 信息未修改无法识别
-				//Infotables::where("id",$data["id"])->setInc("status");
 				if ($result) {
+					Infotables::where ( "id", $data ["id"] )->setInc ( "status" );
 					return $this->result ( $this->refleshTodoList (), 1, "操作成功。<br>是否发送邮件通知给申请人？" );
 				} else {
 					return $this->result ( null, 2, "本次提交信息并未修改" );
@@ -115,15 +115,15 @@ class Manage extends Index {
 		$address = $input ['address'];
 		$zxType = $input ['zxType'];
 		$cName = $input ['cName'];
-		$db = Infotables::field("zxType,cName,vlan,ip,ipB,aEmail")->find($input["id"]);
+		$db = Infotables::field ( "zxType,cName,vlan,ip,ipB,aEmail" )->find ( $input ["id"] );
 		$address = $db->aEmail;
 		$title = '[申请已处理]' . $zxType . '专线-' . $cName;
 		$body = "";
-		$body .=dump($db->toArray(),false);
+		$body .= dump ( $db->toArray (), false );
 		$body .= "<p>更多信息请登陆系统查看：</p><br>内网： <a href='http://10.65.178.202/zx_apply/index/query.html'>http://10.65.178.202/zx_apply/index/query.html</a><br>外网： <a href='http://223.100.98.60:800/zx_apply/index/query.html'>http://223.100.98.60:800/zx_apply/index/query.html</a>";
 		$body .= "<hr><p style='color: blue;'>Tips: 系统内查看时可右键菜单，发现更多操作。</p>";
 		$result = $this->sendEmail ( $address, $title, $body );
-		return $this->result ( $result, is_bool($result) ? 1 : 0 );
+		return $this->result ( $result, is_bool ( $result ) ? 1 : 0 );
 	}
 	/**
 	 * 信息查询
@@ -172,6 +172,16 @@ class Manage extends Index {
 	 */
 	private function getInfoData($limit = 100) {
 		return collection ( Infotables::order ( "create_time desc" )->limit ( $limit )->select () );
+	}
+	/**
+	 * 全局查询
+	 * 
+	 * @param unknown $data        	
+	 * @return array
+	 */
+	private function querySearch($data) {
+		$result = collection ( Infotables::where ( $data ["where"] [0], "like", "%" . $data ["where"] [2] . "%" )->order ( "create_time desc" )->select () )->toArray ();
+		return $result;
 	}
 	/**
 	 * 从query.html删除台账条目
