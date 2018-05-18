@@ -16,6 +16,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 				<option value="cName">客户名</option>
 				<option value="instanceId">实例标识</option>
 				<option value="vlan">vlan</option>
+				<option value="status">状态</option>
 			</select> <input type="text" class="form-control" id="searchStr">
 		</div>
 		<button id="btn-search" type="submit" class="btn btn-default"
@@ -156,9 +157,9 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 	}, {
 		data: 'mPhone',
 	}, {
-		data: 'mEmail',*/
+		data: 'mEmail',
 	}, {
-		data: 'marks',
+		data: 'marks',*/
 	}, {
 		data: 'ifOnu',
 		editor : 'select',
@@ -512,8 +513,12 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 				"cName":"客户名",
 				"cAddress":"客户地址",
 				"cNeeds":"客户需求",
+				"vlan":"VLAN",
+				"ip":"互联ip",
 				"ipB":"业务ip",
+				"ifOnu":"是否走Onu",
 				"oltName":"olt名称",
+				"marks":"备注",
 				"cPerson":"客户联系人",
 				"cPhone":"客户电话",
 				"cEmail":"客户邮箱",
@@ -530,34 +535,33 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 				"extra.county":"所在县区id",
 				"extra.appServType":"应用服务类型id",
 				"tags":"标签",
-				"marks":"备注",
 				"status":"状态"
 		};
-		var str = '<p class="_detail_str" style="padding:5px;font-size:12px;background-color:'+backgroundColor[d.status]+';position: relative;width: 100%;height: 400px;overflow: auto;">';
+		var str = '<div class="_detail_str container-fluid" style="padding-top:5px;font-size:12px;background-color:'+backgroundColor[d.status]+';position: relative;width: 100%;height: 400px;overflow: auto;">';
 		for(var i in keys){
 			if(/\./.test(i)){
 				var arr = i.split(".");
-				str += "<b>"+keys[i]+"</b>： "+d[arr[0]][arr[1]]+"<br>";
+				str += "<div class='row'><div class='col-md-4'>"+keys[i]+"</div><div class='col-xs-8'> "+d[arr[0]][arr[1]]+"</div></div>";
 				arr = null;
 			}else{
-				str += "<b>"+keys[i]+"</b>： "+d[i]+"<br>";
+				str += "<div class='row'><div class='col-xs-4'>"+keys[i]+"</div><div class='col-xs-8'>"+d[i]+"</div></div>";
 			}
 		}
-		str += '</p><hr style="margin-bottom:0"><p class="text-muted">标记为</p><p style="padding:0 10px;">';
+		str += '</div><hr style="margin-bottom:0"><p class="text-muted">标记为</p><p style="padding:0 10px;">';
 		str += '<a class="btn btn-xs btn-default" style="background-color:#aaa" onclick="updateStatus('+row+',9)">历史导入</a>'
 			+ '<a class="btn btn-xs btn-default" onclick="updateStatus('+row+',0)">刚申请</a>'
 			+ '<a class="btn btn-xs btn-warning" onclick="updateStatus('+row+',1)">预分配等待录资管</a>'
 			+ '<a class="btn btn-xs btn-info" onclick="updateStatus('+row+',2)">已录资管等待IP备案</a>'
 			+ '<a class="btn btn-xs btn-success" onclick="updateStatus('+row+',3)">已备案等待做数据</a>'
 			+ '<a class="btn btn-xs btn-default" onclick="updateStatus('+row+',4)">完成</a>';
-		str += '</p><p class="h3 bg-info">更多操作尽在右键菜单</p>';
+		str += '</p><p class="h3 bg-info">使用右键菜单发现更多操作</p>';
 		str = str.replace(/null/g,"");
 		$("detail").html(str);
 		if(dhxWins.isWindow("_input")){
 			dhxWins.window("_input").attachHTMLString(str);
 			return;
 		}
-		dhxWins.createWindow("_input",0,50,410,600);
+		dhxWins.createWindow("_input",5,220,400,600);
 		var text = "详细信息&nbsp;&nbsp;&nbsp;&nbsp;<a onclick='checkWindows(\"_input\")'>点此关闭</a>";
 		dhxWins.window("_input").setText(text);
 		dhxWins.window("_input").attachHTMLString(str);

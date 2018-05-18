@@ -8,6 +8,7 @@ use think\Db;
 use app\zx_apply\model\Infotables;
 use Overtrue\Pinyin\Pinyin;
 use think\Error;
+use think\Cache;
 
 class Index extends Common {
 	
@@ -107,8 +108,8 @@ class Index extends Common {
 			}
 			$result = Infotables::createInfo ( $data, "apply" );
 			// 发邮件通知
-			$subject = "[待办通知]ip、vlan申请-" . $data ["cName"] . $data ["instanceId"];
-			$body = "<p>请登陆系统及时处理：</p><br> 内网： <a href='http://10.65.178.202/zx_apply/manage/todo.html'>http://10.65.178.202/zx_apply/manage/todo.html</a><br>外网： <a href='http://223.100.98.60:800/zx_apply/manage/todo.html'>http://223.100.98.60:800/zx_apply/manage/todo.html</a>";
+			$subject = "[待办]ip申请-" . $data ["ifOnu"] ? "onu" : "9312" . "-" . $data ["cName"] . $data ["instanceId"];
+			$body = "<p>请登陆系统及时处理：</p><br> 内网： <a href='http://10.65.178.202/zx_apply/index/index.html#Manage/todo'>http://10.65.178.202/zx_apply/index/index.html#Manage/todo</a><br>外网： <a href='http://223.100.98.60:800/zx_apply/index/index.html#Manage/todo'>http://223.100.98.60:800/zx_apply/index/index.html#Manage/todo</a>";
 			$this->sendManageNotice ( $subject, $body );
 			$redirectUrl = "../" . session ( "user.role" ) . "/query.html";
 			return $this->result ( null, $result, $redirectUrl );
@@ -180,6 +181,7 @@ class Index extends Common {
 			// return $this->getInfoData();
 			input ( "post.r" ) == "info" && $data = $this->getInfoData ()->toArray ();
 			input ( "post.r" ) == "search" && $data = $this->querySearch ( input ( "post." ) );
+			input ( "post.r" ) == "brief" && $data = $this->querySearchBrief ( input ( "post." ) );
 			input ( "get.r" ) == "update" && $data = $this->queryUpdateInfo ( input ( "post." ) );
 			return $data;
 		}
@@ -203,7 +205,7 @@ class Index extends Common {
 	}
 	/**
 	 * 全局查询
-	 * 
+	 *
 	 * @param unknown $data        	
 	 * @return array
 	 */
@@ -211,7 +213,34 @@ class Index extends Common {
 		$result = collection ( Infotables::where ( $data ["where"] [0], "like", "%" . $data ["where"] [2] . "%" )->order ( "create_time desc" )->select () )->toArray ();
 		return $result;
 	}
-	
+	/**
+	 * 基本信息查询
+	 *
+	 * @param unknown $data        	
+	 * @return array
+	 */
+	private function querySearchBrief($data) {
+		$field = "create_time,instanceId,cName,cAddress,ip,aPerson,aEmail";
+		$result = collection ( Infotables::where ( $data ["where"] [0], "like", "%" . $data ["where"] [2] . "%" )->field ( $field )->order ( "create_time desc" )->select () )->toArray ();
+		$v = $data;
+		$v ["resultLen"] = count ( $result );
+		$v ["url"] = request ()->url ( true );
+		$this->log ( "基本信息查询", $v );
+		if (Cache::get ( 'querySearchBriefTimes' )) {
+			Cache::inc ( 'querySearchBriefTimes' );
+		} else {
+			Cache::set ( 'querySearchBriefTimes', 1, 600 );
+		}
+		if (Cache::get ( 'querySearchBriefTimes' ) > 4) {
+			if (Cache::get ( 'querySearchBriefTimes' ) > 7) {
+				$this->noticeXianda( "[频繁查询]" . session ( "user.name" ) . "-10分钟内：" . Cache::get ( 'querySearchBriefTimes' ) );
+				session ( null );
+				return $this->error( "已断开登陆！","index" );
+			}
+			return null;
+		}
+		return $result;
+	}
 	/**
 	 * 从query.html更新台账
 	 *

@@ -21,6 +21,8 @@ file="Common/leftmenu_zx_apply_index" /} {/block} {block name="main"}
 			data-toggle="tooltip" data-placement="top" title="当前页搜索不限制列名，可搜索任意字段">当前页搜索</button>
 		<button id="btn-searchAll" class="btn btn-default"
 			data-toggle="tooltip" data-placement="top" title="全局搜索需根据列名搜索">全局搜索</button>
+		<button id="btn-searchBrief" class="btn btn-default"
+			data-toggle="tooltip" data-placement="top" title="基于客户名模糊搜索">基本信息查询</button>
 		<div id="tips" class="form-group"
 			style="display: none; margin-left: 20px;">
 			<span id="tips-text" class="text-primary"></span>
@@ -310,9 +312,24 @@ function initSearch(){
 			_where[0] = $("#colName").val();
 			_where[2] = str;
 			$.post("",{r:"search",where:_where},function(data){
-				infoData = data;
+				infoData = adjustInfo(data);
 				hot.updateSettings({data: infoData});
 				hot.validateCells();
+			});
+		}
+	});
+	/* 基本信息搜索按钮 */
+	$("#btn-searchBrief").on("click",function(){
+		var str = $("#searchStr").val();
+		if(str == ""){
+			showTips("");
+		}else{
+			showTips("");
+			var _where = [];
+			_where[0] = $("#colName").val();
+			_where[2] = str;
+			$.post("",{r:"brief",where:_where},function(data){
+				showBrief(data);
 			});
 		}
 	});
@@ -381,6 +398,40 @@ function getSelectedIds(arg){
 	}
 	result = result.sort(function(a,b){return a-b;});
 	return result;
+}
+/* 显示查询的基本信息 */
+function showBrief(data){
+	if(data.url){
+		dhtmlx.alert({text:data.msg,callback:function(){
+			localStorage.removeItem("phpweb_user");
+			location.href=data.url;
+		}});
+	}
+	if(!$.isArray(data)){
+		dhtmlx.alert({type:"alert-error",text:"查询过于频繁。请联系管理员"});
+		return;
+	}
+	var str = '<div style="font-size:12px;overflow:auto;width:986px;height:100%"><table class="table table-hover table-condensed"><tbody>';
+	str += '<tr><th>申请时间</th><th>实例标识</th><th>客户名</th><th>客户地址</th><th>ip</th><th>申请人</th><th>申请人邮箱</th></tr>';
+	for(var i in data){
+		str += '<tr><td style="width:9%">'+data[i]['create_time']+'</td>';
+		str += '<td style="width:10%">'+data[i]['instanceId']+'</td>';
+		str += '<td style="width:20%">'+data[i]['cName']+'</td>';
+		str += '<td style="width:30%">'+data[i]['cAddress']+'</td>';
+		str += '<td style="width:12%">'+data[i]['ip']+'</td>';
+		str += '<td style="width:6%">'+data[i]['aPerson']+'</td>';
+		str += '<td style="width:13%">'+data[i]['aEmail']+'</td></tr>';
+	}
+	str += '</tbody></table></div>';
+	str = str.replace(/null/g,"-");
+	if(dhxWins.isWindow("_brief")){
+		dhxWins.window("_brief").attachHTMLString(str);
+		return;
+	}
+	dhxWins.createWindow("_brief",40,55,1000,600);
+	var text = "基本信息查询结果&nbsp;&nbsp;&nbsp;&nbsp;<span style='color:blue'>按Ctrl+F定位搜索</span>&nbsp;&nbsp;&nbsp;&nbsp;<a onclick='checkWindows(\"_brief\")'>点此关闭</a>";
+	dhxWins.window("_brief").setText(text);
+	dhxWins.window("_brief").attachHTMLString(str);
 }
 /* 右键菜单操作 start */
 /************************/

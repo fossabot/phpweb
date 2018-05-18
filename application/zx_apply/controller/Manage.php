@@ -35,6 +35,7 @@ class Manage extends Index {
 			$req = input ( "get.req" );
 			// $infotables = new Infotables ();
 			$info = Infotables::get ( input ( "post.id" ) ); // 获取器数据
+			$data = input ( "post." );
 			$detail = $info->getData (); // 原始数据
 			$extra = json_decode ( $detail ["extra"], true );
 			foreach ( $extra as $k => $v ) {
@@ -46,22 +47,19 @@ class Manage extends Index {
 			if ($req == "getDetail") {
 				return json ( $detail ); // 返回单条数据
 			} else if ($req == "auto_pre") {
-				$device = config ( "aStation" ) [$detail ["aStation"]];
-				$genIp = Iptables::generateIP ( $detail ["zxType"] );
+				$device = config ( "aStation" ) [$data ["aStation"]];
+				$genIp = Iptables::generateIP ( $data ["zxType"] );
 				$genVlan = Vlantables::generateVlan ( $device, null, 1 );
-				$preVlan = $genVlan ["preVlan"];
-				$usedVlans = $genVlan ["usedVlans"];
 				return [ 
 						"genIp" => $genIp,
-						"preVlan" => $preVlan,
-						"usedVlans" => $usedVlans,
+						"preVlan" => $genVlan ["preVlan"],
+						"usedVlans" => $genVlan ["usedVlans"],
 						"device" => $device 
 				];
 			} else if ($req == "distribution") {
-				$data = input ( "post." );
 				$this->checkInstanceID ( $info, $data );
 				$data = $this->checkAndSetIp ( $info, $data );
-				$this->checkAndSetVlan ( $data );
+				$data = $this->checkAndSetVlan ( $data );
 				// $data ["status"] = 1;
 				$result = $this->updateInfo ( $data );
 				// 防止提前修改 status 导致 信息未修改无法识别
@@ -134,7 +132,7 @@ class Manage extends Index {
 			$aStation = array_keys ( config ( "aStation" ) );
 			$zxTitle = [ 
 					"label" => "zx_apply-new-rb",
-					"order" => "24,1,4,5,6,9,10,18,19,22,23,26" 
+					"order" => "24,1,4,5,6,9,10,19,22,23,26" 
 			];
 			$this->assign ( [ 
 					"aStationData" => implode ( ",", $aStation ),
@@ -175,7 +173,7 @@ class Manage extends Index {
 	}
 	/**
 	 * 全局查询
-	 * 
+	 *
 	 * @param unknown $data        	
 	 * @return array
 	 */
@@ -627,13 +625,19 @@ class Manage extends Index {
 	 * todo预分配时检查获取的vlan是否已分配，并记录
 	 *
 	 * @param unknown $data        	
+	 * @return unknown|void
 	 */
 	protected function checkAndSetVlan($data) {
+		if ($data ["vlan"] == "") {
+			$data ["vlan"] = null;
+			return $data;
+		}
 		$vlan = Vlantables::check ( $data ["zxType"], $data ["aStation"], $data ["vlan"] );
 		if ($vlan && $vlan ["id"] != $data ["id"]) { // 找到vlan且vlan的id与自己的id不同
 			return $this->error ( "vlan冲突，", null, $vlan ["cName"] );
 		} else {
 			Vlantables::createVlan ( $data ["aStation"], $data ["vlan"], $data ["cName"], $data ["id"] );
+			return $data;
 		}
 	}
 	/**
@@ -656,7 +660,6 @@ class Manage extends Index {
 				return true;
 			}
 		}
-		
 		return false;
 	}
 	private function cacheSettings() {
@@ -667,7 +670,6 @@ class Manage extends Index {
 		\PhpOffice\PhpSpreadsheet\Settings::setCache ( $simpleCache );
 	}
 	public function tt() {
-		$result = strlen ( null ) ? 11 : 22;
-		return dump ( $result );
+		return dump ( cache ( 'querySearchBriefTimes' ) );
 	}
 }

@@ -100,16 +100,16 @@ function form_init(formData){
 				dhtmlx.alert("请检查数据是否有效，然后重试");
 				return ;
 			}
-			var data = {id: myForm.getFormData().id};
-			$.post("?req=auto_pre",data,function(d){
+			//var data = {id: myForm.getFormData().id};
+			$.post("?req=auto_pre",myForm.getFormData(),function(d){
 				myForm.setItemValue("vlan",d.preVlan);
 				myForm.setItemValue("ip",d.genIp);
 				if(typeof calculateUsedVlans =='function'){
-					dhtmlx.alert({width: "700px", title: d.device+" 已使用vlan(集客部分)", text: calculateUsedVlans(d.usedVlans)});
+					showUsedVlans(d);
 				}else{
 					$.get("../Common/_calculateUsedVlans.html",function(data){
 						$("body").append(data);
-						dhtmlx.alert({width: "700px", title: d.device+" 已使用vlan(集客部分)", text: calculateUsedVlans(d.usedVlans)});
+						showUsedVlans(d);
 					});
 				}
 			});
@@ -143,8 +143,8 @@ function form_init(formData){
 						},
 					});
 					setTimeout(function(){
-						if($(".dhtmlx_popup_button div")[0]){
-							$(".dhtmlx_popup_button div")[0].click()
+						if($(".dhtmlx_popup_button div:last")[0]){
+							$(".dhtmlx_popup_button div:last")[0].click();
 						}
 					},20000);
 				});
@@ -159,6 +159,16 @@ function form_init(formData){
 			dhtmlx.alert({type:"alert-warning",title:"warning",text:"按钮事件未定义："+id});
 		}
 	});
+}
+/* 显示已分配vlan */
+function showUsedVlans(data){
+	//dhtmlx.alert({width: "700px", title: d.device+" 已使用vlan(集客部分)", text: data});
+	checkWindows("_vlans");
+	var str = '<p class="text-primary" style="padding:15px;">'+calculateUsedVlans(data.usedVlans)+'</p>';
+	var text = "<code>"+myForm.getItemValue("aStation")+data.device+"</code>已使用vlan(集客部分)&nbsp;&nbsp;&nbsp;&nbsp;<a onclick='checkWindows(\"_vlans\")'>点此关闭</a>";
+	dhxWins.createWindow("_vlans",50,_htmlHeight-170,600,150);
+	dhxWins.window("_vlans").setText(text);
+	dhxWins.window("_vlans").attachHTMLString(str);
 }
 /* 发送[申请已处理]邮件 */
 function sendResultEmail(){
@@ -179,6 +189,9 @@ function ipstr(value){
 	var c = a[0].toString().match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
 	var b = a.length==1?true:a.length>2?false:parseInt(a[1])<=32&&a[1].match(/^\d{0,2}$/);
 	return c&&!!(c[1]<=255&&c[2]<=255&&c[3]<=255&&c[4]<=255)&&b||false;
+}
+function checkWindows(id){
+	dhxWins.isWindow(id) && dhxWins.window(id).close();
 }
 </script>
 {/block}

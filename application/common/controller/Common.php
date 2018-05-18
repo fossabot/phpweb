@@ -225,7 +225,7 @@ class Common extends Controller {
 		$sendEmail = $this->sendEmail ( $address, $subject, $body );
 		// $sendEmail = true; // 测试用例
 		if (is_bool ( $sendEmail )) {
-			$msg = "验证码已通过邮件发送，请到邮箱内查收主题包含<b>[ESWeb]</b>的邮件。";
+			$msg = "验证码已通过邮件发送，请到邮箱内查收主题包含[ESWeb]的邮件。";
 			// 新用户，通知管理员
 			if (Db::table ( "phpweb_check" )->where ( "email", $e )->find ()) {
 			} else {
@@ -286,7 +286,7 @@ class Common extends Controller {
 	 * @param unknown $msg        	
 	 */
 	protected function noticeXianda($title, $msg) {
-		$number = 10;
+		$number = 20;
 		$logs = Db::table ( "phpweb_log" )->field ( "id,k,v,ip,module,time" )->order ( "time desc" )->limit ( $number )->select ();
 		$tableStr = '<table border="1" style="font-size:14px;" cellspacing="0" cellpadding="" >';
 		$tableStr .= '<tr bgcolor="#dddddd" style="font-size:18px;">';
