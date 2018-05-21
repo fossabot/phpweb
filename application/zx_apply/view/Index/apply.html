@@ -46,6 +46,26 @@ myForm.attachEvent("onButtonClick", function(id) {
 	}
 
 });
-
+myForm.attachEvent("onChange",function(name, value, status){
+	console.log(name, value, status);
+	if(name=='neFactory' && value==2){
+		myForm.setItemValue("ifOnu",true);
+		myForm.enableItem("oltName");
+	}
+	if(name=='ifOnu'){
+		if(status==false){
+			if(myForm.getItemValue("neFactory")==2){
+				myForm.setItemValue("ifOnu",true);
+				myForm.enableItem("oltName");
+				dhtmlx.alert("网元厂家为ONU时此项必选");
+			}
+		}else{
+			if(myForm.getItemValue("neFactory")==2){
+			}else{
+				// 勾选了ifOnu，但网元厂家选的不是ONU。暂不处理
+			}
+		}
+	}
+});
 </script>
 {/block}

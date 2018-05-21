@@ -63,7 +63,7 @@ var _loading = setTimeout(function(){
 var colWidthsData = "{$colWidthsData}";
 var zxTypeData = "互联网,营业厅,平安校园,点对点,卫生网,教育网,IMS,其他";
 var aStationData = "{$aStationData}";
-var neFactoryData = "请选择,华为,中兴";
+var neFactoryData = "请选择,华为,中兴,ONU";
 var colHeaderData = "{$colHeaderData}";
 var container = document.getElementById('queryTable');
 var infoData, hot, columnsData, contextMenuData;
@@ -412,12 +412,13 @@ function showBrief(data){
 		return;
 	}
 	var str = '<div style="font-size:12px;overflow:auto;width:986px;height:100%"><table class="table table-hover table-condensed"><tbody>';
-	str += '<tr><th>申请时间</th><th>实例标识</th><th>客户名</th><th>客户地址</th><th>ip</th><th>申请人</th><th>申请人邮箱</th></tr>';
+	str += '<tr><th>申请时间</th><th>实例标识</th><th>客户名</th><th>客户地址</th><th>vlan</th><th>ip</th><th>申请人</th><th>申请人邮箱</th></tr>';
 	for(var i in data){
 		str += '<tr><td style="width:9%">'+data[i]['create_time']+'</td>';
 		str += '<td style="width:10%">'+data[i]['instanceId']+'</td>';
 		str += '<td style="width:20%">'+data[i]['cName']+'</td>';
 		str += '<td style="width:30%">'+data[i]['cAddress']+'</td>';
+		str += '<td style="width:6%">'+data[i]['vlan']+'</td>';
 		str += '<td style="width:12%">'+data[i]['ip']+'</td>';
 		str += '<td style="width:6%">'+data[i]['aPerson']+'</td>';
 		str += '<td style="width:13%">'+data[i]['aEmail']+'</td></tr>';

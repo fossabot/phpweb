@@ -101,7 +101,7 @@ class Manage extends Index {
 		$where = [ 
 				"status" => 0 
 		];
-		$field = "id,cName,create_time,aPerson,instanceId,zxType,aStation";
+		$field = "id,cName,create_time,aPerson,ifOnu,instanceId,zxType,aStation";
 		$data = Infotables::where ( $where )->field ( $field )->select (); // explode(",", $field)
 		return json_encode ( $data, 256 );
 	}
@@ -670,6 +670,8 @@ class Manage extends Index {
 		\PhpOffice\PhpSpreadsheet\Settings::setCache ( $simpleCache );
 	}
 	public function tt() {
-		return dump ( cache ( 'querySearchBriefTimes' ) );
+		$data = true;
+		$subject = "[待办]ip申请-" . ($data ? "onu" : "9312") . "-" . "cNameinstanceId";
+		return dump ( $subject );
 	}
 }

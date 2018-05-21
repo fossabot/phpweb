@@ -38,7 +38,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="head"}
 			{
 				container : "list_container",
 				type : {
-					template : "<b style='color:blue;'>#cName#</b><br/>#create_time#&nbsp;&nbsp;#aPerson#<br/><span style='color:#9c49f5'>#instanceId#&nbsp;&nbsp;#zxType#&nbsp;&nbsp;#aStation#</span>",
+					template : "<b style='color:blue;'>#cName#</b><br/>#create_time#&nbsp;&nbsp;#aPerson#<br/><span style='color:#9c49f5'>#instanceId#&nbsp;&nbsp;#zxType#&nbsp;&nbsp;#aStation#&nbsp;&nbsp;#ifOnu#</span>",
 					height : 70
 				},
 				select: true,
@@ -166,7 +166,7 @@ function showUsedVlans(data){
 	checkWindows("_vlans");
 	var str = '<p class="text-primary" style="padding:15px;">'+calculateUsedVlans(data.usedVlans)+'</p>';
 	var text = "<code>"+myForm.getItemValue("aStation")+data.device+"</code>已使用vlan(集客部分)&nbsp;&nbsp;&nbsp;&nbsp;<a onclick='checkWindows(\"_vlans\")'>点此关闭</a>";
-	dhxWins.createWindow("_vlans",50,_htmlHeight-170,600,150);
+	dhxWins.createWindow("_vlans",5,_htmlHeight-170,600,150);
 	dhxWins.window("_vlans").setText(text);
 	dhxWins.window("_vlans").attachHTMLString(str);
 }

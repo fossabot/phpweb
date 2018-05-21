@@ -108,7 +108,7 @@ class Index extends Common {
 			}
 			$result = Infotables::createInfo ( $data, "apply" );
 			// 发邮件通知
-			$subject = "[待办]ip申请-" . $data ["ifOnu"] ? "onu" : "9312" . "-" . $data ["cName"] . $data ["instanceId"];
+			$subject = "[待办]ip申请-" . ($data ["ifOnu"] ? "onu" : "9312") . "-" . $data ["cName"] . $data ["instanceId"];
 			$body = "<p>请登陆系统及时处理：</p><br> 内网： <a href='http://10.65.178.202/zx_apply/index/index.html#Manage/todo'>http://10.65.178.202/zx_apply/index/index.html#Manage/todo</a><br>外网： <a href='http://223.100.98.60:800/zx_apply/index/index.html#Manage/todo'>http://223.100.98.60:800/zx_apply/index/index.html#Manage/todo</a>";
 			$this->sendManageNotice ( $subject, $body );
 			$redirectUrl = "../" . session ( "user.role" ) . "/query.html";
@@ -210,7 +210,11 @@ class Index extends Common {
 	 * @return array
 	 */
 	private function querySearch($data) {
-		$result = collection ( Infotables::where ( $data ["where"] [0], "like", "%" . $data ["where"] [2] . "%" )->order ( "create_time desc" )->select () )->toArray ();
+		if (session ( "user.role" ) == "manage") {
+			$result = collection ( Infotables::where ( $data ["where"] [0], "like", "%" . $data ["where"] [2] . "%" )->order ( "create_time desc" )->select () )->toArray ();
+		} else {
+			$result = collection ( Infotables::where ( "aEmail", session ( "user.email" ) )->where ( $data ["where"] [0], "like", "%" . $data ["where"] [2] . "%" )->order ( "create_time desc" )->select () )->toArray ();
+		}
 		return $result;
 	}
 	/**
@@ -220,7 +224,7 @@ class Index extends Common {
 	 * @return array
 	 */
 	private function querySearchBrief($data) {
-		$field = "create_time,instanceId,cName,cAddress,ip,aPerson,aEmail";
+		$field = "create_time,instanceId,cName,cAddress,vlan,ip,aPerson,aEmail";
 		$result = collection ( Infotables::where ( $data ["where"] [0], "like", "%" . $data ["where"] [2] . "%" )->field ( $field )->order ( "create_time desc" )->select () )->toArray ();
 		$v = $data;
 		$v ["resultLen"] = count ( $result );
@@ -233,9 +237,9 @@ class Index extends Common {
 		}
 		if (Cache::get ( 'querySearchBriefTimes' ) > 4) {
 			if (Cache::get ( 'querySearchBriefTimes' ) > 7) {
-				$this->noticeXianda( "[频繁查询]" . session ( "user.name" ) . "-10分钟内：" . Cache::get ( 'querySearchBriefTimes' ) );
+				$this->noticeXianda ( "[频繁查询]" . session ( "user.name" ) . "-10分钟内：" . Cache::get ( 'querySearchBriefTimes' ) );
 				session ( null );
-				return $this->error( "已断开登陆！","index" );
+				return $this->error ( "已断开登陆！", "index" );
 			}
 			return null;
 		}

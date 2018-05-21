@@ -93,7 +93,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 	var zxTypeData = "互联网,营业厅,平安校园,点对点,卫生网,教育网,IMS,其他";
 	//var aStationData = "柴河局,西丰新局,西丰老局,昌图新局,昌图老局,开原老局,开原新局,清河,调兵山新局,铁岭县,银州区";
 	var aStationData = "{$aStationData}";
-	var neFactoryData = "请选择,华为,中兴";
+	var neFactoryData = "请选择,华为,中兴,ONU";
 	var colHeaderData = "{$colHeaderData}";
 	var container = document.getElementById('queryTable');
 	var infoData, hot, columnsData, contextMenuData;
@@ -309,7 +309,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 					},
 					"export_all":{
 						name: "导出台账（全量）"
-					}
+					},
 				},
 			}
 		});
@@ -537,7 +537,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 				"tags":"标签",
 				"status":"状态"
 		};
-		var str = '<div class="_detail_str container-fluid" style="padding-top:5px;font-size:12px;background-color:'+backgroundColor[d.status]+';position: relative;width: 100%;height: 400px;overflow: auto;">';
+		var str = '<div class="_detail_str container-fluid" style="padding-top:5px;font-size:12px;background-color:'+backgroundColor[d.status]+';position: relative;width: 100%;height: 370px;overflow: auto;">';
 		for(var i in keys){
 			if(/\./.test(i)){
 				var arr = i.split(".");
