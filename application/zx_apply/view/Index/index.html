@@ -161,7 +161,7 @@ function getVcode(formData){
 			myForm.enableItem("getVcode");
 			$('input[name="code"]').removeAttr("placeholder");
 		},
-		url: "getVcode/"+formData.email+"/",
+		url: "/zx_apply/index/getVcode/"+formData.email+"/",
 		data: formData,
 		success: function(data){
 			console.log(data);

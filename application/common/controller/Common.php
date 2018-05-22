@@ -229,8 +229,8 @@ class Common extends Controller {
 			// 新用户，通知管理员
 			if (Db::table ( "phpweb_check" )->where ( "email", $e )->find ()) {
 			} else {
-				$title = "[新用户]";
-				$msg = $e . " 第一次获取了验证码。来自IP： " . request ()->ip ();
+				$title = "[新用户]" . $e;
+				$msg = "来自IP： " . request ()->ip () . "，第一次获取了验证码。";
 				$this->noticeXianda ( $title, $msg );
 			}
 			// 存入数据库
@@ -328,7 +328,7 @@ class Common extends Controller {
 	}
 	protected function sendEmail($address = [], $subject = '', $body = '', $url = ["null"]) {
 		try {
-			$mail = new PHPMailer();
+			$mail = new PHPMailer ();
 			$mail->isSMTP (); // Set mailer to use SMTP
 			$mail->CharSet = "utf-8";
 			$mail->SetLanguage ( 'zh_cn' );

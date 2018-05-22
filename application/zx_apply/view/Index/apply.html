@@ -47,10 +47,14 @@ myForm.attachEvent("onButtonClick", function(id) {
 
 });
 myForm.attachEvent("onChange",function(name, value, status){
-	console.log(name, value, status);
-	if(name=='neFactory' && value==2){
-		myForm.setItemValue("ifOnu",true);
-		myForm.enableItem("oltName");
+	if(name=='neFactory'){
+		if(value==2){
+			myForm.setItemValue("ifOnu",true);
+			myForm.enableItem("oltName");
+		}else{
+			myForm.setItemValue("ifOnu",false);
+			myForm.disableItem("oltName");
+		}
 	}
 	if(name=='ifOnu'){
 		if(status==false){
@@ -62,7 +66,9 @@ myForm.attachEvent("onChange",function(name, value, status){
 		}else{
 			if(myForm.getItemValue("neFactory")==2){
 			}else{
-				// 勾选了ifOnu，但网元厂家选的不是ONU。暂不处理
+				// 勾选了ifOnu，但网元厂家选的不是ONU。
+				myForm.setItemValue("neFactory",2);
+				dhtmlx.alert("已自动修改<span style='color:red;'>网元厂家</span>字段为ONU");
 			}
 		}
 	}
