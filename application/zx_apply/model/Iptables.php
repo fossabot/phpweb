@@ -33,7 +33,7 @@ class Iptables extends Model {
 			do {
 				$nextIpStr = self::ip_export ( $lastIp ++ );
 				$valid = self::check ( $nextIpStr, "ip", $zxType );
-			} while ( $valid );
+			} while ( $valid ); // 有返回则表示冲突或不可用
 			self::setLastIp ( $nextIpStr );
 			return $nextIpStr;
 		} else {
@@ -52,7 +52,7 @@ class Iptables extends Model {
 		} else {
 			$ip = self::ip_parse ( $ipStr ) [2];
 		}
-		if (!strlen ( $ip )) {
+		if (! strlen ( $ip )) {
 			return;
 		}
 		// 已存在则更新，不存在则新增
@@ -80,12 +80,15 @@ class Iptables extends Model {
 		if ($ip_str == "") {
 			return;
 		}
-		$ip = self::ip_parse ( $ip_str ) [2];
+		list ( $ip, $mask, $ip_start, $ip_end ) = self::ip_parse ( $ip_str );
+		if (! self::ifCanUse ( $zxType, $ip_start )) {
+			return "no";
+		}
 		$infotables = new Infotables ();
 		$data = $infotables->where ( [ 
 				"zxType" => $zxType,
-				$filed => $ip 
-			// $filed . "Mask" => $ip [1]
+				$filed => $ip_start 
+			// $filed . "Mask" => $mask
 		] )->field ( "id,cName" )->find ();
 		return $data;
 	}
@@ -97,17 +100,14 @@ class Iptables extends Model {
 	 * @param unknown $mask        	
 	 * @return boolean
 	 */
-	private function ifCanUse($zxType, $long, $mask = -1) {
-		
-		// todo!!
+	public static function ifCanUse($zxType = '互联网', $long, $mask = -1) {
 		if ($long < 0) {
 			// 2^31-(-x) 设计负数如何转化并计算。
 			$array = explode ( ",", "-255,0,-1" );
 		} else {
 			$array = explode ( ",", "0,1,255" );
 		}
-		
-		return in_array ( $long % 256, $array );
+		return !in_array ( $long % 256, $array );
 	}
 	/**
 	 * ip转换

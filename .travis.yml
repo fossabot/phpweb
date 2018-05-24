@@ -1,4 +1,4 @@
-sudo: true
+sudo: false
 dist: trusty
 group: deprecated-2017Q4
 language: php
@@ -8,9 +8,8 @@ php:
  
 install:
  - composer install
- - wget https://github.com/yuxianda/phpweb/releases/download/v0.4.1/static_0.4.1.7z
- - apt-get install p7zip
- - 7z x -opublic/static static_0.4.1.7z
+ - wget https://github.com/yuxianda/phpweb/releases/download/v0.4.1/static_0.4.1.zip
+ - unzip static_0.4.1.zip -d public/static 
 
 script:
  - php think optimize:config

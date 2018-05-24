@@ -169,7 +169,7 @@ class Manage extends Index {
 	 * @return string
 	 */
 	private function getInfoData($limit = 100) {
-		return collection ( Infotables::order ( "create_time desc" )->limit ( $limit )->select () );
+		return collection ( Infotables::order ( "status,create_time desc" )->limit ( $limit )->select () );
 	}
 	/**
 	 * 全局查询
@@ -330,21 +330,19 @@ class Manage extends Index {
 		$row = 5;
 		$cellValues = [ ];
 		$default = [ 
-				"E" => "占用",
-				"H" => "其他",
-				"I" => "铁岭",
-				"K" => "互联地址",
-				"N" => "CMNET",
-				"P" => "企业",
-				"R" => "集客专线",
-				"S" => "互联网专线",
-				"T" => "辽宁",
-				"U" => "LNTIL-MA-CMNET-BAS02-YZME60X",
-				"AC" => "卜玉",
-				"AD" => 18841050815,
-				"AE" => "已启用",
-				"AI" => "客户响应中心",
-				"AJ" => "buyu.tl@ln.chinamobile.com",
+				"D" => "铁岭",
+				"M" => "占用",
+				"N" => "辽宁",
+				"S" => "已启用",
+				"T" => "互联地址",
+				"W" => "集客专线",
+				"X" => "客户响应中心",
+				"Y" => "buyu.tl@ln.chinamobile.com",
+				"Z" => "互联网专线",
+				"AA" => "CMNET",
+				"AC" => "LNTIL-MA-CMNET-BAS02-YZME60X",
+				"AH" => "卜玉",
+				"AI" => 18841050815,
 				"AK" => "铁岭",
 				"AL" => "卜玉" 
 		];
@@ -355,20 +353,19 @@ class Manage extends Index {
 			$data = Infotables::get ( $id )->toArray ();
 			$ip = $data ["ip"];
 			$segment = "223.100.96.0/20";
-			$gateway = substr ( $ip, 0, strripos ( $ip, "." ) ) . ".1";
-			$cellValues ["B" . $row] = $ip; // ip
-			$cellValues ["F" . $row] = $segment; // 上一级子网名
-			$cellValues ["O" . $row] = $gateway; // 网关ip
-			$cellValues ["V" . $row] = $data ["cName"]; // 客户名
-			$cellValues ["W" . $row] = $data ["cPerson"]; // 客户联系人
-			$cellValues ["Y" . $row] = $data ["cAddress"]; // 客户地址
-			$cellValues ["Z" . $row] = $data ["cPhone"] + 0; // 客户电话
-			$cellValues ["AA" . $row] = $data ["create_time"]; // 分配时间
-			$cellValues ["AB" . $row] = $data ["cEmail"]; // 客户邮箱
+			$cellValues ["L" . $row] = $ip; // ip
+			$cellValues ["O" . $row] = $segment; // 上一级子网名
+			$cellValues ["AD" . $row] = $data ["cName"]; // 客户名
+			/* 以下为选填 */
+			$cellValues ["Q" . $row] = $data ["cAddress"]; // 客户地址
+			$cellValues ["R" . $row] = $data ["cEmail"]; // 客户邮箱
+			$cellValues ["AE" . $row] = $data ["cPerson"]; // 客户联系人
+			$cellValues ["AF" . $row] = $data ["cPhone"] + 0; // 客户电话
+			$cellValues ["AG" . $row] = $data ["create_time"]; // 分配时间
 			$row ++;
 		}
 		$pFilename = './sampleData/zg_import.xls';
-		$this->exportExcelFile ( $pFilename, 0, $cellValues, 'Xls', '资管系统导入数据' . date ( "Ymd_His" ) . '.xls' );
+		$this->exportExcelFile ( $pFilename, 0, $cellValues, 'Xls', '资管流程-' . date ( "Ymd_His" ) . $data ["cName"] . '.xls' );
 	}
 	protected function generateJtIp($ids = null) {
 		$row = 4;
@@ -402,7 +399,7 @@ class Manage extends Index {
 			$row ++;
 		}
 		$pFilename = './sampleData/ip_jt.xlsx';
-		$this->exportExcelFile ( $pFilename, 1, $cellValues, 'Xlsx', '集团IP备案导入数据' . date ( "Ymd_His" ) . '.xlsx' );
+		$this->exportExcelFile ( $pFilename, 1, $cellValues, 'Xlsx', '集团IP备案' . date ( "Ymd_His" ) . $data ["cName"] . '.xlsx' );
 	}
 	protected function generateGxbIp($ids = null) {
 		$row = 2;
@@ -431,7 +428,7 @@ class Manage extends Index {
 			$row ++;
 		}
 		$pFilename = './sampleData/ip_gxb.xls';
-		$this->exportExcelFile ( $pFilename, 4, $cellValues, 'Xls', '工信部IP备案导入数据' . date ( "Ymd_His" ) . '.xls' );
+		$this->exportExcelFile ( $pFilename, 4, $cellValues, 'Xls', '工信部IP备案' . date ( "Ymd_His" ) . $data ["cName"] . '.xls' );
 	}
 	/**
 	 * 导出到excel
@@ -670,8 +667,7 @@ class Manage extends Index {
 		\PhpOffice\PhpSpreadsheet\Settings::setCache ( $simpleCache );
 	}
 	public function tt() {
-		$data = true;
-		$subject = "[待办]ip申请-" . ($data ? "onu" : "9312") . "-" . "cNameinstanceId";
-		return dump ( $subject );
+		$data = Iptables::ifCanUse ( "", - 547066626 );
+		return dump ( $data );
 	}
 }
