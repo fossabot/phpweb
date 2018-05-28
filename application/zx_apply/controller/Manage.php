@@ -38,8 +38,10 @@ class Manage extends Index {
 			$data = input ( "post." );
 			$detail = $info->getData (); // 原始数据
 			$extra = json_decode ( $detail ["extra"], true );
-			foreach ( $extra as $k => $v ) {
-				$detail [$k] = $v;
+			if (is_array ( $extra )) {
+				foreach ( $extra as $k => $v ) {
+					$detail [$k] = $v;
+				}
 			}
 			$detail ["ip"] = $info ["ip"]; // 更正ip为 str 形式
 			$detail ["ipB"] = $info ["ipB"]; // 更正ipB
@@ -145,7 +147,7 @@ class Manage extends Index {
 		if (request ()->isPost ()) {
 			// 获取台账
 			// return $this->getInfoData();
-			input ( "post.r" ) == "info" && $data = $this->getInfoData ()->toArray ();
+			input ( "post.r" ) == "info" && $data = $this->getInfoData ( input ( "post.zxType" ) )->toArray ();
 			input ( "post.r" ) == "detail" && $data = Infotables::get ( input ( "post.id" ) )->toJson ();
 			input ( "post.r" ) == "search" && $data = $this->querySearch ( input ( "post." ) );
 			input ( "get.r" ) == "update" && $data = $this->queryUpdateInfo ( input ( "post." ) );
@@ -158,7 +160,7 @@ class Manage extends Index {
 			input ( "post.r" ) == "export_zg" && $data = $this->generateZgWorkflow ( explode ( ",", input ( "post.id" ) ) );
 			input ( "post.r" ) == "export_jtip" && $data = $this->generateJtIp ( explode ( ",", input ( "post.id" ) ) );
 			input ( "post.r" ) == "export_gxbip" && $data = $this->generateGxbIp ( explode ( ",", input ( "post.id" ) ) );
-			input ( "post.r" ) == "export" && $data = $this->queryExport ( input ( "post.type" ) );
+			input ( "post.r" ) == "export" && $data = $this->queryExport ( input ( "post.zxType" ) );
 			return $data;
 		}
 	}
@@ -166,10 +168,11 @@ class Manage extends Index {
 	 * 获取台账信息
 	 *
 	 * @param number $limit        	
-	 * @return string
+	 * @param string $zxType        	
+	 * @return array
 	 */
-	private function getInfoData($limit = 100) {
-		return collection ( Infotables::order ( "status,create_time desc" )->limit ( $limit )->select () );
+	private function getInfoData($zxType = "互联网", $limit = 100) {
+		return collection ( Infotables::where ( "zxType", $zxType )->order ( "status,create_time desc" )->limit ( $limit )->select () );
 	}
 	/**
 	 * 全局查询
@@ -340,11 +343,11 @@ class Manage extends Index {
 				"O" => "卜玉",
 				"P" => 18841050815,
 				"R" => "铁岭",
-				"S" => "卜玉" ,
+				"S" => "卜玉",
 				"W" => "辽宁",
 				"Z" => "客户响应中心",
 				"AA" => "buyu.tl@ln.chinamobile.com",
-				"AJ" => "已启用",
+				"AJ" => "已启用" 
 		];
 		foreach ( $ids as $id ) {
 			foreach ( $default as $k => $v ) {
@@ -468,34 +471,8 @@ class Manage extends Index {
 		unset ( $spreadsheet );
 		unset ( $writer );
 	}
-	private function queryExport($zxType = "互联网") {
-		$zxType == null && $zxType = "互联网";
-		$data = collection ( Infotables::where ( "zxType", $zxType )->order ( "create_time" )->select () )->toArray ();
-		if ($zxType == "互联网") {
-			$colHeader = "申请时间,产品实例标识,专线类别,带宽,网元厂家,A端基站,客户名称,单位详细地址,客户需求说明(选填),VLAN,IP,联系人姓名(客户侧),联系电话(客户侧),联系人邮箱(客户侧)*,负责人姓名(移动侧)*,负责人电话(移动侧)*,负责人邮箱(移动侧)*,备注,是否ONU带\n(默认为否),单位性质*,单位分类*,行业分类*,使用单位证件类型*,使用单位证件号码*,单位所在省*,单位所在市*,单位所在县*,应用服务类型*";
-			$colName = "create_time,instanceId,zxType,bandWidth,neFactory,aStation,cName,cAddress,cNeeds,vlan,ip,cPerson,cPhone,cEmail,mPerson,mPhone,mEmail,marks,ifOnu,extra.unitProperty,extra.unitCategory,extra.industryCategory,extra.credential,extra.credentialnum,extra.province,extra.city,extra.county,extra.appServType";
-		} else if ($zxType == "营业厅") {
-			$colHeader = "申请时间,产品实例标识,专线类别,网元厂家,A端基站,客户名称,单位详细地址,VLAN,互联IP,业务IP,联系人姓名(客户侧),联系电话(客户侧)";
-			$colName = "create_time,instanceId,zxType,neFactory,aStation,cName,cAddress,cNeeds,vlan,ip,ipB,cPerson,cPhone";
-		} else if ($zxType == "卫生网") {
-			$colHeader = "申请时间,产品实例标识,专线类别,网元厂家,A端基站,客户名称,单位详细地址,VLAN,互联IP,业务IP,联系人姓名(客户侧),联系电话(客户侧)";
-			$colName = "create_time,instanceId,zxType,neFactory,aStation,cName,cAddress,cNeeds,vlan,ip,ipB,cPerson,cPhone";
-		} else if ($zxType == "平安校园") {
-			$colHeader = "申请时间,产品实例标识,专线类别,客户名称,单位详细地址,VLAN,监控IP";
-			$colName = "create_time,instanceId,zxType,cName,cAddress,cNeeds,vlan,ip";
-		}
-		$v = [ 
-				"username" => session ( "user.name" ),
-				"email" => session ( "user.email" ),
-				"dataNum" => count ( $data ),
-				"zxType" => $zxType 
-		];
-		$this->log ( "管理导出数据", $v );
-		return [ 
-				"data" => $data,
-				"colHeader" => $colHeader,
-				"colName" => $colName 
-		];
+	protected function queryExport($zxType = "互联网") {
+		return parent::queryExport ( $zxType );
 	}
 	public function _getDevice9312Info() {
 		return config ( "device9312" );
@@ -686,7 +663,7 @@ class Manage extends Index {
 		\PhpOffice\PhpSpreadsheet\Settings::setCache ( $simpleCache );
 	}
 	public function tt() {
-		$data = Iptables::ifCanUse ( "", - 547066626 );
+		
 		return dump ( $data );
 	}
 }

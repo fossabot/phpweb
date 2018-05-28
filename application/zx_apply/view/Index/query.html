@@ -5,10 +5,10 @@
 {/block} {block name="leftmenu"} {include
 file="Common/leftmenu_zx_apply_index" /} {/block} {block name="main"}
 <div class="htmltitle">
-	<span class="h2" style="margin-right:50px">信息查询</span>
+	<span class="h2" style="margin-right: 50px">信息查询</span>
 </div>
 <div>此处仅可查看自己申请过的专线信息(基于申请人姓名)</div>
-<div style="margin-top: 10px;margin-bottom: 3px;">
+<div style="margin-top: 10px; margin-bottom: 3px;">
 	<form class="form-inline" onsubmit="javascript:return false;">
 		<div class="form-group has-success">
 			<select id="colName" class="form-control">
@@ -408,7 +408,7 @@ function showBrief(data){
 		}});
 	}
 	if(!$.isArray(data)){
-		dhtmlx.alert({type:"alert-error",text:"查询过于频繁。请联系管理员"});
+		dhtmlx.alert({type:"alert-error",text:"查询过于频繁(" + data?data:"!!!" + ")。"});
 		return;
 	}
 	var str = '<div style="font-size:12px;overflow:auto;width:986px;height:100%"><table class="table table-hover table-condensed"><tbody>';
@@ -463,10 +463,11 @@ function export_all(){
 		wrFiles();
 	}
 	function wrFiles(){
-		
 		/* original data */
-		var filename = "new-223-net-ip-tables-" + (new Date()).pattern("yyyy-MM-dd") + ".xlsx";
-		$.post("",{_method: "PUT", r: "export"},function(data){
+		var type={"互联网":"net223","营业厅":"yyt","卫生网":"wsw","平安校园":"safe-campus"};
+		var typename = $("#btn-group button.active").prop("name");
+		var filename = "new-ip-tables-" + type[typename] + "-" + (new Date()).pattern("yyyy.MM.dd") + ".xlsx";
+		$.post("",{_method: "PUT", r: "export",zxType: typename},function(data){
 			var exportData = data.data;
 			var colHeader = typeof(data.colHeader) != "undefined" && data.colHeader.split(",");
 			var colName = typeof(data.colName) != "undefined" && data.colName.split(",");

@@ -57,6 +57,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		console.info("\t\t渲染用时:", Date.now() - tt, "ms");
 		hot.initTimes = Date.now();
 		$('[data-toggle="tooltip"]').tooltip();
+		$("#btn-group button").on("click",typeSelected);
 	});
 	//$(".fixed-container").css("visibility","");
 	//var _tt = {0:"数据加载完毕~",1:"one",2:"two",3:"three",4:" ",t:4};
@@ -77,6 +78,14 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		$(".fixed-container").css("visibility","");
 		console.info("\t\t数据验证用时:", Date.now() - hot.initTimes, "ms");
 	},500);
+	function typeSelected(){
+		$(this).addClass("active").siblings().removeClass("active");
+		$.post("",{r:"info",zxType:this.name},function(data){
+			infoData = adjustInfo(data);
+			hot.updateSettings({data: infoData});
+			hot.validateCells();
+		});
+	}
 	(function(Handsontable) {
 		function ipstr(value, callback) {
 			if(value==null||value.length==0){
@@ -365,11 +374,15 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 							if(result){
 								sessionStorage.setItem("updateConfirm","auto");
 								updateChanges(rows, updates);
+							}else{
+								hot.undo();
 							}
 						}
 					});
+				}else{
+					updateChanges(rows, updates);
 				}
-				updateChanges(rows, updates);
+				
 			},
 			afterRender: function(){
 				initStatusSync();
@@ -447,7 +460,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 			if(str == ""){
 				showTips("");
 				$.post("",{r:"info"},function(data){
-					infoData = data;
+					infoData = adjustInfo(data);
 					hot.updateSettings({data: infoData});
 					hot.validateCells();
 				});
@@ -567,7 +580,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 			return;
 		}
 		dhxWins.createWindow("_input",5,220,400,600);
-		var text = "详细信息&nbsp;&nbsp;&nbsp;&nbsp;<a onclick='checkWindows(\"_input\")'>点此关闭</a>";
+		var text = d.zxType+ "专线 详细信息&nbsp;&nbsp;&nbsp;&nbsp;<a onclick='checkWindows(\"_input\")'>点此关闭</a>";
 		dhxWins.window("_input").setText(text);
 		dhxWins.window("_input").attachHTMLString(str);
 	}
@@ -715,9 +728,9 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		function wrFiles(){
 			/* original data */
 			var type={"互联网":"net223","营业厅":"yyt","卫生网":"wsw","平安校园":"safe-campus"};
-			var typename = type["互联网"];
-			var filename = "new-ip-tables-" + typename + "-" + (new Date()).pattern("yyyy.MM.dd") + ".xlsx";
-			$.post("",{_method: "PUT", r: "export"},function(data){
+			var typename = $("#btn-group button.active").prop("name");
+			var filename = "new-ip-tables-" + type[typename] + "-" + (new Date()).pattern("yyyy.MM.dd") + ".xlsx";
+			$.post("",{_method: "PUT", r: "export",zxType: typename},function(data){
 				var exportData = data.data;
 				var colHeader = typeof(data.colHeader) != "undefined" && data.colHeader.split(",");
 				var colName = typeof(data.colName) != "undefined" && data.colName.split(",");

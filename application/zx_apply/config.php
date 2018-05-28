@@ -1,6 +1,6 @@
 <?php
 return [ 
-		'version' => "V0.4.5-zx",
+		'version' => "V0.4.6-zx",
 		'db_esserver' => [ 
 				'type' => 'Sqlsrv',
 				// 服务器地址
@@ -56,7 +56,6 @@ return [
 		// 登陆后跳转到manage模块的账号
 		'manageEmails' => [ 
 				"yuxianda.tl",
-				"yangjietl.tl",
 				"buyu.tl",
 				"liuyutl.tl"
 		],

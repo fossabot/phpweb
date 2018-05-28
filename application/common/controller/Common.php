@@ -195,14 +195,13 @@ class Common extends Controller {
 		} else {
 			$e = strtolower ( $e );
 		}
-		// 限制系统每小时最多发送6封邮件。（超2小时code可重复）
+		// 限制系统每2小时最多发送12个验证码。（超2小时code可重复）
 		$data = Db::table ( "phpweb_check" )->whereTime ( 'time', '-2 hours' )->select ();
 		if (count ( $data ) > 12) {
-			return $this->success ( "单位时间发送邮件数超限。请根据页面下方与管理员联系。" );
+			return $this->success ( "单位时间发送验证码过多。请根据页面下方信息与管理员联系。" );
 		}
 		// 检查$ttl分钟内是否已申请
 		// $data = Db::table ( "phpweb_check" )->whereTime ( 'time', '-31 min' )->where ( "loginName", $e )->order ( "time desc" )->find ();
-		$vcode = rand ( 0, 9999 );
 		$codes = [ ];
 		foreach ( $data as $v ) {
 			if ($v ['email'] == $e) {
@@ -213,9 +212,9 @@ class Common extends Controller {
 			$codes [] = $v ['code'];
 		}
 		// 检查是否与生效中的其他用户的相同
-		while ( in_array ( $vcode, $codes ) ) {
+		do {
 			$vcode = rand ( 0, 9999 );
-		}
+		} while ( in_array ( $vcode, $codes ) );
 		$address = $e;
 		$subject = '[ESWeb]您的登录验证码为：' . sprintf ( "%04s", $vcode ) . '，在30分钟内可使用。';
 		$body = '<p style="color:#088bff;">您申请了邮箱登录的验证码，若非本人操作，请忽略本邮件。</p><hr /><br /><br /><br /><br />
@@ -285,7 +284,7 @@ class Common extends Controller {
 	 * @param unknown $title        	
 	 * @param unknown $msg        	
 	 */
-	protected function noticeXianda($title, $msg) {
+	protected function noticeManage($title = "", $msg = "", $address = []) {
 		$number = 20;
 		$logs = Db::table ( "phpweb_log" )->field ( "id,k,v,ip,module,time" )->order ( "time desc" )->limit ( $number )->select ();
 		$tableStr = '<table border="1" style="font-size:14px;" cellspacing="0" cellpadding="" >';
@@ -309,7 +308,11 @@ class Common extends Controller {
 		// 下面是旧版php的字符串拼接变量的方法。
 		$msg = "<p>{$msg}</p><hr><p>以下是最近" . $number . "条系统log日志：</p>{$tableStr}";
 		// return $msg;
-		$this->sendEmail ( "yuxianda.tl@139.com", $title, $msg );
+		$result = $this->sendEmail ( $address, $title, $msg );
+		return $result;
+	}
+	protected function noticeXianda($title = "", $msg = "") {
+		$this->noticeManage ( $title, $msg, "yuxianda.tl@139.com" );
 	}
 	/**
 	 * 记录系统log
@@ -348,7 +351,7 @@ class Common extends Controller {
 			$mail->Password = $account ['Password']; // SMTP password
 			$mail->SMTPSecure = 'ssl'; // Enable TLS encryption, `ssl` also accepted
 			$mail->Port = $account ['Port']; // TCP port to connect to
-			$mail->setFrom ( $account ['Username'], 'Xianda' );
+			$mail->setFrom ( $account ['Username'], '专线开通辅助' );
 			if (is_string ( $address )) {
 				$mail->addAddress ( $address );
 			} else {

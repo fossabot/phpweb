@@ -2,14 +2,14 @@
 file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="head"}
 <style>
 #list_container {
-	width: 250px;
+	width: 300px;
 	border-right: 1px solid #666
 }
 
 #form_container {
 	position: absolute;
 	top: 10px;
-	left: 250px;
+	left: 300px;
 	width: 800px;
 	height: auto;
 	/*border: 1px solid #f00;*/
@@ -17,7 +17,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="head"}
 </style>
 {/block} {block name="main"}
 <div class="htmltitle">
-	<span class="h2" style="margin-right:50px">待办工作</span>
+	<span class="h2" style="margin-right: 50px">待办工作</span>
 	<div>
 		<p>点击列表，查看明细，并进行操作。</p>
 	</div>
@@ -34,12 +34,11 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="head"}
 	$("#list_container").css("height",
 			$(".main").height() - $(".htmltitle").height() - 30 - 10 + "px");
 	//h2的margin、底部预留10
-	var myList = new dhtmlXList(
-			{
+	var myList = new dhtmlXList({
 				container : "list_container",
 				type : {
 					template : "<b style='color:blue;'>#cName#</b><br/>#create_time#&nbsp;&nbsp;#aPerson#<br/><span style='color:#9c49f5'>#instanceId#&nbsp;&nbsp;#zxType#&nbsp;&nbsp;#aStation#&nbsp;&nbsp;#ifOnu#</span>",
-					height : 70
+					height : 80
 				},
 				select: true,
 			});

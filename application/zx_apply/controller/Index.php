@@ -231,6 +231,9 @@ class Index extends Common {
 	 * @return array
 	 */
 	private function querySearchBrief($data) {
+		if (! isset ( $data ["where"] [2] ) || $data ["where"] [2] == "") {
+			return;
+		}
 		$field = "create_time,instanceId,cName,cAddress,vlan,ip,aPerson,aEmail";
 		$result = collection ( Infotables::where ( $data ["where"] [0], "like", "%" . $data ["where"] [2] . "%" )->field ( $field )->order ( "create_time desc" )->select () )->toArray ();
 		$v = $data;
@@ -242,13 +245,18 @@ class Index extends Common {
 		} else {
 			Cache::set ( 'querySearchBriefTimes', 1, 600 );
 		}
-		if (Cache::get ( 'querySearchBriefTimes' ) > 4) {
-			if (Cache::get ( 'querySearchBriefTimes' ) > 7) {
-				$this->noticeXianda ( "[频繁查询]" . session ( "user.name" ) . "-10分钟内：" . Cache::get ( 'querySearchBriefTimes' ) );
+		$querySearchBriefTimes = Cache::get ( 'querySearchBriefTimes' );
+		if ($querySearchBriefTimes > 10) {
+			$address = config ( "manageEmails" );
+			foreach ( $address as $k => $v ) {
+				$address [$k] = $v . "@ln.chinamobile.com";
+			}
+			$this->noticeManage ( "[频繁查询]" . session ( "user.name" ) . "-10分钟内：" . $querySearchBriefTimes, null, $address );
+			if ($querySearchBriefTimes > 12) {
 				session ( null );
 				return $this->error ( "已断开登陆！", "index" );
 			}
-			return null;
+			return $querySearchBriefTimes;
 		}
 		return $result;
 	}
@@ -275,16 +283,33 @@ class Index extends Common {
 		}
 		return $this->result ( $dbNew, 1, $result );
 	}
-	private function queryExport() {
-		$data = collection ( Infotables::where ( "aPerson", session ( "user.name" ) )->order ( "create_time" )->select () )->toArray ();
-		$colHeader = "申请时间,产品实例标识,专线类别,带宽,网元厂家,A端基站,客户名称,单位详细地址,客户需求说明(选填),VLAN,IP,联系人姓名(客户侧),联系电话(客户侧),联系人邮箱(客户侧)*,负责人姓名(移动侧)*,负责人电话(移动侧)*,负责人邮箱(移动侧)*,备注,是否ONU带\n(默认为否),单位性质*,单位分类*,行业分类*,使用单位证件类型*,使用单位证件号码*,单位所在省*,单位所在市*,单位所在县*,应用服务类型*";
-		$colName = "create_time,instanceId,zxType,bandWidth,neFactory,aStation,cName,cAddress,cNeeds,vlan,ip,cPerson,cPhone,cEmail,mPerson,mPhone,mEmail,marks,ifOnu,extra.unitProperty,extra.unitCategory,extra.industryCategory,extra.credential,extra.credentialnum,extra.province,extra.city,extra.county,extra.appServType";
+	protected function queryExport($zxType = "互联网") {
+		$zxType == null && $zxType = "互联网";
+		if (session ( "user.role" ) == "namage") {
+			$data = collection ( Infotables::where ( "zxType", $zxType )->order ( "create_time" )->select () )->toArray ();
+		} else {
+			$data = collection ( Infotables::where ( "aPerson", session ( "user.name" ) )->order ( "create_time" )->select () )->toArray ();
+		}
+		if ($zxType == "互联网") {
+			$colHeader = "申请时间,产品实例标识,带宽,网元厂家,A端基站,客户名称,单位详细地址,客户需求说明(选填),VLAN,IP,联系人姓名(客户侧),联系电话(客户侧),联系人邮箱(客户侧)*,负责人姓名(移动侧)*,负责人电话(移动侧)*,负责人邮箱(移动侧)*,备注,是否ONU带\n(默认为否),单位性质*,单位分类*,行业分类*,使用单位证件类型*,使用单位证件号码*,单位所在省*,单位所在市*,单位所在县*,应用服务类型*";
+			$colName = "create_time,instanceId,bandWidth,neFactory,aStation,cName,cAddress,cNeeds,vlan,ip,cPerson,cPhone,cEmail,mPerson,mPhone,mEmail,marks,ifOnu,extra.unitProperty,extra.unitCategory,extra.industryCategory,extra.credential,extra.credentialnum,extra.province,extra.city,extra.county,extra.appServType";
+		} else if ($zxType == "营业厅") {
+			$colHeader = "申请时间,产品实例标识,网元厂家,A端基站,客户名称,单位详细地址,VLAN,互联IP,业务IP,联系人姓名(客户侧),联系电话(客户侧)";
+			$colName = "create_time,instanceId,neFactory,aStation,cName,cAddress,,vlan,ip,ipB,cPerson,cPhone";
+		} else if ($zxType == "卫生网") {
+			$colHeader = "申请时间,产品实例标识,网元厂家,A端基站,客户名称,单位详细地址,VLAN,互联IP,业务IP,联系人姓名(客户侧),联系电话(客户侧)";
+			$colName = "create_time,instanceId,neFactory,aStation,cName,cAddress,vlan,ip,ipB,cPerson,cPhone";
+		} else if ($zxType == "平安校园") {
+			$colHeader = "申请时间,产品实例标识,客户名称,单位详细地址,VLAN,监控IP";
+			$colName = "create_time,instanceId,cName,cAddress,vlan,ip";
+		}
 		$v = [ 
 				"username" => session ( "user.name" ),
 				"email" => session ( "user.email" ),
-				"dataNum" => count ( $data ) 
+				"dataNum" => count ( $data ),
+				"zxType" => $zxType 
 		];
-		$this->log ( "用户导出数据", $v );
+		$this->log ( "导出全量数据", $v );
 		return [ 
 				"data" => $data,
 				"colHeader" => $colHeader,
