@@ -111,6 +111,13 @@ class Index extends Common {
 			$subject = "[待办]ip申请-" . ($data ["ifOnu"] ? "onu" : "9312") . "-" . $data ["cName"] . $data ["instanceId"];
 			$body = "<p>请登陆系统及时处理：</p><br> 内网： <a href='http://10.65.178.202/zx_apply/index/index.html#Manage/todo'>http://10.65.178.202/zx_apply/index/index.html#Manage/todo</a><br>外网： <a href='http://223.100.98.60:800/zx_apply/index/index.html#Manage/todo'>http://223.100.98.60:800/zx_apply/index/index.html#Manage/todo</a>";
 			$this->sendManageNotice ( $subject, $body );
+			$v = [ 
+					"username" => session ( "user.name" ),
+					"email" => session ( "user.email" ),
+					"cName" => $data ["cName"],
+					"instanceId" => $data ["instanceId"] 
+			];
+			$this->log ( "提交申请", $v );
 			$redirectUrl = "../" . session ( "user.role" ) . "/query.html";
 			return $this->result ( null, $result, $redirectUrl );
 			// return json_encode ( $data, 256 );
@@ -272,6 +279,12 @@ class Index extends Common {
 		$data = collection ( Infotables::where ( "aPerson", session ( "user.name" ) )->order ( "create_time" )->select () )->toArray ();
 		$colHeader = "申请时间,产品实例标识,专线类别,带宽,网元厂家,A端基站,客户名称,单位详细地址,客户需求说明(选填),VLAN,IP,联系人姓名(客户侧),联系电话(客户侧),联系人邮箱(客户侧)*,负责人姓名(移动侧)*,负责人电话(移动侧)*,负责人邮箱(移动侧)*,备注,是否ONU带\n(默认为否),单位性质*,单位分类*,行业分类*,使用单位证件类型*,使用单位证件号码*,单位所在省*,单位所在市*,单位所在县*,应用服务类型*";
 		$colName = "create_time,instanceId,zxType,bandWidth,neFactory,aStation,cName,cAddress,cNeeds,vlan,ip,cPerson,cPhone,cEmail,mPerson,mPhone,mEmail,marks,ifOnu,extra.unitProperty,extra.unitCategory,extra.industryCategory,extra.credential,extra.credentialnum,extra.province,extra.city,extra.county,extra.appServType";
+		$v = [ 
+				"username" => session ( "user.name" ),
+				"email" => session ( "user.email" ),
+				"dataNum" => count ( $data ) 
+		];
+		$this->log ( "用户导出数据", $v );
 		return [ 
 				"data" => $data,
 				"colHeader" => $colHeader,
