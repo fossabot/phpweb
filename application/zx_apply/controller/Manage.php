@@ -66,7 +66,9 @@ class Manage extends Index {
 				$result = $this->updateInfo ( $data );
 				// 防止提前修改 status 导致 信息未修改无法识别
 				if ($result) {
-					Infotables::where ( "id", $data ["id"] )->setInc ( "status" );
+					if(isset($data["vlan"])){
+						Infotables::where ( "id", $data ["id"] )->setInc ( "status" );
+					}
 					return $this->result ( $this->refleshTodoList (), 1, "操作成功。<br>是否发送邮件通知给申请人？" );
 				} else {
 					return $this->result ( null, 2, "本次提交信息并未修改" );
