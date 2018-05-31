@@ -107,7 +107,7 @@ class Iptables extends Model {
 		} else {
 			$array = explode ( ",", "0,1,255" );
 		}
-		return !in_array ( $long % 256, $array );
+		return ! in_array ( $long % 256, $array );
 	}
 	/**
 	 * ip转换

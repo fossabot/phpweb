@@ -66,7 +66,7 @@ class Manage extends Index {
 				$result = $this->updateInfo ( $data );
 				// 防止提前修改 status 导致 信息未修改无法识别
 				if ($result) {
-					if(isset($data["vlan"])){
+					if (isset ( $data ["vlan"] )) {
 						Infotables::where ( "id", $data ["id"] )->setInc ( "status" );
 					}
 					return $this->result ( $this->refleshTodoList (), 1, "操作成功。<br>是否发送邮件通知给申请人？" );
@@ -165,26 +165,6 @@ class Manage extends Index {
 			input ( "post.r" ) == "export" && $data = $this->queryExport ( input ( "post.zxType" ) );
 			return $data;
 		}
-	}
-	/**
-	 * 获取台账信息
-	 *
-	 * @param number $limit        	
-	 * @param string $zxType        	
-	 * @return array
-	 */
-	private function getInfoData($zxType = "互联网", $limit = 100) {
-		return collection ( Infotables::where ( "zxType", $zxType )->order ( "status,create_time desc" )->limit ( $limit )->select () );
-	}
-	/**
-	 * 全局查询
-	 *
-	 * @param unknown $data        	
-	 * @return array
-	 */
-	private function querySearch($data) {
-		$result = collection ( Infotables::where ( $data ["where"] [0], "like", "%" . $data ["where"] [2] . "%" )->order ( "create_time desc" )->select () )->toArray ();
-		return $result;
 	}
 	/**
 	 * 从query.html删除台账条目
@@ -473,9 +453,6 @@ class Manage extends Index {
 		unset ( $spreadsheet );
 		unset ( $writer );
 	}
-	protected function queryExport($zxType = "互联网") {
-		return parent::queryExport ( $zxType );
-	}
 	public function _getDevice9312Info() {
 		return config ( "device9312" );
 	}
@@ -665,7 +642,6 @@ class Manage extends Index {
 		\PhpOffice\PhpSpreadsheet\Settings::setCache ( $simpleCache );
 	}
 	public function tt() {
-		
 		return dump ( $data );
 	}
 }

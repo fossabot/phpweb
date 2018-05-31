@@ -173,7 +173,7 @@ class Index extends Common {
 			$aStation = array_keys ( config ( "aStation" ) );
 			$zxTitle = [ 
 					"label" => "zx_apply-new-rb",
-					"order" => "24,1,2,3,4,5,6,7,8,9,10,12,13,14,15,16,17,18,19,20,29,30,31,32,33,34,35,36,37,26,22,23" 
+					"order" => "26,24,1,2,3,4,5,6,7,8,9,10,12,13,14,15,16,17,18,19,20,29,30,31,32,33,34,35,36,37,22,23" 
 			];
 			$this->assign ( [ 
 					"aStationData" => implode ( ",", $aStation ),
@@ -201,14 +201,18 @@ class Index extends Common {
 	/**
 	 * 获取台账信息
 	 *
+	 * @param string $zxType        	
 	 * @param number $limit        	
-	 * @return string
+	 * @return \think\model\Collection|\think\Collection
 	 */
-	private function getInfoData($limit = 100) {
-		if (session ( "user.role" ) == "manage") {
-			return collection ( Infotables::order ( "create_time desc" )->limit ( $limit )->select () );
+	protected function getInfoData($zxType = "互联网", $limit = 100) {
+		$where = "";
+		if (session ( "user.role" ) != "manage") {
+			$where = [ 
+					"aEmail" => session ( "user.email" ) 
+			];
 		}
-		return collection ( Infotables::where ( "aEmail", session ( "user.email" ) )->order ( "create_time desc" )->limit ( $limit )->select () );
+		return collection ( Infotables::where ( "zxType", $zxType )->where ( $where )->order ( "status,ip desc" )->limit ( $limit )->select () );
 	}
 	/**
 	 * 全局查询
@@ -216,13 +220,14 @@ class Index extends Common {
 	 * @param unknown $data        	
 	 * @return array
 	 */
-	private function querySearch($data) {
-		if (session ( "user.role" ) == "manage") {
-			$result = collection ( Infotables::where ( $data ["where"] [0], "like", "%" . $data ["where"] [2] . "%" )->order ( "create_time desc" )->select () )->toArray ();
-		} else {
-			$result = collection ( Infotables::where ( "aEmail", session ( "user.email" ) )->where ( $data ["where"] [0], "like", "%" . $data ["where"] [2] . "%" )->order ( "create_time desc" )->select () )->toArray ();
+	protected function querySearch($data) {
+		$where = "";
+		if (session ( "user.role" ) != "manage") {
+			$where = [ 
+					"aEmail" => session ( "user.email" ) 
+			];
 		}
-		return $result;
+		return collection ( Infotables::where ( $where )->where ( $data ["where"] [0], "like", "%" . $data ["where"] [2] . "%" )->order ( "ip desc" )->select () )->toArray ();
 	}
 	/**
 	 * 基本信息查询
@@ -235,7 +240,7 @@ class Index extends Common {
 			return;
 		}
 		$field = "create_time,instanceId,cName,cAddress,vlan,ip,aPerson,aEmail";
-		$result = collection ( Infotables::where ( $data ["where"] [0], "like", "%" . $data ["where"] [2] . "%" )->field ( $field )->order ( "create_time desc" )->select () )->toArray ();
+		$result = collection ( Infotables::where ( $data ["where"] [0], "like", "%" . $data ["where"] [2] . "%" )->field ( $field )->order ( "ip desc" )->select () )->toArray ();
 		$v = $data;
 		$v ["resultLen"] = count ( $result );
 		$v ["url"] = request ()->url ( true );
@@ -254,7 +259,7 @@ class Index extends Common {
 			$this->noticeManage ( "[频繁查询]" . session ( "user.name" ) . "-10分钟内：" . $querySearchBriefTimes, null, $address );
 			if ($querySearchBriefTimes > 12) {
 				session ( null );
-				return $this->error ( "已断开登陆！", "index" );
+				return $this->error ( "已退出登陆！", "index" );
 			}
 			return $querySearchBriefTimes;
 		}
@@ -283,31 +288,40 @@ class Index extends Common {
 		}
 		return $this->result ( $dbNew, 1, $result );
 	}
+	/**
+	 * 导出全量台账-基于专线类型
+	 *
+	 * @param string $zxType        	
+	 * @return string[]|array[]
+	 */
 	protected function queryExport($zxType = "互联网") {
-		$zxType == null && $zxType = "互联网";
-		if (session ( "user.role" ) == "namage") {
-			$data = collection ( Infotables::where ( "zxType", $zxType )->order ( "create_time" )->select () )->toArray ();
-		} else {
-			$data = collection ( Infotables::where ( "aPerson", session ( "user.name" ) )->order ( "create_time" )->select () )->toArray ();
-		}
 		if ($zxType == "互联网") {
 			$colHeader = "申请时间,产品实例标识,带宽,网元厂家,A端基站,客户名称,单位详细地址,客户需求说明(选填),VLAN,IP,联系人姓名(客户侧),联系电话(客户侧),联系人邮箱(客户侧)*,负责人姓名(移动侧)*,负责人电话(移动侧)*,负责人邮箱(移动侧)*,备注,是否ONU带\n(默认为否),单位性质*,单位分类*,行业分类*,使用单位证件类型*,使用单位证件号码*,单位所在省*,单位所在市*,单位所在县*,应用服务类型*";
 			$colName = "create_time,instanceId,bandWidth,neFactory,aStation,cName,cAddress,cNeeds,vlan,ip,cPerson,cPhone,cEmail,mPerson,mPhone,mEmail,marks,ifOnu,extra.unitProperty,extra.unitCategory,extra.industryCategory,extra.credential,extra.credentialnum,extra.province,extra.city,extra.county,extra.appServType";
+			$field = "";
 		} else if ($zxType == "营业厅") {
 			$colHeader = "申请时间,产品实例标识,网元厂家,A端基站,客户名称,单位详细地址,VLAN,互联IP,业务IP,联系人姓名(客户侧),联系电话(客户侧)";
 			$colName = "create_time,instanceId,neFactory,aStation,cName,cAddress,,vlan,ip,ipB,cPerson,cPhone";
+			$field = $colName;
 		} else if ($zxType == "卫生网") {
 			$colHeader = "申请时间,产品实例标识,网元厂家,A端基站,客户名称,单位详细地址,VLAN,互联IP,业务IP,联系人姓名(客户侧),联系电话(客户侧)";
 			$colName = "create_time,instanceId,neFactory,aStation,cName,cAddress,vlan,ip,ipB,cPerson,cPhone";
+			$field = $colName;
 		} else if ($zxType == "平安校园") {
 			$colHeader = "申请时间,产品实例标识,客户名称,单位详细地址,VLAN,监控IP";
 			$colName = "create_time,instanceId,cName,cAddress,vlan,ip";
+			$field = $colName;
+		}
+		if (session ( "user.role" ) == "manage") {
+			$data = collection ( Infotables::field ( $field )->where ( "zxType", $zxType )->order ( "ip" )->select () )->toArray ();
+		} else {
+			$data = collection ( Infotables::field ( $field )->where ( "aPerson", session ( "user.name" ) )->order ( "ip" )->select () )->toArray ();
 		}
 		$v = [ 
-				"username" => session ( "user.name" ),
-				"email" => session ( "user.email" ),
 				"dataNum" => count ( $data ),
-				"zxType" => $zxType 
+				"zxType" => $zxType,
+				"username" => session ( "user.name" ),
+				"email" => session ( "user.email" ) 
 		];
 		$this->log ( "导出全量数据", $v );
 		return [ 
@@ -316,12 +330,7 @@ class Index extends Common {
 				"colName" => $colName 
 		];
 	}
-	/**
-	 * 更新信息
-	 */
-	public function update() {
-		return $this->fetch ( "index/update" );
-	}
+	
 	/**
 	 * 检查 instanceId 是否重复
 	 * 可输入$data数组或instanceId

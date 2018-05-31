@@ -69,6 +69,10 @@ var container = document.getElementById('queryTable');
 var infoData, hot, columnsData, contextMenuData;
 infoData = {$data};
 columnsData = [ {
+	data: 'status',
+	type : 'numeric',
+	readOnly: true
+}, {
 	data: 'create_time',
 	type : "date",
 	dateFormat : "YYYY-MM-DD",
@@ -160,10 +164,6 @@ columnsData = [ {
 }, {
 	data: 'extra.appServType',
 	type : 'numeric',
-} , {
-	data: 'status',
-	type : 'numeric',
-	readOnly: true
 }, {
 	data: 'aPerson',
 	readOnly: true
@@ -442,9 +442,9 @@ function initStatusSync(){
 		return ;
 	}
 	var _statusVal;
-	//var dataObj = $("#queryTable table.htCore tbody tr");
-	for(var i in infoData){
-		_statusVal = infoData[i]["status"];
+	var dataObj = $("#queryTable table.htCore tbody tr");
+	for(var i in dataObj){
+		_statusVal = $("#queryTable table.htCore tbody tr:eq("+i+") td:first").text();
 		changeStatus(parseInt(i)+1,_statusVal);
 	}
 }

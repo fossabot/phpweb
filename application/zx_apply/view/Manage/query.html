@@ -78,7 +78,9 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		$(".fixed-container").css("visibility","");
 		console.info("\t\t数据验证用时:", Date.now() - hot.initTimes, "ms");
 	},500);
+	/* 专线类型选择 */
 	function typeSelected(){
+		$("#searchStr").val("");
 		$(this).addClass("active").siblings().removeClass("active");
 		$.post("",{r:"info",zxType:this.name},function(data){
 			infoData = adjustInfo(data);
@@ -459,7 +461,8 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 			var str = $("#searchStr").val();
 			if(str == ""){
 				showTips("");
-				$.post("",{r:"info"},function(data){
+				var zxType = $("#btn-group button.active").prop("name");
+				$.post("",{r:"info",zxType:zxType},function(data){
 					infoData = adjustInfo(data);
 					hot.updateSettings({data: infoData});
 					hot.validateCells();
