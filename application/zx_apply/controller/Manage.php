@@ -47,7 +47,13 @@ class Manage extends Index {
 			$detail ["ipB"] = $info ["ipB"]; // 更正ipB
 			unset ( $detail ["extra"] );
 			if ($req == "getDetail") {
-				return json ( $detail ); // 返回单条数据
+				// 返回单条数据及同客户名的信息摘要
+				$relative = collection ( Infotables::where ( "cName", "like", "%" . $info ["cName"] . "%" )->where ( "id", "<>", $info ["id"] )->field ( "id,cName,create_time,aStation,vlan,ip,aPerson,aEmail" )->select () )->toArray ();
+				$result = [ 
+						"related" => $relative,
+						"detail" => $detail 
+				];
+				return json ( $result );
 			} else if ($req == "auto_pre") {
 				$device = config ( "aStation" ) [$data ["aStation"]];
 				$genIp = Iptables::generateIP ( $data ["zxType"] );
