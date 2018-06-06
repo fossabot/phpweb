@@ -48,10 +48,12 @@ class Manage extends Index {
 			unset ( $detail ["extra"] );
 			if ($req == "getDetail") {
 				// 返回单条数据及同客户名的信息摘要
-				$relative = collection ( Infotables::where ( "cName", "like", "%" . $info ["cName"] . "%" )->where ( "id", "<>", $info ["id"] )->field ( "id,cName,create_time,aStation,vlan,ip,aPerson,aEmail" )->select () )->toArray ();
+				$cName = substr ( $info ["cName"], 2 * 3, 10 * 3 );
+				$relative = collection ( Infotables::withTrashed()->where ( "cName", "like", "%" . $cName . "%" )->where ( "id", "<>", $info ["id"] )->field ( "id,cName,create_time,neFactory,vlan,aStation,ip,aPerson,aEmail,delete_time" )->select () )->toArray ();
 				$result = [ 
 						"related" => $relative,
-						"detail" => $detail 
+						"detail" => $detail,
+						"string"=>$cName
 				];
 				return json ( $result );
 			} else if ($req == "auto_pre") {
@@ -356,7 +358,7 @@ class Manage extends Index {
 			$row ++;
 		}
 		$pFilename = './sampleData/zg_import.xls';
-		$this->exportExcelFile ( $pFilename, 0, $cellValues, 'Xls', '资管流程-' . date ( "Ymd_His" ) . $data ["cName"] . '.xls' );
+		$this->exportExcelFile ( $pFilename, 0, $cellValues, 'Xls', '资管流程-' . $data ["cName"] . date ( "Ymd_His" ). '.xls' );
 	}
 	protected function generateJtIp($ids = null) {
 		$row = 4;
@@ -390,7 +392,7 @@ class Manage extends Index {
 			$row ++;
 		}
 		$pFilename = './sampleData/ip_jt.xlsx';
-		$this->exportExcelFile ( $pFilename, 1, $cellValues, 'Xlsx', '集团IP备案' . date ( "Ymd_His" ) . $data ["cName"] . '.xlsx' );
+		$this->exportExcelFile ( $pFilename, 1, $cellValues, 'Xlsx', '集团IP备案' . $data ["cName"] . date ( "Ymd_His" ). '.xlsx' );
 	}
 	protected function generateGxbIp($ids = null) {
 		$row = 2;
@@ -419,7 +421,7 @@ class Manage extends Index {
 			$row ++;
 		}
 		$pFilename = './sampleData/ip_gxb.xls';
-		$this->exportExcelFile ( $pFilename, 4, $cellValues, 'Xls', '工信部IP备案' . date ( "Ymd_His" ) . $data ["cName"] . '.xls' );
+		$this->exportExcelFile ( $pFilename, 4, $cellValues, 'Xls', '工信部IP备案' . $data ["cName"] . date ( "Ymd_His" ). '.xls' );
 	}
 	/**
 	 * 导出到excel

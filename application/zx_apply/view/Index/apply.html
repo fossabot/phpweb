@@ -25,6 +25,11 @@ myForm.attachEvent("onButtonClick", function(id) {
 	if(id == "commit"){
 		if(myForm.validate()){
 			var myData = myForm.getFormData();
+			for(var i in myData){
+				if(typeof(myData[i])!= "undefined"){
+					myData[i] = String(myData[i]).replace(/ /g,"");
+				}
+			}
 			$.post("",myData,function(data){
 				data.code == 1 && dhtmlx.alert({
 					title:"&nbsp;",

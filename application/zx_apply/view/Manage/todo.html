@@ -14,6 +14,25 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="head"}
 	height: auto;
 	/*border: 1px solid #f00;*/
 }
+
+.dhtmlx_message_area{
+	top: 48px !important;
+	left: 280px !important;
+	width: 800px;
+	font-size: 12px;
+	font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
+}
+
+.dhtmlx-info {
+	background: transparent;
+	padding: 0 0 10px 0;
+	border: none;
+	box-shadow: none;
+}
+
+.dhtmlx-info div{
+	padding: 0;
+}
 </style>
 {/block} {block name="main"}
 <div class="htmltitle">
@@ -50,7 +69,6 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="head"}
 	var myForm,evId;
 	// 绑定点击 list Item 事件
 	myList.attachEvent("onAfterSelect", function(id) {
-		dhtmlx.message({text:"申请单号："+id});
 		var index = myList.indexById(id);
 		var formData = dataList[index];
 		//form_init(formData);	//初始化
@@ -81,6 +99,7 @@ function form_init(formData){
 	$("#form_container").html("");
 	myForm = null;
 	myForm = new dhtmlXForm('form_container',formStructure);
+	myForm.setItemLabel("basic",myForm.getItemLabel("basic")+" - [单号: "+formData["detail"]["id"]  + " ]");
 	myForm.addItem("ip_bak",ipStructure,0,0);
 	myForm.removeItem("readme");
 	myForm.enableLiveValidation(true);
@@ -158,20 +177,34 @@ function form_init(formData){
 			dhtmlx.alert({type:"alert-warning",title:"warning",text:"按钮事件未定义："+id});
 		}
 	});
-	showRelated(formData["related"]);
+	showRelated(formData["string"], formData["related"]);
 }
 /* 显示台账中同客户名的摘要信息 */
-function showRelated(data){
-	checkWindows("_related");
-	var str = '<pre class="text-muted" style="padding:15px;font-size:12px;height:100%">';
-	for(var i in data){
-		str += [data[i]["id"],data[i]["create_time"],data[i]["cName"],data[i]["vlan"],data[i]["aStation"],data[i]["ip"],data[i]["aPerson"],data[i]["aEmail"]].join(",") + "\n";
+function showRelated(string, data){
+	if(data.length == 0){
+		dhtmlx.message({id:"_text",text:"不存在同客户名的相关台账信息(参考以预防重复申请)&nbsp;-&nbsp;-&nbsp;-&nbsp;-&nbsp;-&nbsp;<span class='text-primary'>(点击关闭此消息)</span>",expire:10000});
+		dhtmlx.message.hide("_str");
+		return;
 	}
-	str += "</pre>";
-	var text = "客户名包含<code>"+myForm.getItemValue("cName")+"</code>的台账信息&nbsp;&nbsp;&nbsp;&nbsp;<a onclick='checkWindows(\"_related\")'>点此关闭</a>";
-	dhxWins.createWindow("_related",5,_htmlHeight-350,900,150);
-	dhxWins.window("_related").setText(text);
-	dhxWins.window("_related").attachHTMLString(str);
+	var str = '';
+	for(var i in data){
+		var delete_time = data[i]["delete_time"] == null ? "" : new Date(data[i]["delete_time"]*1000).pattern("yyyy-MM-dd")+"已删";
+		str += [
+			data[i]["id"],
+			data[i]["create_time"],
+			data[i]["cName"],
+			data[i]["neFactory"],
+			data[i]["vlan"],
+			data[i]["aStation"],
+			data[i]["ip"],
+			data[i]["aPerson"],
+			data[i]["aEmail"],
+			delete_time
+		].join(",") + "<br />";
+	}
+	var text = "客户名包含<code>"+string+"</code>的台账信息:(参考以预防重复申请)&nbsp;-&nbsp;-&nbsp;-&nbsp;-&nbsp;-&nbsp;<span class='text-primary'>(点此关闭此消息)</span>";
+	dhtmlx.message({id:"_text",text:text,expire:-1});
+	dhtmlx.message({id:"_str",text:str,expire:-1});
 }
 /* 显示已分配vlan */
 function showUsedVlans(data){
@@ -205,6 +238,52 @@ function ipstr(value){
 }
 function checkWindows(id){
 	dhxWins.isWindow(id) && dhxWins.window(id).close();
+}
+</script>
+<script>
+/**
+ * 对Date的扩展，将 Date 转化为指定格式的String
+ * 月(M)、日(d)、12小时(h)、24小时(H)、分(m)、秒(s)、周(E)、季度(q) 可以用 1-2 个占位符 * 年(y)可以用 1-4 个占位符，毫秒(S)只能用 1 个占位符(是 1-3 位的数字)
+ * eg:
+ * (new Date()).pattern("yyyy-MM-dd hh:mm:ss.S")==> 2006-07-02 08:09:04.423      
+ * (new Date()).pattern("yyyy-MM-dd E HH:mm:ss") ==> 2009-03-10 二 20:09:04      
+ * (new Date()).pattern("yyyy-MM-dd EE hh:mm:ss") ==> 2009-03-10 周二 08:09:04      
+ * (new Date()).pattern("yyyy-MM-dd EEE hh:mm:ss") ==> 2009-03-10 星期二 08:09:04      
+ * (new Date()).pattern("yyyy-M-d h:m:s.S") ==> 2006-7-2 8:9:4.18      
+ */
+Date.prototype.pattern = function(fmt) {
+	var o = {
+		"M+" : this.getMonth() + 1, //月份         
+		"d+" : this.getDate(), //日         
+		"h+" : this.getHours() % 12 == 0 ? 12 : this.getHours() % 12, //小时         
+		"H+" : this.getHours(), //小时         
+		"m+" : this.getMinutes(), //分         
+		"s+" : this.getSeconds(), //秒         
+		"q+" : Math.floor((this.getMonth() + 3) / 3), //季度         
+		"S" : this.getMilliseconds()//毫秒         
+	};
+	var week = {
+		"0" : "/u65e5",
+		"1" : "/u4e00",
+		"2" : "/u4e8c",
+		"3" : "/u4e09",
+		"4" : "/u56db",
+		"5" : "/u4e94",
+		"6" : "/u516d"
+	};
+	if (/(y+)/.test(fmt)) {
+		fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "")
+				.substr(4 - RegExp.$1.length));
+	}
+	if (/(E+)/.test(fmt)) {
+		fmt = fmt.replace(RegExp.$1,((RegExp.$1.length > 1) ? (RegExp.$1.length > 2 ? "/u661f/u671f" : "/u5468") : "") + week[this.getDay() + ""]);
+	}
+	for ( var k in o) {
+		if (new RegExp("(" + k + ")").test(fmt)) {
+			fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+		}
+	}
+	return fmt;
 }
 </script>
 {/block}
