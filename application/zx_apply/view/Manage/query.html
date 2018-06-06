@@ -303,14 +303,14 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 							return a || b || !v;
 						}
 					},
-					"delete": {
-						name : "**删除所选条目",
-					},
 					"undo" : {
 						name : "撤销修改"
 					},
 					"redo" : {
 						name : "还原修改"
+					},
+					"delete": {
+						name : "**删除所选条目",
 					},
 					"show_status":{
 						name : function(){
@@ -587,7 +587,10 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		dhxWins.window("_input").setText(text);
 		dhxWins.window("_input").attachHTMLString(str);
 	}
-	/* 获取当前选择列的ids return Array */
+	/* 获取当前选择列的ids */
+	/* return Array */
+	/* arg=true:  ids (default) */
+	/* arg=false: rowIds */
 	// 多选的行号合并、去重并获取其数据的id数组
 	function getSelectedIds(arg){
 		if(hot.getSelected() === undefined){
@@ -661,20 +664,43 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		setTimeout("document.forms._export.parentNode.removeChild(document.forms._export)",0);	//	在DOM中移除 刚生成的form
 		console.log("\t\tput(key):submit:",args);
 	}
+	/* 删除条目 */
 	function postDelete(){
 		var ids = getSelectedIds();
 		var ranges = getSelectedIds(false);
-		$.post("", {r: "delete",id: ids}, function(data){
-			if(data == ids.length){
-				// hot 前端组件同步删除
-				for (var i in ranges){
-					infoData.splice(ranges[i],1);
+		var cNames = '<p class="text-danger">';
+		for (var i in ranges){
+			cNames += [infoData[ranges[i]]["cName"],infoData[ranges[i]]["ip"]].join(", ") + "<br>";
+		}
+		cNames += '</p>';
+		dhtmlx.confirm({
+			type: "confirm-warning",
+			title: "确认删除所选范围内的条目？",
+			text: "包含的台账有：<br>"+cNames,
+			width: "600px",
+			ok: "删除",
+			cancel: "取消",
+			callback: function(result){
+				if(!result){
+					return;
+				}else{
+					doDelete(ids, ranges);
 				}
-				hot.render();
-			}else{
-				dhtmlx.alert("操作异常，建议刷新页面后重试。");
 			}
 		});
+		function doDelete(ids, ranges){
+			$.post("", {r: "delete",id: ids}, function(data){
+				if(data == ids.length){
+					// hot 前端组件同步删除,基于数组的index
+					for (var i in ranges){
+						infoData.splice(ranges[i],1);
+					}
+					hot.render();
+				}else{
+					dhtmlx.alert("操作异常，建议刷新页面后重试。");
+				}
+			});
+		}
 	}
 	/* 设置状态显示（背景色）页面滚动后失效  暂时未用*/
 	/*function initStatus(){

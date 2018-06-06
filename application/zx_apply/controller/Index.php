@@ -124,6 +124,35 @@ class Index extends Common {
 		}
 	}
 	/**
+	 * 修改提交
+	 */
+	public function re_apply(){
+		if (request ()->isGet ()) {
+			return $this->error("Nothing here. Do not try again!");
+		}
+		$data = input ( "post." );
+		$this->checkInstanceID ( null, $data ["instanceId"] ); // 检查instanceId
+		$extraHeader = config ( "extraInfo" );
+		foreach ( $extraHeader as $k => $v ) {
+			$data ["extra"] [$v] = $data [$v];
+			unset ( $data [$v] );
+		}
+		$result = Infotables::createInfo ( $data, "apply" );
+		// 发邮件通知
+		$subject = "[待办]ip申请-" . ($data ["ifOnu"] ? "onu" : "9312") . "-" . $data ["cName"] . $data ["instanceId"];
+		$body = "<p>请登陆系统及时处理：</p><br> 内网： <a href='http://10.65.178.202/zx_apply/index/index.html#Manage/todo'>http://10.65.178.202/zx_apply/index/index.html#Manage/todo</a><br>外网： <a href='http://223.100.98.60:800/zx_apply/index/index.html#Manage/todo'>http://223.100.98.60:800/zx_apply/index/index.html#Manage/todo</a>";
+		$this->sendManageNotice ( $subject, $body );
+		$v = [
+				"username" => session ( "user.name" ),
+				"email" => session ( "user.email" ),
+				"cName" => $data ["cName"],
+				"instanceId" => $data ["instanceId"]
+		];
+		$this->log ( "提交申请", $v );
+		$redirectUrl = "../" . session ( "user.role" ) . "/query.html";
+		return $this->result ( null, $result, $redirectUrl );
+	}
+	/**
 	 * 根据label、order 获取表格的 header
 	 * $v为false，获取option(default)；为ture，获取value
 	 *
@@ -287,6 +316,21 @@ class Index extends Common {
 			}
 		}
 		return $this->result ( $dbNew, 1, $result );
+	}
+	/**
+	 * 从query.html删除台账条目
+	 *
+	 * @param unknown $input
+	 */
+	protected function queryDelete($input) {
+		$result = Infotables::destroy ( $input ["id"] );
+		// 同步删除vlantables
+		foreach ( $input ["id"] as $id ) {
+			Vlantables::destroy ( [
+					"infoId" => $id
+			] );
+		}
+		return $result;
 	}
 	/**
 	 * 导出全量台账-基于专线类型

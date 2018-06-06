@@ -174,21 +174,6 @@ class Manage extends Index {
 			return $data;
 		}
 	}
-	/**
-	 * 从query.html删除台账条目
-	 *
-	 * @param unknown $input        	
-	 */
-	private function queryDelete($input) {
-		$result = Infotables::destroy ( $input ["id"] );
-		// 同步删除vlantables
-		foreach ( $input ["id"] as $id ) {
-			Vlantables::destroy ( [ 
-					"infoId" => $id 
-			] );
-		}
-		return $result;
-	}
 	protected function generateScript($id = null) {
 		$data = Infotables::get ( $id );
 		if ($data ["zxType"] == "互联网") {

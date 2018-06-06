@@ -109,7 +109,6 @@ function form_init(formData){
 	//formStructure = null;
 	evId == null ||	myForm.detachEvent("evId");
 	evId = myForm.attachEvent("onButtonClick", function(id){
-		var mainId = myList.getSelected();
 		if(id=="auto_pre"){
 			myForm.disableItem("ipStructure");
 			var valid = myForm.validate();
@@ -226,15 +225,6 @@ function sendResultEmail(){
 			dhtmlx.alert({title: "邮件发送失败", text: d.data});
 		}
 	});
-}
-/**
- * 验证是否符合ip字符串的格式:10.10.10.10/32
- */
-function ipstr(value){
-	var a = value.split("/");
-	var c = a[0].toString().match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
-	var b = a.length==1?true:a.length>2?false:parseInt(a[1])<=32&&a[1].match(/^\d{0,2}$/);
-	return c&&!!(c[1]<=255&&c[2]<=255&&c[3]<=255&&c[4]<=255)&&b||false;
 }
 function checkWindows(id){
 	dhxWins.isWindow(id) && dhxWins.window(id).close();

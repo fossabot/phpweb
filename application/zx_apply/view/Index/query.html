@@ -203,6 +203,8 @@ function initHandsontable(infoData){
 							text : "本菜单由 Xianda 自定义。感谢Xianda"
 						});
 					}, 100);
+				}else if(key === 'reApply'){
+					reApply();
 				}else if (key === 'show_status') {
 					if(sessionStorage.getItem("tableStatus")==undefined){
 						sessionStorage.setItem("tableStatus","yes");
@@ -221,11 +223,14 @@ function initHandsontable(infoData){
 					name : "**Power by Xianda"
 				},
 				"hsep1" : "---------",	
-				"undo" : {
-					name : "撤销修改"
-				},
-				"redo" : {
-					name : "还原修改"
+				"reApply" : {
+					name : "修改申请",
+					disabled: function(){
+						var s = hot.getSelectedRange();
+						var a = s && s.length > 1;
+						var b = s && s[0].from.row != s[0].to.row;
+						return a || b;
+					}
 				},
 				"show_status":{
 					name : function(){
@@ -371,7 +376,10 @@ function showTips(msg,muti){
 		$("#tips").fadeOut(500);
 	}
 }
-/* 获取当前选择列的ids return Array */
+/* 获取当前选择列的ids */
+/* return Array */
+/* arg=true:  ids (default) */
+/* arg=false: rowIds */
 // 多选的行号合并、去重并获取其数据的id数组
 function getSelectedIds(arg){
 	if(hot.getSelected() === undefined){
@@ -447,6 +455,93 @@ function initStatusSync(){
 		_statusVal = $("#queryTable table.htCore tbody tr:eq("+i+") td:first").text();
 		changeStatus(parseInt(i)+1,_statusVal);
 	}
+}
+/* 重新申请 */
+function reApply(){
+	var id = getSelectedIds(false)[0];
+	dhtmlx.confirm({
+		title: "确认修改已提交的信息",
+		text: "即将修改已提交的信息，这将导致需要重新分配ip/vlan。<br>别担心，此操作会自动通知管理员进行处理。",
+		ok: "确认继续",
+		cancel: "我在想想",
+		callback: function(result){
+			if(result){
+				doReApply(id);
+			}
+		}
+	});
+	function doReApply(id){
+		if(typeof _formAjax != "undefined"){
+			form_init(infoData[id]);
+		}else{
+			$.get("../Common/_formStructure.html",function(data1){
+				$("body").after(data1);
+				$.get("../Common/_formConfig.html",function(data2){
+					$("body").append(data2);
+					window._formAjax=1;
+					form_init(infoData[id]);
+				});
+			});
+		}
+	}
+}
+/**
+ * 初始化 表单
+ */
+function form_init(formData){
+	if(!dhxWins.isWindow("_reApply")){
+		dhxWins.createWindow("_reApply",145,20,850,_htmlHeight-40);
+	}
+	var textNotes = _htmlWidth<1000 ? "&nbsp;<code>浏览器窗口太小显示不全,双击此处调整页面布局。</code>" : ""; 
+	dhxWins.window("_reApply").setText("修改申请重新提交"+textNotes);
+	window.myForm = null;
+	myForm = dhxWins.window("_reApply").attachForm(formStructure);
+	myForm.setItemLabel("basic",myForm.getItemLabel("basic")+" - [原单号: "+formData["id"]  + " ]");
+	ipStructure["label"] = "之前分配的ip/vlan(勿动)";
+	myForm.addItem("ip_bak",ipStructure,0,0);
+	myForm.removeItem("readme");
+	myForm.disableItem("vlan");
+	myForm.disableItem("ip");
+	myForm.disableItem("ipB");
+	myForm.enableLiveValidation(true);
+	initCombo();
+	myForm.loadStruct({data: formData});	//加载数据
+	sessionStorage.setItem("formDataBackups",myForm.saveBackup());
+	//formStructure = null;
+	window.evId == null ||	myForm.detachEvent("evId");
+	evId = myForm.attachEvent("onButtonClick", function(id){
+		if(id == "commit"){
+			if(myForm.validate()){
+				var myData = myForm.getFormData();
+				for(var i in myData){
+					if(typeof(myData[i])!= "undefined"){
+						myData[i] = String(myData[i]).replace(/ /g,"");
+					}
+				}
+				$.post("re_apply.html",myData,function(data){
+					if(data.url){
+						dhtmlx.alert({text:"登陆超时！",callback:function(){location.href=data.url;}});
+					}
+					data.code == 1 && dhtmlx.alert({
+						title:"&nbsp;",
+						text:"提交成功。",
+						callback:function(){
+							location.href = data.msg;
+						},
+					});
+					data.code == 0 && dhtmlx.alert({type:"alert-error",title:data.msg,text:data.data});
+				});
+			}else{
+				dhtmlx.alert({type:"alert-error",title:"数据验证有误",text:"请检查填写是否完整或格式类型是否正确。"});
+			}
+		}else if(id=="cancel"){
+			//form_init(JSON.parse(sessionStorage.getItem("formData")));
+			myForm.restoreBackup(sessionStorage.getItem("formDataBackups"));
+			dhtmlx.message("表单已重置");
+		}else if(id){
+			dhtmlx.alert({type:"alert-warning",title:"warning",text:"按钮事件未定义："+id});
+		}
+	});
 }
 /* 标记台账状态 */
 function changeStatus(row,status){
