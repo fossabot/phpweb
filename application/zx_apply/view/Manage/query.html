@@ -80,6 +80,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 	},500);
 	/* 专线类型选择 */
 	function typeSelected(){
+		checkWindows("_input");
 		$("#searchStr").val("");
 		$(this).addClass("active").siblings().removeClass("active");
 		$.post("",{r:"info",zxType:this.name},function(data){
@@ -309,6 +310,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 					"redo" : {
 						name : "还原修改"
 					},
+					"hsep2" : "---------",
 					"delete": {
 						name : "**删除所选条目",
 					},
@@ -679,7 +681,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 			text: "包含的台账有：<br>"+cNames,
 			width: "600px",
 			ok: "删除",
-			cancel: "取消",
+			cancel: "点错了",
 			callback: function(result){
 				if(!result){
 					return;

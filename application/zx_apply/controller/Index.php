@@ -126,27 +126,37 @@ class Index extends Common {
 	/**
 	 * 修改提交
 	 */
-	public function re_apply(){
+	public function re_apply() {
 		if (request ()->isGet ()) {
-			return $this->error("Nothing here. Do not try again!");
+			return $this->error ( "Nothing here. Do not try again!" );
 		}
 		$data = input ( "post." );
-		$this->checkInstanceID ( null, $data ["instanceId"] ); // 检查instanceId
+		/* 不验证实例标识重复与否 */
 		$extraHeader = config ( "extraInfo" );
 		foreach ( $extraHeader as $k => $v ) {
 			$data ["extra"] [$v] = $data [$v];
 			unset ( $data [$v] );
 		}
 		$result = Infotables::createInfo ( $data, "apply" );
+		$this->queryDelete ( [ 
+				"id" => input ( "param.old" ) 
+		] );
+		$oldData = Infotables::get ( input ( "param.old" ) )->toArray ();
 		// 发邮件通知
-		$subject = "[待办]ip申请-" . ($data ["ifOnu"] ? "onu" : "9312") . "-" . $data ["cName"] . $data ["instanceId"];
-		$body = "<p>请登陆系统及时处理：</p><br> 内网： <a href='http://10.65.178.202/zx_apply/index/index.html#Manage/todo'>http://10.65.178.202/zx_apply/index/index.html#Manage/todo</a><br>外网： <a href='http://223.100.98.60:800/zx_apply/index/index.html#Manage/todo'>http://223.100.98.60:800/zx_apply/index/index.html#Manage/todo</a>";
+		$subject = "[待办]修改申请-" . ($data ["ifOnu"] ? "onu" : "9312") . "-" . $data ["cName"];
+		$body = "<p>修改内容有：</p><p>";
+		foreach ( $data as $k => $v ) {
+			if ($v != $oldData [$k]) {
+				$body += $oldData [$k] . "=>" . $v . "<br>";
+			}
+		}
+		$body += "</p><p>请登陆系统及时处理：</p><br> 内网： <a href='http://10.65.178.202/zx_apply/index/index.html#Manage/todo'>http://10.65.178.202/zx_apply/index/index.html#Manage/todo</a><br>外网： <a href='http://223.100.98.60:800/zx_apply/index/index.html#Manage/todo'>http://223.100.98.60:800/zx_apply/index/index.html#Manage/todo</a>";
 		$this->sendManageNotice ( $subject, $body );
-		$v = [
+		$v = [ 
 				"username" => session ( "user.name" ),
 				"email" => session ( "user.email" ),
 				"cName" => $data ["cName"],
-				"instanceId" => $data ["instanceId"]
+				"instanceId" => $data ["instanceId"] 
 		];
 		$this->log ( "提交申请", $v );
 		$redirectUrl = "../" . session ( "user.role" ) . "/query.html";
@@ -202,7 +212,7 @@ class Index extends Common {
 			$aStation = array_keys ( config ( "aStation" ) );
 			$zxTitle = [ 
 					"label" => "zx_apply-new-rb",
-					"order" => "26,24,1,2,3,4,5,6,7,8,9,10,12,13,14,15,16,17,18,19,20,29,30,31,32,33,34,35,36,37,22,23" 
+					"order" => "24,1,2,3,4,5,6,7,8,9,10,12,13,14,15,16,17,18,19,20,29,30,31,32,33,34,35,36,37,22,23,26" 
 			];
 			$this->assign ( [ 
 					"aStationData" => implode ( ",", $aStation ),
@@ -320,14 +330,14 @@ class Index extends Common {
 	/**
 	 * 从query.html删除台账条目
 	 *
-	 * @param unknown $input
+	 * @param unknown $input        	
 	 */
 	protected function queryDelete($input) {
 		$result = Infotables::destroy ( $input ["id"] );
 		// 同步删除vlantables
 		foreach ( $input ["id"] as $id ) {
-			Vlantables::destroy ( [
-					"infoId" => $id
+			Vlantables::destroy ( [ 
+					"infoId" => $id 
 			] );
 		}
 		return $result;

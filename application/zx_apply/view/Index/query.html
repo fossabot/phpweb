@@ -69,10 +69,6 @@ var container = document.getElementById('queryTable');
 var infoData, hot, columnsData, contextMenuData;
 infoData = {$data};
 columnsData = [ {
-	data: 'status',
-	type : 'numeric',
-	readOnly: true
-}, {
 	data: 'create_time',
 	type : "date",
 	dateFormat : "YYYY-MM-DD",
@@ -110,7 +106,8 @@ columnsData = [ {
 	data : 'vlan',
 	type : 'numeric',
 	//validator : /^2[0-9]{3}$/,
-	readOnly: true
+	//readOnly: true,
+	editor: false,
 	//allowEmpty: false
 }, {
 	data : 'ip',
@@ -169,6 +166,10 @@ columnsData = [ {
 	readOnly: true
 }, {
 	data: 'aEmail',
+	readOnly: true
+}, {
+	data: 'status',
+	type : 'numeric',
 	readOnly: true
 }];
 function initHandsontable(infoData){
@@ -450,15 +451,18 @@ function initStatusSync(){
 		return ;
 	}
 	var _statusVal;
-	var dataObj = $("#queryTable table.htCore tbody tr");
-	for(var i in dataObj){
-		_statusVal = $("#queryTable table.htCore tbody tr:eq("+i+") td:first").text();
+	var dataLen = $("#queryTable table.htCore tbody tr").length;
+	for(var i=0;i<dataLen;i++){
+		// 每一行的th记录的是行号（起始是1）
+		var _text = infoData[$("#queryTable table.htCore tbody tr:eq("+i+") th").text()-1];
+		var _statusVal = _text.status;
 		changeStatus(parseInt(i)+1,_statusVal);
 	}
 }
 /* 重新申请 */
 function reApply(){
 	var id = getSelectedIds(false)[0];
+	//var formData = infoData[id];
 	dhtmlx.confirm({
 		title: "确认修改已提交的信息",
 		text: "即将修改已提交的信息，这将导致需要重新分配ip/vlan。<br>别担心，此操作会自动通知管理员进行处理。",
@@ -503,22 +507,24 @@ function form_init(formData){
 	myForm.disableItem("vlan");
 	myForm.disableItem("ip");
 	myForm.disableItem("ipB");
+	myForm.setReadonly("instanceId",true);
 	myForm.enableLiveValidation(true);
 	initCombo();
 	myForm.loadStruct({data: formData});	//加载数据
+	
+	myForm.oldId = formData["id"];
 	sessionStorage.setItem("formDataBackups",myForm.saveBackup());
 	//formStructure = null;
 	window.evId == null ||	myForm.detachEvent("evId");
 	evId = myForm.attachEvent("onButtonClick", function(id){
 		if(id == "commit"){
 			if(myForm.validate()){
-				var myData = myForm.getFormData();
-				for(var i in myData){
-					if(typeof(myData[i])!= "undefined"){
-						myData[i] = String(myData[i]).replace(/ /g,"");
-					}
-				}
-				$.post("re_apply.html",myData,function(data){
+				var myData = {};
+				myForm.forEachItem(function(name){
+					if($.inArray(myForm.getItemType(name),["input","combo","select","checkbox"])>=0 && myForm.isItemEnabled(name)){
+						myData[name] = myForm.getItemValue(name).replace(/ /g,"");
+				});
+				$.post("re_apply.html?old="+myForm.oldId,myData,function(data){
 					if(data.url){
 						dhtmlx.alert({text:"登陆超时！",callback:function(){location.href=data.url;}});
 					}
@@ -597,6 +603,7 @@ function checkWindows(id){
 	dhxWins.isWindow(id) && dhxWins.window(id).close();
 }
 var backgroundColor={0:"#fff",1:"#f0ad4e",2:"#5bc0de",3:"#5cb85c",4:"#fff",5:"",6:"",7:"",8:"",9:"#aaa"};
+
 </script>
 <script>
 /**
