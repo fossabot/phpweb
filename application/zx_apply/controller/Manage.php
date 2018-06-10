@@ -114,7 +114,7 @@ class Manage extends Index {
 				"status" => 0 
 		];
 		$field = "id,cName,create_time,aPerson,ifOnu,instanceId,zxType,aStation";
-		$data = Infotables::where ( $where )->field ( $field )->select (); // explode(",", $field)
+		$data = Infotables::where ( $where )->field ( $field )->order("create_time desc")->select (); // explode(",", $field)
 		return json_encode ( $data, 256 );
 	}
 	/**

@@ -138,16 +138,20 @@ class Index extends Common {
 			unset ( $data [$v] );
 		}
 		$result = Infotables::createInfo ( $data, "apply" );
-		$this->queryDelete ( [ 
-				"id" => input ( "param.old" ) 
-		] );
 		$oldData = Infotables::get ( input ( "param.old" ) )->toArray ();
+		$this->queryDelete ( [ 
+				"id" => [ 
+						input ( "param.old" ) 
+				] 
+		] );
 		// 发邮件通知
-		$subject = "[待办]修改申请-" . ($data ["ifOnu"] ? "onu" : "9312") . "-" . $data ["cName"];
+		$subject = "[待办]修改申请-" . $data ["aPerson"] . "-" . $data ["cName"];
 		$body = "<p>修改内容有：</p><p>";
+		$updates = [ ];
 		foreach ( $data as $k => $v ) {
 			if ($v != $oldData [$k]) {
-				$body += $oldData [$k] . "=>" . $v . "<br>";
+				$body += $k . " => [" . $oldData [$k] . "] 改为 [" . $v . "]<br>";
+				$updates [$k] = $oldData [$k] . "=>" . $v;
 			}
 		}
 		$body += "</p><p>请登陆系统及时处理：</p><br> 内网： <a href='http://10.65.178.202/zx_apply/index/index.html#Manage/todo'>http://10.65.178.202/zx_apply/index/index.html#Manage/todo</a><br>外网： <a href='http://223.100.98.60:800/zx_apply/index/index.html#Manage/todo'>http://223.100.98.60:800/zx_apply/index/index.html#Manage/todo</a>";
@@ -156,9 +160,10 @@ class Index extends Common {
 				"username" => session ( "user.name" ),
 				"email" => session ( "user.email" ),
 				"cName" => $data ["cName"],
-				"instanceId" => $data ["instanceId"] 
+				"instanceId" => $data ["instanceId"],
+				"updates" => $updates 
 		];
-		$this->log ( "提交申请", $v );
+		$this->log ( "修改申请", $v );
 		$redirectUrl = "../" . session ( "user.role" ) . "/query.html";
 		return $this->result ( null, $result, $redirectUrl );
 	}
@@ -251,7 +256,7 @@ class Index extends Common {
 					"aEmail" => session ( "user.email" ) 
 			];
 		}
-		return collection ( Infotables::where ( "zxType", $zxType )->where ( $where )->order ( "status,ip desc" )->limit ( $limit )->select () );
+		return collection ( Infotables::where ( "zxType", $zxType )->where ( $where )->order ( "status,ip desc,create_time desc" )->limit ( $limit )->select () );
 	}
 	/**
 	 * 全局查询
@@ -282,6 +287,7 @@ class Index extends Common {
 		$result = collection ( Infotables::where ( $data ["where"] [0], "like", "%" . $data ["where"] [2] . "%" )->field ( $field )->order ( "ip desc" )->select () )->toArray ();
 		$v = $data;
 		$v ["resultLen"] = count ( $result );
+		$v ["user"] = session ( "user.name" );
 		$v ["url"] = request ()->url ( true );
 		$this->log ( "基本信息查询", $v );
 		if (Cache::get ( 'querySearchBriefTimes' )) {

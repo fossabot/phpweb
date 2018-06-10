@@ -187,18 +187,18 @@ function showRelated(string, data){
 	}
 	var str = '';
 	for(var i in data){
-		var delete_time = data[i]["delete_time"] == null ? "" : new Date(data[i]["delete_time"]*1000).pattern("yyyy-MM-dd")+"已删";
+		var delete_time_str = data[i]["delete_time"] == null ? "" : "<span class='bg-primary'>"+ new Date(data[i]["delete_time"]*1000).pattern("yyyy-MM-dd")+"已删</span>";
 		str += [
 			data[i]["id"],
 			data[i]["create_time"],
 			data[i]["cName"],
+			data[i]["aStation"],
 			data[i]["neFactory"],
 			data[i]["vlan"],
-			data[i]["aStation"],
 			data[i]["ip"],
 			data[i]["aPerson"],
 			data[i]["aEmail"],
-			delete_time
+			delete_time_str
 		].join(",") + "<br />";
 	}
 	var text = "客户名包含<code>"+string+"</code>的台账信息:(参考以预防重复申请)&nbsp;-&nbsp;-&nbsp;-&nbsp;-&nbsp;-&nbsp;<span class='text-primary'>(点此关闭此消息)</span>";

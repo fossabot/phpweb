@@ -90,9 +90,9 @@ columnsData = [ {
 	selectOptions : neFactoryData.split(","),
 }, {
 	data : 'aStation',
-	strict : true,
+	/*strict : true,
 	type : 'autocomplete',
-	source : aStationData.split(","),
+	source : aStationData.split(","),*/
 	//editor : 'select',
 	//selectOptions : aStationData.split(","),
 }, {
@@ -510,6 +510,10 @@ function form_init(formData){
 	myForm.setReadonly("instanceId",true);
 	myForm.enableLiveValidation(true);
 	initCombo();
+	for(var i in formData["extra"]){
+		formData[i] = formData["extra"][i];
+	}
+	delete formData["extra"];
 	myForm.loadStruct({data: formData});	//加载数据
 	
 	myForm.oldId = formData["id"];
@@ -522,7 +526,11 @@ function form_init(formData){
 				var myData = {};
 				myForm.forEachItem(function(name){
 					if($.inArray(myForm.getItemType(name),["input","combo","select","checkbox"])>=0 && myForm.isItemEnabled(name)){
-						myData[name] = myForm.getItemValue(name).replace(/ /g,"");
+						myData[name] = myForm.getItemValue(name);
+						if(typeof myData[name]==="string"){
+							myData[name] = myData[name].replace(/ /g,"");
+						}
+					}
 				});
 				$.post("re_apply.html?old="+myForm.oldId,myData,function(data){
 					if(data.url){
