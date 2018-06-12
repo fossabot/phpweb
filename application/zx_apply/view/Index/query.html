@@ -5,7 +5,12 @@
 {/block} {block name="leftmenu"} {include
 file="Common/leftmenu_zx_apply_index" /} {/block} {block name="main"}
 <div class="htmltitle">
-	<span class="h2" style="margin-right: 50px">信息查询</span>
+	<span class="h2" style="margin-right: 50px">信息查询</span> <span>请选择类别：</span>
+	<span id="btn-group" class="btn-group"><button
+			class="btn btn-sm btn-default active" name="互联网">互联网</button>
+		<button class="btn btn-sm btn-default" name="营业厅">营业厅</button>
+		<button class="btn btn-sm btn-default" name="卫生网">卫生网</button>
+		<button class="btn btn-sm btn-default" name="平安校园">平安校园</button></span>
 </div>
 <div>此处仅可查看自己申请过的专线信息(基于申请人姓名)</div>
 <div style="margin-top: 10px; margin-bottom: 3px;">
@@ -51,6 +56,7 @@ $(function($) {
 	console.info("\t\t渲染用时:", Date.now() - tt, "ms");
 	hot.initTimes = Date.now();
 	$('[data-toggle="tooltip"]').tooltip();
+	$("#btn-group button").on("click",typeSelected);
 });
 dhtmlx.message({id:"_msg",text:"loading..."});
 var xx =  Date.now();
@@ -60,9 +66,19 @@ var _loading = setTimeout(function(){
 	$(".fixed-container").css("visibility","");
 	console.info("\t\t数据验证用时:", Date.now() - hot.initTimes, "ms");
 },500);
+/* 专线类型选择 */
+function typeSelected(){
+	checkWindows("_input");
+	$("#searchStr").val("");
+	$(this).addClass("active").siblings().removeClass("active");
+	$.post("",{r:"info",zxType:this.name},function(data){
+		infoData = adjustInfo(data);
+		hot.updateSettings({data: infoData});
+		hot.validateCells();
+	});
+}
 var colWidthsData = "{$colWidthsData}";
 var zxTypeData = "互联网,营业厅,平安校园,点对点,卫生网,教育网,IMS,其他";
-var aStationData = "{$aStationData}";
 var neFactoryData = "请选择,华为,中兴,ONU";
 var colHeaderData = "{$colHeaderData}";
 var container = document.getElementById('queryTable');
@@ -90,11 +106,6 @@ columnsData = [ {
 	selectOptions : neFactoryData.split(","),
 }, {
 	data : 'aStation',
-	/*strict : true,
-	type : 'autocomplete',
-	source : aStationData.split(","),*/
-	//editor : 'select',
-	//selectOptions : aStationData.split(","),
 }, {
 	data : 'cName',
 	allowEmpty: false
@@ -105,10 +116,7 @@ columnsData = [ {
 }, {
 	data : 'vlan',
 	type : 'numeric',
-	//validator : /^2[0-9]{3}$/,
-	//readOnly: true,
 	editor: false,
-	//allowEmpty: false
 }, {
 	data : 'ip',
 	readOnly: true
@@ -225,7 +233,7 @@ function initHandsontable(infoData){
 				},
 				"hsep1" : "---------",	
 				"reApply" : {
-					name : "修改申请",
+					name : "**修改申请",
 					disabled: function(){
 						var s = hot.getSelectedRange();
 						var a = s && s.length > 1;
@@ -260,7 +268,15 @@ function initHandsontable(infoData){
 		afterChange: function(changes, source){	// 修改后自动同步到数据库
 			console.log("afterChangeEnv:", changes, source);
 			if(source == "edit"){
-				dhtmlx.confirm({title:"您刚进行了修改操作",text:"请微信群联系管理员修改，在此修改不会同步到服务器。",callback:function(result){!result&&hot.undo();}});
+				dhtmlx.confirm({
+					title: "您刚进行了修改操作",
+					text: "请微信群联系管理员修改，在此修改不会同步到服务器。",
+					ok: "我自己改着玩的",
+					cancel: "撤销修改",
+					callback: function(result){
+						!result&&hot.undo();
+					}
+				});
 			}
 		},
 		afterRender: function(){

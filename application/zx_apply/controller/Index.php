@@ -9,6 +9,7 @@ use app\zx_apply\model\Infotables;
 use Overtrue\Pinyin\Pinyin;
 use think\Error;
 use think\Cache;
+use app\zx_apply\model\Vlantables;
 
 class Index extends Common {
 	
@@ -150,11 +151,11 @@ class Index extends Common {
 		$updates = [ ];
 		foreach ( $data as $k => $v ) {
 			if ($v != $oldData [$k]) {
-				$body += $k . " => [" . $oldData [$k] . "] 改为 [" . $v . "]<br>";
+				$body .= $k . " => [" . $oldData [$k] . "] 改为 [" . $v . "]<br>";
 				$updates [$k] = $oldData [$k] . "=>" . $v;
 			}
 		}
-		$body += "</p><p>请登陆系统及时处理：</p><br> 内网： <a href='http://10.65.178.202/zx_apply/index/index.html#Manage/todo'>http://10.65.178.202/zx_apply/index/index.html#Manage/todo</a><br>外网： <a href='http://223.100.98.60:800/zx_apply/index/index.html#Manage/todo'>http://223.100.98.60:800/zx_apply/index/index.html#Manage/todo</a>";
+		$body .= "</p><p>请登陆系统及时处理：</p><br> 内网： <a href='http://10.65.178.202/zx_apply/index/index.html#Manage/todo'>http://10.65.178.202/zx_apply/index/index.html#Manage/todo</a><br>外网： <a href='http://223.100.98.60:800/zx_apply/index/index.html#Manage/todo'>http://223.100.98.60:800/zx_apply/index/index.html#Manage/todo</a>";
 		$this->sendManageNotice ( $subject, $body );
 		$v = [ 
 				"username" => session ( "user.name" ),
@@ -230,7 +231,7 @@ class Index extends Common {
 		if (request ()->isPost ()) {
 			// 获取台账
 			// return $this->getInfoData();
-			input ( "post.r" ) == "info" && $data = $this->getInfoData ()->toArray ();
+			input ( "post.r" ) == "info" && $data = $this->getInfoData ( input ( "post.zxType" ) )->toArray ();
 			input ( "post.r" ) == "search" && $data = $this->querySearch ( input ( "post." ) );
 			input ( "post.r" ) == "brief" && $data = $this->querySearchBrief ( input ( "post." ) );
 			input ( "get.r" ) == "update" && $data = $this->queryUpdateInfo ( input ( "post." ) );

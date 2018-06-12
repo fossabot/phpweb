@@ -21,36 +21,6 @@ file="Common/leftmenu_zx_apply_index" /} {/block}{block name="head"}
 var myForm = new dhtmlXForm("form_container", formStructure);
 myForm.enableLiveValidation(true);
 initCombo();
-myForm.attachEvent("onButtonClick", function(id) {
-	if(id == "commit"){
-		if(myForm.validate()){
-			var myData = myForm.getFormData();
-			for(var i in myData){
-				if(typeof(myData[i])!= "undefined"){
-					myData[i] = String(myData[i]).replace(/ /g,"");
-				}
-			}
-			$.post("",myData,function(data){
-				data.code == 1 && dhtmlx.alert({
-					title:"&nbsp;",
-					text:"提交成功。",
-					callback:function(){
-						location.href = data.msg;
-					},
-				});
-				data.code == 0 && dhtmlx.alert({type:"alert-error",title:data.msg,text:data.data});
-			});
-		}else{
-			dhtmlx.alert({type:"alert-error",title:"数据验证有误",text:"请检查填写是否完整或格式类型是否正确。"});
-		}
-	}
-	if(id == "test"){
-		myForm.setFormData({
-			instanceId:"91001234567",cName:"cName",cAddress:"cAddress",cNeeds:"cNeeds",cPerson:"cPersion",cPhone:1,cEmail:"1@1.com",mPerson:"mPersion",mPhone:2,mEmail:"2@2.com",unitCategory:2,industryCategory:3,credential:3,credentialnum:"112345zzz6789",county:211202,appServType:4
-		});
-	}
-
-});
 myForm.attachEvent("onChange",function(name, value, status){
 	if(name=='neFactory'){
 		if(value==2){
@@ -78,5 +48,55 @@ myForm.attachEvent("onChange",function(name, value, status){
 		}
 	}
 });
+myForm.attachEvent("onButtonClick", function(id) {
+	if(id == "commit"){
+		if(myForm.validate()){
+			var num = removeSpace();
+			if(num > 0){
+				dhtmlx.alert("已自动去除<b class='text-danger'>"+num+"</b>个字段中的空格，请核对后再次提交。<br>下次请注意不要录入空格，谢谢。");
+				return;
+			}
+			var myData = myForm.getFormData();
+			for(var i in myData){
+				if(typeof(myData[i])!= "undefined"){
+					myData[i] = String(myData[i]).replace(/ /g,"");
+				}
+			}
+			$.post("",myData,function(data){
+				data.code == 1 && dhtmlx.alert({
+					title:"&nbsp;",
+					text:"提交成功。",
+					callback:function(){
+						location.href = data.msg;
+					},
+				});
+				data.code == 0 && dhtmlx.alert({type:"alert-error",title:data.msg,text:data.data});
+			});
+		}else{
+			dhtmlx.alert({type:"alert-error",title:"数据验证有误",text:"请检查填写是否完整或格式类型是否正确。"});
+		}
+	}
+	if(id == "test"){
+		myForm.setFormData({
+			instanceId:"91001234567",cName:"cName",cAddress:"cAddress",cNeeds:"cNeeds",cPerson:"cPersion",cPhone:1,cEmail:"1@1.com",mPerson:"mPersion",mPhone:2,mEmail:"2@2.com",unitCategory:2,industryCategory:3,credential:3,credentialnum:"112345zzz6789",county:211202,appServType:4
+		});
+	}
+
+});
+/* 表单字段去空格 */
+function removeSpace(){
+	var _tmp = "";
+	var _new = "";
+	var cal = 0;
+	for(var i in myForm.getFormData()){
+		_tem = myForm.getFormData()[i]+"";
+		_new = _tem.replace(/ /g,"");
+		if(_tem!=_new){
+			cal++;
+		}
+		myForm.setItemValue(i,_new);
+	}
+	return cal;
+}
 </script>
 {/block}
