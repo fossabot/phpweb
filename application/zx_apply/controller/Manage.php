@@ -36,24 +36,28 @@ class Manage extends Index {
 			// $infotables = new Infotables ();
 			$info = Infotables::get ( input ( "post.id" ) ); // 获取器数据
 			$data = input ( "post." );
-			$detail = $info->getData (); // 原始数据
-			$extra = json_decode ( $detail ["extra"], true );
+			if ($info) {
+				$detail = $info->toArray ();
+			} else {
+				return $this->success("这条待办找不到啦！肿么办？");
+			}
+			/*$extra = json_decode ( $detail ["extra"], true );
 			if (is_array ( $extra )) {
 				foreach ( $extra as $k => $v ) {
 					$detail [$k] = $v;
 				}
-			}
+			}*/
 			$detail ["ip"] = $info ["ip"]; // 更正ip为 str 形式
 			$detail ["ipB"] = $info ["ipB"]; // 更正ipB
 			unset ( $detail ["extra"] );
 			if ($req == "getDetail") {
 				// 返回单条数据及同客户名的信息摘要
-				$cName = substr ( $info ["cName"], 2 * 3, 10 * 3 );
-				$relative = collection ( Infotables::withTrashed()->where ( "cName", "like", "%" . $cName . "%" )->where ( "id", "<>", $info ["id"] )->field ( "id,cName,create_time,neFactory,vlan,aStation,ip,aPerson,aEmail,delete_time" )->select () )->toArray ();
+				$cName = mb_substr ( $info ["cName"], 2, 10, "utf-8" );
+				$relative = collection ( Infotables::withTrashed ()->where ( "cName", "like", "%" . $cName . "%" )->where ( "id", "<>", $info ["id"] )->field ( "id,cName,create_time,neFactory,vlan,aStation,ip,aPerson,aEmail,delete_time" )->select () )->toArray ();
 				$result = [ 
 						"related" => $relative,
 						"detail" => $detail,
-						"string"=>$cName
+						"string" => $cName 
 				];
 				return json ( $result );
 			} else if ($req == "auto_pre") {
@@ -114,7 +118,7 @@ class Manage extends Index {
 				"status" => 0 
 		];
 		$field = "id,cName,create_time,aPerson,ifOnu,instanceId,zxType,aStation";
-		$data = Infotables::where ( $where )->field ( $field )->order("create_time desc")->select (); // explode(",", $field)
+		$data = Infotables::where ( $where )->field ( $field )->order ( "create_time desc" )->select (); // explode(",", $field)
 		return json_encode ( $data, 256 );
 	}
 	/**
@@ -343,7 +347,7 @@ class Manage extends Index {
 			$row ++;
 		}
 		$pFilename = './sampleData/zg_import.xls';
-		$this->exportExcelFile ( $pFilename, 0, $cellValues, 'Xls', '资管流程-' . $data ["cName"] . date ( "Ymd_His" ). '.xls' );
+		$this->exportExcelFile ( $pFilename, 0, $cellValues, 'Xls', '资管流程-' . $data ["cName"] . date ( "Ymd_His" ) . '.xls' );
 	}
 	protected function generateJtIp($ids = null) {
 		$row = 4;
@@ -377,7 +381,7 @@ class Manage extends Index {
 			$row ++;
 		}
 		$pFilename = './sampleData/ip_jt.xlsx';
-		$this->exportExcelFile ( $pFilename, 1, $cellValues, 'Xlsx', '集团IP备案' . $data ["cName"] . date ( "Ymd_His" ). '.xlsx' );
+		$this->exportExcelFile ( $pFilename, 1, $cellValues, 'Xlsx', '集团IP备案' . $data ["cName"] . date ( "Ymd_His" ) . '.xlsx' );
 	}
 	protected function generateGxbIp($ids = null) {
 		$row = 2;
@@ -406,7 +410,7 @@ class Manage extends Index {
 			$row ++;
 		}
 		$pFilename = './sampleData/ip_gxb.xls';
-		$this->exportExcelFile ( $pFilename, 4, $cellValues, 'Xls', '工信部IP备案' . $data ["cName"] . date ( "Ymd_His" ). '.xls' );
+		$this->exportExcelFile ( $pFilename, 4, $cellValues, 'Xls', '工信部IP备案' . $data ["cName"] . date ( "Ymd_His" ) . '.xls' );
 	}
 	/**
 	 * 导出到excel
@@ -635,6 +639,10 @@ class Manage extends Index {
 		\PhpOffice\PhpSpreadsheet\Settings::setCache ( $simpleCache );
 	}
 	public function tt() {
+		$data = [ 
+				"array" => Infotables::get ( 2683 )->toArray (),
+				"getData" => Infotables::get ( 2683 )->getData () 
+		];
 		return dump ( $data );
 	}
 }

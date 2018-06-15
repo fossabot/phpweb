@@ -44,7 +44,7 @@ class Infotables extends Model {
 			$ne = array_search ( $value, [ 
 					"华为",
 					"中兴",
-					"ONU" 
+					"ONU"
 			] );
 			return is_int ( $ne ) ? $ne : null;
 		}
@@ -53,7 +53,7 @@ class Infotables extends Model {
 		$zx_nefactory = [ 
 				0 => "华为",
 				1 => "中兴",
-				2 => "ONU" 
+				2 => "ONU"
 		];
 		return is_null ( $value ) ? null : $zx_nefactory [$value];
 	}
