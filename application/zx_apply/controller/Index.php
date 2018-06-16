@@ -341,6 +341,8 @@ class Index extends Common {
 	 */
 	protected function queryDelete($input) {
 		$result = Infotables::destroy ( $input ["id"] );
+		// 操作人记录到备注里
+		Infotables::where ( 'id', 2684 )->exp ( 'marks', 'concat(marks,\'' . session ( "user.name" ) . "已删;" . "')" )->update ();
 		// 同步删除vlantables
 		foreach ( $input ["id"] as $id ) {
 			Vlantables::destroy ( [ 

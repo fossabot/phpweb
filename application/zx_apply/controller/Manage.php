@@ -41,12 +41,12 @@ class Manage extends Index {
 			} else {
 				return $this->success("这条待办找不到啦！肿么办？");
 			}
-			/*$extra = json_decode ( $detail ["extra"], true );
-			if (is_array ( $extra )) {
+			$extra =  $detail ["extra"];
+			if (is_array ( $extra)) {
 				foreach ( $extra as $k => $v ) {
 					$detail [$k] = $v;
 				}
-			}*/
+			}
 			$detail ["ip"] = $info ["ip"]; // 更正ip为 str 形式
 			$detail ["ipB"] = $info ["ipB"]; // 更正ipB
 			unset ( $detail ["extra"] );
@@ -639,10 +639,7 @@ class Manage extends Index {
 		\PhpOffice\PhpSpreadsheet\Settings::setCache ( $simpleCache );
 	}
 	public function tt() {
-		$data = [ 
-				"array" => Infotables::get ( 2683 )->toArray (),
-				"getData" => Infotables::get ( 2683 )->getData () 
-		];
+		$data = Infotables::where('id', 2684)->exp('marks', 'concat(marks,\''.session("user.name")."已删"."')")->update();
 		return dump ( $data );
 	}
 }
