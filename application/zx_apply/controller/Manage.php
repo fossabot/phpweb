@@ -37,12 +37,21 @@ class Manage extends Index {
 			$info = Infotables::get ( input ( "post.id" ) ); // 获取器数据
 			$data = input ( "post." );
 			if ($info) {
-				$detail = $info->toArray ();
+				// 设置不需要输出的字段
+				$detail = $info->hidden ( [ 
+						'aDate',
+						'tags',
+						'ipMask',
+						'ipBMask',
+						'create_time',
+						'update_time',
+						'delete_time' 
+				] )->toArray ();
 			} else {
-				return $this->success("这条待办找不到啦！肿么办？");
+				return $this->success ( "这条待办找不到啦！肿么办？" );
 			}
-			$extra =  $detail ["extra"];
-			if (is_array ( $extra)) {
+			$extra = $detail ["extra"];
+			if (is_array ( $extra )) {
 				foreach ( $extra as $k => $v ) {
 					$detail [$k] = $v;
 				}
@@ -102,7 +111,7 @@ class Manage extends Index {
 			$data ["extra"] [$v] = $data [$v];
 			unset ( $data [$v] );
 		}
-		unset ( $data ["delete_time"] );
+		// unset ( $data ["delete_time"] );
 		$infotables = new Infotables ();
 		// 更新单条数据
 		$result = $infotables->isUpdate ( true )->save ( $data, [ 
@@ -639,7 +648,7 @@ class Manage extends Index {
 		\PhpOffice\PhpSpreadsheet\Settings::setCache ( $simpleCache );
 	}
 	public function tt() {
-		$data = Infotables::where('id', 2684)->exp('marks', 'concat(marks,\''.session("user.name")."已删"."')")->update();
+		$data = Infotables::where ( 'id', 2684 )->exp ( 'marks', 'concat(marks,\'' . session ( "user.name" ) . "已删" . "')" )->update ();
 		return dump ( $data );
 	}
 }
