@@ -62,7 +62,7 @@ class Manage extends Index {
 			if ($req == "getDetail") {
 				// 返回单条数据及同客户名的信息摘要
 				$cName = mb_substr ( $info ["cName"], 2, 10, "utf-8" );
-				$relative = collection ( Infotables::withTrashed ()->where ( "cName", "like", "%" . $cName . "%" )->where ( "id", "<>", $info ["id"] )->field ( "id,cName,create_time,neFactory,vlan,aStation,ip,aPerson,aEmail,delete_time" )->select () )->toArray ();
+				$relative = collection ( Infotables::withTrashed ()->where ( "cName", "like", "%" . $cName . "%" )->where ( "id", "<>", $info ["id"] )->field ( "id,instanceId,cName,create_time,neFactory,vlan,aStation,ip,aPerson,aEmail,delete_time" )->select () )->toArray ();
 				$result = [ 
 						"related" => $relative,
 						"detail" => $detail,

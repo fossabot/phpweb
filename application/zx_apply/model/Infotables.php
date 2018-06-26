@@ -53,7 +53,8 @@ class Infotables extends Model {
 		$zx_nefactory = [ 
 				0 => "华为",
 				1 => "中兴",
-				2 => "ONU"
+				2 => "ONU",
+				3 => null
 		];
 		return is_null ( $value ) ? null : $zx_nefactory [$value];
 	}

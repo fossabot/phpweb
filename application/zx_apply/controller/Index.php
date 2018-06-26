@@ -272,7 +272,7 @@ class Index extends Common {
 					"aEmail" => session ( "user.email" ) 
 			];
 		}
-		return collection ( Infotables::where ( $where )->where ( $data ["where"] [0], "like", "%" . $data ["where"] [2] . "%" )->order ( "ip desc" )->select () )->toArray ();
+		return collection ( Infotables::where ( "zxType", $data ["zxType"] )->where ( $where )->where ( $data ["where"] [0], "like", "%" . $data ["where"] [2] . "%" )->order ( "ip desc" )->select () )->toArray ();
 	}
 	/**
 	 * 基本信息查询
@@ -285,7 +285,7 @@ class Index extends Common {
 			return;
 		}
 		$field = "create_time,instanceId,cName,cAddress,vlan,ip,aPerson,aEmail";
-		$result = collection ( Infotables::where ( $data ["where"] [0], "like", "%" . $data ["where"] [2] . "%" )->field ( $field )->order ( "ip desc" )->select () )->toArray ();
+		$result = collection ( Infotables::where ( "zxType", $data ["zxType"] )->where ( $data ["where"] [0], "like", "%" . $data ["where"] [2] . "%" )->field ( $field )->order ( "ip desc" )->select () )->toArray ();
 		$v = $data;
 		$v ["resultLen"] = count ( $result );
 		$v ["user"] = session ( "user.name" );

@@ -266,6 +266,9 @@ function initHandsontable(infoData){
 			});
 		},
 		afterChange: function(changes, source){	// 修改后自动同步到数据库
+			if(changes[0][2] == changes[0][3]){
+				return;
+			}
 			console.log("afterChangeEnv:", changes, source);
 			if(source == "edit"){
 				dhtmlx.confirm({
@@ -321,9 +324,10 @@ function initSearch(){
 	/* 数据库搜索按钮 */
 	$("#btn-searchAll").on("click",function(){
 		var str = $("#searchStr").val();
+		var zxType = $(".htmltitle button.active").prop("name");
 		if(str == ""){
 			showTips("");
-			$.post("",{r:"info"},function(data){
+			$.post("",{r:"info",zxType:zxType},function(data){
 				infoData = adjustInfo(data);
 				hot.updateSettings({data: infoData});
 				hot.validateCells();
@@ -333,7 +337,7 @@ function initSearch(){
 			var _where = [];
 			_where[0] = $("#colName").val();
 			_where[2] = str;
-			$.post("",{r:"search",where:_where},function(data){
+			$.post("",{r:"search",where:_where,zxType:zxType},function(data){
 				infoData = adjustInfo(data);
 				hot.updateSettings({data: infoData});
 				hot.validateCells();
@@ -343,6 +347,7 @@ function initSearch(){
 	/* 基本信息搜索按钮 */
 	$("#btn-searchBrief").on("click",function(){
 		var str = $("#searchStr").val();
+		var zxType = $(".htmltitle button.active").prop("name");
 		if(str == ""){
 			showTips("");
 		}else{
@@ -350,7 +355,7 @@ function initSearch(){
 			var _where = [];
 			_where[0] = $("#colName").val();
 			_where[2] = str;
-			$.post("",{r:"brief",where:_where},function(data){
+			$.post("",{r:"brief",where:_where,zxType:zxType},function(data){
 				showBrief(data);
 			});
 		}

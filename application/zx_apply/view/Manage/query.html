@@ -345,7 +345,6 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 				});
 			},
 			afterChange: function(changes, source){	// 修改后自动同步到数据库
-				console.log("afterChangeEnv:", changes, source);
 				var updates = {},
 					_id = [],
 					rows= [],
@@ -367,6 +366,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 				if($.isEmptyObject(updates)){	// 无变化，函数返回
 					return;
 				}
+				console.log("afterChangeEnv:", changes, source);
 				if(sessionStorage.getItem("updateConfirm")==null){
 					dhtmlx.confirm({
 						type: "confirm-warning",
@@ -461,9 +461,9 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		/* 数据库搜索按钮 */
 		$("#btn-searchAll").on("click",function(){
 			var str = $("#searchStr").val();
+			var zxType = $(".htmltitle button.active").prop("name");
 			if(str == ""){
 				showTips("");
-				var zxType = $("#btn-group button.active").prop("name");
 				$.post("",{r:"info",zxType:zxType},function(data){
 					infoData = adjustInfo(data);
 					hot.updateSettings({data: infoData});
@@ -474,7 +474,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 				var _where = [];
 				_where[0] = $("#colName").val();
 				_where[2] = str;
-				$.post("",{r:"search",where:_where},function(data){
+				$.post("",{r:"search",where:_where,zxType:zxType},function(data){
 					infoData = adjustInfo(data);
 					hot.updateSettings({data: infoData});
 					hot.validateCells();

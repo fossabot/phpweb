@@ -5,7 +5,7 @@ var formStructure = [
 		{type:"input",name:"instanceId",label:"产品实例标识",validate:"^[0-9]{11}$",required:true},
 		{type:"select",name:"zxType",label:"专线类别",required:true},
 		{type:"input",name:"bandWidth",label:"带宽",value:"10M",validate:"^[0-9Mm]+$"},
-		{type:"select",name:"neFactory",label:"网元厂家",required:true},
+		{type:"select",name:"neFactory",label:"网元厂家",validate:"^[^3]+$",required:true},
 		{type:"combo",name:"aStation",label:"A端基站",required:true},
 		{type:"input",name:"cName",label:"客户名",maxLength:30,required:true},
 		{type:"input",name:"cAddress",label:"客户地址",rows:2,required:true},

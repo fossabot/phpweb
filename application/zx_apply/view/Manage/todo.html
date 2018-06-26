@@ -1,6 +1,6 @@
 {extend name="common@Public/base" /} {block name="leftmenu"} {include
 file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="head"}
-<style>
+<style id="thisStyle">
 #list_container {
 	width: 300px;
 	border-right: 1px solid #666
@@ -18,7 +18,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="head"}
 .dhtmlx_message_area{
 	top: 48px !important;
 	left: 280px !important;
-	width: 800px;
+	width: 970px !important;
 	font-size: 12px;
 	font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
 }
@@ -50,6 +50,16 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="head"}
 </div>
 {/block} {block name="script"}
 <script>
+	$(function(){
+		// 宽度小会影响 dhtmlx_message_area 的显示
+		if(_htmlWidth<=1250){
+			if(_htmlWidth<=970){
+				dhtmlx.alert("你的窗口宽度也太小了吧？<br>"+_htmlWidth);
+			}else{
+				$("#thisStyle").html($("#thisStyle").html().replace("280",_htmlWidth-970));
+			}
+		}
+	});
 	$("#list_container").css("height",
 			$(".main").height() - $(".htmltitle").height() - 30 - 10 + "px");
 	//h2的margin、底部预留10
@@ -190,6 +200,7 @@ function showRelated(string, data){
 		var delete_time_str = data[i]["delete_time"] == null ? "" : "<span class='bg-primary'>"+ dhx.date2str(new Date(data[i]["delete_time"]*1000),"%Y-%m-%d %H:%i:%s")+"已删</span>";
 		str += [
 			data[i]["id"],
+			data[i]["instanceId"],
 			data[i]["create_time"],
 			data[i]["cName"],
 			data[i]["aStation"],
