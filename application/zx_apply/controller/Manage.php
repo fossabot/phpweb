@@ -557,6 +557,11 @@ class Manage extends Index {
 			if (input ( "post.exec" ) == "ok_ip") {
 				return Iptables::setLastIp ( input ( "post.lastIpStr" ) );
 			}
+			if (input ( "post.exec" ) == "cal_ip") {
+				$unusedIps = [];
+				// todo
+				return $this->result($unusedIps,1);
+			}
 			if (input ( "post.exec" ) == "ok_vlan") {
 				return Vlantables::importUsedVlan ( input ( "post.device" ), input ( "post.vlanImport" ) );
 			}
@@ -648,7 +653,7 @@ class Manage extends Index {
 		\PhpOffice\PhpSpreadsheet\Settings::setCache ( $simpleCache );
 	}
 	public function tt() {
-		$data = Infotables::where ( 'id', 2684 )->exp ( 'marks', 'concat(marks,\'' . session ( "user.name" ) . "已删" . "')" )->update ();
+		
 		return dump ( $data );
 	}
 }

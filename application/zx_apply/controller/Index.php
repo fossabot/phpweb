@@ -323,9 +323,7 @@ class Index extends Common {
 		$infotables = new Infotables ();
 		foreach ( $updateData as $k => $v ) {
 			$line_and_id = explode ( "-", $k );
-			$result += $infotables->isUpdate ( true )->allowField ( true )->save ( $v, [ 
-					"id" => $line_and_id [1] 
-			] );
+			$result += $infotables->where ( "id", $line_and_id [1] )->update ( $v );
 			// 反查询刚才修改后的数据库里的值，用于前后端数据的一致性
 			$data = $infotables->where ( "id", $line_and_id [1] )->find ();
 			foreach ( $v as $kk => $vv ) {

@@ -273,7 +273,10 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 						postDelete();
 					}else if (key === 'export_all'){
 						export_all();
+					}else if(key === 'allDone'){
+						updateStatusMulti(getSelectedIds(false),4);
 					}else{
+						// 导出数据模板
 						var r=new RegExp(','+key+',');
 						if(r.test(',export_zg,export_jtip,export_gxbip,')){
 							put(key);
@@ -282,7 +285,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 				},
 				items : {
 					"about" : {
-						name : "**Power by Xianda"
+						name : "<b>**Power by Xianda</b>"
 					},
 					"hsep1" : "---------",
 					"export_zg": {
@@ -311,8 +314,11 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 						name : "还原修改"
 					},
 					"hsep2" : "---------",
+					"allDone" : {
+						name: "<b>批量已完成</b>"
+					},
 					"delete": {
-						name : "**删除所选条目",
+						name : "**删除所选条目"
 					},
 					"show_status":{
 						name : function(){
@@ -415,11 +421,10 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		}
 		hot.validateRows(rows,function(valid){
 			if(!valid){	// 验证修改是否符合验证规则
-				dhtmlx.confirm({text:"修改操作明显不合规，<b>未同步至服务器。</b>是否撤销修改？",callback(result){
-					result && hot.undo();
+				dhtmlx.confirm({text:"修改操作明显不合规，<b>建议修改合规后再试。</b>是否强制继续？",callback(result){
+					!result && hot.undo();
+					result && postUpdate(updates);
 				}});
-			}else {
-				postUpdate(updates);
 			}
 		});
 	}
@@ -665,6 +670,26 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		form.submit();
 		setTimeout("document.forms._export.parentNode.removeChild(document.forms._export)",0);	//	在DOM中移除 刚生成的form
 		console.log("\t\tput(key):submit:",args);
+		if(key!=='export_zg') return;	// 仅export_zg后执行
+		setTimeout(function(rows){
+			dhtmlx.confirm({
+				title: "自动修改状态？",
+				text: "是否修改导出项的状态为：<br><br><button class='btn btn-xs btn-info'>已录资管等待IP备案</button>",
+				callback: function(result){
+					if(result){
+						updateStatusMulti(rows,2);
+					}
+				}
+			});
+		}(getSelectedIds(false)),0);
+	}
+	/* 批量修改已选条目的状态 */
+	function updateStatusMulti(rows,the_status){
+		var updates = {};
+		for(var i in rows){
+			updates[rows[i]+"-"+infoData[rows[i]].id] = {"status":the_status};
+		}
+		postUpdate(updates);
 	}
 	/* 删除条目 */
 	function postDelete(){
