@@ -323,36 +323,34 @@ class Manage extends Index {
 		$default = [ 
 				"B" => "铁岭",
 				"D" => "占用",
-				"F" => "互联地址",
-				"G" => "CMNET",
-				"I" => "集客专线",
-				"J" => "互联网专线",
-				"K" => "LNTIL-MA-CMNET-BAS02-YZME60X",
-				"O" => "卜玉",
-				"P" => 18841050815,
-				"R" => "铁岭",
-				"S" => "卜玉",
-				"W" => "辽宁",
-				"Z" => "客户响应中心",
-				"AA" => "buyu.tl@ln.chinamobile.com",
-				"AJ" => "已启用" 
+				"E" => "223.100.96.0/20",
+				"F" => "集客专线",
+				"G" => "互联网专线",
+				"H" => "LNTIL-MA-CMNET-BAS02-YZME60X",
+				"L" => "卜玉",
+				"M" => 18841050815,
+				"N" => "Auto import! --Xianda",
+				"O" => "铁岭",
+				"P" => "卜玉",
+				"T" => "辽宁",
+				"W" => "客户响应中心",
+				"X" => "buyu.tl@ln.chinamobile.com",
+				"AH" => "已启用",
+				"AI" => "铁岭柴河街局1号楼2层210综合机房",
 		];
 		foreach ( $ids as $id ) {
 			foreach ( $default as $k => $v ) {
 				$cellValues [$k . $row] = $v;
 			}
 			$data = Infotables::get ( $id )->toArray ();
-			$ip = $data ["ip"];
-			$segment = "223.100.96.0/20";
-			$cellValues ["C" . $row] = $ip; // ip
-			$cellValues ["E" . $row] = $segment; // 上一级子网名
-			$cellValues ["T" . $row] = $data ["cName"]; // 客户名
+			$cellValues ["C" . $row] = $data ["ip"]."/32";// ip
+			$cellValues ["K" . $row] = $data ["create_time"]; // 分配时间
+			$cellValues ["Q" . $row] = $data ["cName"]; // 客户名
 			/* 以下为选填 */
-			$cellValues ["X" . $row] = $data ["cAddress"]; // 客户地址
-			$cellValues ["Y" . $row] = $data ["cEmail"]; // 客户邮箱
-			$cellValues ["L" . $row] = $data ["cPerson"]; // 客户联系人
-			$cellValues ["M" . $row] = $data ["cPhone"] + 0; // 客户电话
-			$cellValues ["N" . $row] = $data ["create_time"]; // 分配时间
+			$cellValues ["I" . $row] = $data ["cPerson"]; // 客户联系人
+			$cellValues ["J" . $row] = $data ["cPhone"] + 0; // 客户电话
+			$cellValues ["U" . $row] = $data ["cAddress"]; // 客户地址
+			$cellValues ["V" . $row] = $data ["cEmail"]; // 客户邮箱
 			$row ++;
 		}
 		$pFilename = './sampleData/zg_import.xls';
