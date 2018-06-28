@@ -320,15 +320,18 @@ class Index extends Common {
 	protected function queryUpdateInfo($updateData) {
 		$result = 0;
 		$new = [ ];
-		$infotables = new Infotables ();
 		foreach ( $updateData as $k => $v ) {
+			$infotables = new Infotables ();
 			$line_and_id = explode ( "-", $k );
-			$result += $infotables->where ( "id", $line_and_id [1] )->update ( $v );
+			$result += $infotables->isUpdate ( true )->allowField ( true )->save ( $v, [ 
+					"id" => $line_and_id [1] 
+			] );
 			// 反查询刚才修改后的数据库里的值，用于前后端数据的一致性
 			$data = $infotables->where ( "id", $line_and_id [1] )->find ();
 			foreach ( $v as $kk => $vv ) {
 				$dbNew [$k] [$kk] = $data->$kk;
 			}
+			$infotables = null;
 		}
 		return $this->result ( $dbNew, 1, $result );
 	}

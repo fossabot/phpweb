@@ -422,10 +422,13 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 		hot.validateRows(rows,function(valid){
 			if(!valid){	// 验证修改是否符合验证规则
 				dhtmlx.confirm({text:"修改操作明显不合规，<b>建议修改合规后再试。</b>是否强制继续？",callback(result){
-					!result && hot.undo();
-					result && postUpdate(updates);
+					if(!result){
+						hot.undo();
+						return ;
+					}
 				}});
 			}
+			postUpdate(updates);
 		});
 	}
 	/* 发起post请求更新台账信息，并同步在前端render 用于 updateChanges、updateStatus */
