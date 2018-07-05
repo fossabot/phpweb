@@ -266,7 +266,25 @@ function initHandsontable(infoData){
 			});
 		},
 		afterChange: function(changes, source){	// 修改后自动同步到数据库
-			if(changes[0][2] == changes[0][3]){
+			var updates = {},
+				_id = [],
+				rows= [],
+				hotData = hot.getSourceData();
+			for(var i in changes){	// 记录变化到 updates
+				var _change = changes[i];
+				if(_change[2] == _change[3]){
+					break;
+				}
+				console.log("really_change["+i+"]",_change);
+				_id.push(hotData[_change[0]].id);
+				rows.push(_change[0]);
+				var key = _change[1],
+					value = _change[3],
+					_update_key = _change[0]+"-"+_id[i];
+				updates[_update_key] = {};
+				updates[_update_key][ _change[1]] = _change[3];	// example: updates={"16-17":{vlan:"2222",ip:"223.100.108.2"}}
+			}
+			if($.isEmptyObject(updates)){	// 无变化，函数返回
 				return;
 			}
 			console.log("afterChangeEnv:", changes, source);

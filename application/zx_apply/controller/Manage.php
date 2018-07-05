@@ -651,7 +651,7 @@ class Manage extends Index {
 		\PhpOffice\PhpSpreadsheet\Settings::setCache ( $simpleCache );
 	}
 	public function tt() {
-		
+		$data=10&255;
 		return dump ( $data );
 	}
 }
