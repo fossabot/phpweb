@@ -301,10 +301,11 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 						name : "4.单条数据制作脚本生成",
 						disabled: function(){
 							var s = hot.getSelectedRange();
-							var a = s && s.length > 1;
-							var b = s && s[0].from.row != s[0].to.row;
+							var a = s && s.length > 1; // 多选时禁用
+							var b = s && s[0].from.row != s[0].to.row; // 多选时禁用
+							var c = infoData[s[0].from.row].neFactory == 'ONU'; // ONU业务禁用
 							var v = hot.currentRowValid && hot.currentRowValid.valid;
-							return a || b || !v;
+							return a || b || c || !v;
 						}
 					},
 					"undo" : {
@@ -379,7 +380,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 						title : "您已修改台账信息，是否同步更新到服务器？",
 						text : "确认后所有的修改会同步到服务器，本次登陆期间不再提醒。不会验证数据是否合规，慎用！！<br><br>【请注意】：若多人同时操作会以最后一次修改为准。操作请谨慎。。&nbsp;&nbsp;%^_^% +_+ %^_^%",
 						ok : "确认",
-						cancel : "取消",
+						cancel : "撤销修改",
 						callback : function(result){
 							if(result){
 								sessionStorage.setItem("updateConfirm","auto");
@@ -631,29 +632,33 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 	/* 右键菜单操作 start */
 	/************************/
 	/* 加载数据制作脚本的资源并显示 */
-	function script(scriptArr){
-		window.postScript=scriptArr;
+	function script(scriptObj){
+		window.postScript=scriptObj;
+		if(scriptObj.code===0){
+			dhtmlx.alert(scriptObj.msg);
+			return;
+		}
 		if(typeof(show_bas)=="undefined"){
 			// 加载一次。
 			$.get("../Tool/_script.html",function(data){
 				$(".content").append(data);
-				showScript(scriptArr);
+				showScript(scriptObj);
 			});
 		}else{
-			showScript(scriptArr);
+			showScript(scriptObj);
 		}
 		checkWindows("_input");
 	}
 	/* 显示数据制作脚本 用在 script */
-	function showScript(scriptArr){
-		if(typeof(scriptArr.bas01!="undefined")){
-			show_bas("01",scriptArr.bas01);
+	function showScript(scriptObj){
+		if(typeof(scriptObj.bas01!="undefined")){
+			show_bas("01",scriptObj.bas01);
 		}
-		if(typeof(scriptArr.bas02!="undefined")){
-			show_bas("02",scriptArr.bas02);
+		if(typeof(scriptObj.bas02!="undefined")){
+			show_bas("02",scriptObj.bas02);
 		}
-		if(typeof(scriptArr.the93!="undefined")){
-			show_9312(scriptArr.the93[0],scriptArr.the93[1]);
+		if(typeof(scriptObj.the93!="undefined")){
+			show_9312(scriptObj.the93[0],scriptObj.the93[1]);
 		}
 	}
 	/* 导出到其他系统模板 */

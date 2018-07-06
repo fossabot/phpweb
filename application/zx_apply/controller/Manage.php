@@ -190,6 +190,9 @@ class Manage extends Index {
 	protected function generateScript($id = null) {
 		$data = Infotables::get ( $id );
 		if ($data ["zxType"] == "互联网") {
+			if($data['neFactory']=='ONU'){
+				return $this->error("ONU业务暂不支持数据制作脚本");
+			}
 			return $this->generateScriptNet ( $data );
 		}
 		if ($data ["zxType"] == "卫生网") {
