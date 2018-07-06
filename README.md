@@ -1,6 +1,6 @@
-## Xianda小项目:bow:
+## X.Da小项目:bow:
 
-[![Build Status](https://travis-ci.org/yuxianda/phpweb.svg?branch=master)](https://travis-ci.org/yuxianda/phpweb)
+[![Build Status](https://travis-ci.org/thianda/phpweb.svg?branch=master)](https://travis-ci.org/thianda/phpweb)
 
 基于ThinkPHP 5.0.x开发
 
@@ -24,9 +24,9 @@
 
 composer 的安装及使用请查看： [composer 中文网](http://www.phpcomposer.com/ )
 
-> 另：`public/static/`内文件已打包，不保存在repo中。详见[release](https://github.com/yuxianda/phpweb/releases)。
+> 另：`public/static/`内文件已打包，不保存在repo中。详见[release](https://github.com/thianda/phpweb/releases)。
 >
-> `docs`需搭环境（*jekyll*）在`docs/`内执行`xianda-build-sh.sh`生成静态文档。
+> `docs`需搭环境（*jekyll*）在`docs/`内执行`x.da-build-sh.sh`生成静态文档。
 
 ### 生成docs步骤
 
@@ -41,7 +41,7 @@ composer 的安装及使用请查看： [composer 中文网](http://www.phpcompo
    ```sh
    gem install jekyll
    ```
-   安装出错请参考[这里](https://yuxianda.github.io/notes/create-blog-by-using-jekyll.html#%E5%AE%89%E8%A3%85jekyll)。
+   安装出错请参考[这里](https://thianda.github.io/notes/create-blog-by-using-jekyll.html#%E5%AE%89%E8%A3%85jekyll)。
 
  3. 安装 bundler
 
@@ -58,5 +58,5 @@ composer 的安装及使用请查看： [composer 中文网](http://www.phpcompo
 5. 生成静态文档到`/public/phpweb`
 
   ```sh
-  ./xianda-build-sh.sh
+  ./x.da-build-sh.sh
   ```

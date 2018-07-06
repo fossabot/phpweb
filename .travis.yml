@@ -8,8 +8,8 @@ php:
  
 install:
  - composer install
- - wget https://github.com/yuxianda/phpweb/releases/download/v0.4.6/static_0.4.6.zip
- - unzip static_0.4.6.zip -d public/static 
+ - wget https://github.com/thianda/phpweb/releases/download/v0.4.13/static-0.4.13.zip
+ - unzip static-0.4.13.zip -d public/static 
 
 script:
  - php think optimize:config
