@@ -11,6 +11,8 @@ update_date:    2018-01-25 11:22:48
 
 可以访问redis的[官网](https://redis.io/)，但是官方只提供linux版本的redis。windows版本可以下载由Microsoft Open Tech group 编译好的版本 <https://github.com/MSOpenTech/redis>，不过现在貌似改名了，直接跳转到<https://github.com/MicrosoftArchive/redis/>，直接在[releases](https://github.com/MicrosoftArchive/redis/releases)页面下载即可。下载msi包，安装时可直接安装为windows服务并设置环境变量。很方便。
 
+目前，最新版本一直是[3.2.100Pre-release](https://github.com/MicrosoftArchive/redis/releases/download/win-3.2.100/Redis-x64-3.2.100.msi)。最新稳定版是[3.0.504](https://github.com/MicrosoftArchive/redis/releases/download/win-3.0.504/Redis-x64-3.0.504.msi)。
+
 在cmd执行测试，执行`redis-cli -v`查看版本。或：
 
 ```sh
@@ -21,7 +23,7 @@ PONG
 
 ### 1. 确认php版本
 
-在php安装目录执行`php -v`。或者在php里执行`phpinfo()`。windows 版的php为Thread Safe。
+在php安装目录执行`php -v`。或者在php里执行`phpinfo()`。windows 版的php为Thread Safe（ts）。
 
 ```sh
 C:\Users\Administrator>php -r "phpinfo();">c:\phpinfo.txt
@@ -31,15 +33,29 @@ C:\Users\Administrator>php -r "phpinfo();">c:\phpinfo.txt
 
 ### 2. 下载DLL（重点！）
 
-访问：<http://windows.php.net/downloads/pecl/releases/igbinary/>，可看见不同的版本，优先选a.b.c中基于b，选c最大的文件夹进入。因为我的php是5.6。所以我下载的是2.0.5里面的：[php_igbinary-2.0.5-5.6-ts-vc11-x86.zip](http://windows.php.net/downloads/pecl/releases/igbinary/2.0.5/php_igbinary-2.0.5-5.6-ts-vc11-x86.zip)。
+#### 2.1 php_igbinary.dll
 
-下载的zip包里有俩文件是我们需要的：`php_igbinary.dll`、`php_igbinary.pdb`。将他们复制到php的ext目录下。
+访问：<http://windows.php.net/downloads/pecl/releases/igbinary/>，可看见不同的版本，依据版本优先选`a.b.c`中基于`a.b`，选`c`最大的文件夹进入。例如为选择`2.0.x`，当前最新的是`2.0.7`，进入后可看见支持从php5.6到7.2。下载对应版本即可。（选ts、线程安全版本）
 
-访问：<http://pecl.php.net/package/redis>，可看见Downloads下面有DLL的下载链接，找到对应php版本的zip，点击2.2.7后面的DLL，打开的页面里提供php5.6的DLL，下载[5.6 Thread Safe (TS) x86](http://windows.php.net/downloads/pecl/releases/redis/2.2.7/php_redis-2.2.7-5.6-ts-vc11-x86.zip)。
+| php版本 | 文件夹 | 下载文件                                                     |
+| ------- | ------ | ------------------------------------------------------------ |
+| 5.6     | 2.0.7  | [php_igbinary-2.0.7-5.6-ts-vc11-x86.zip](https://windows.php.net/downloads/pecl/releases/igbinary/2.0.7/php_igbinary-2.0.7-5.6-ts-vc11-x86.zip) |
+| 7.2     | 2.0.7  | [php_igbinary-2.0.7-7.2-ts-vc15-x86.zip](https://windows.php.net/downloads/pecl/releases/igbinary/2.0.7/php_igbinary-2.0.7-7.2-ts-vc15-x86.zip) |
 
-下载的zip包里有俩文件是我们需要的：`php_redis.dll`、`php_redis.pdb`。将他们复制到php的ext目录下。
+下载的zip包里有俩文件是我们需要的：`php_igbinary.dll`、`php_igbinary.pdb`（可选）。将它们复制到php的ext目录下。
 
-### 3. 配置php.ini（重点）
+#### 2.2 php_redis.dll
+
+访问：<http://pecl.php.net/package/redis>，可看见Downloads下面有DLL的下载链接，根据`Version`点击`DLL`查看支持的php版本，如点击`2.2.7`后面的DLL，可看见这个版本的DLL支持PHP5.3到PHP5.6。
+
+| php版本 | Version         | 下载文件                                                     |
+| ------- | --------------- | ------------------------------------------------------------ |
+| 5.6     | 2.2.7           | [5.6 Thread Safe (TS) x86](https://windows.php.net/downloads/pecl/releases/redis/2.2.7/php_redis-2.2.7-5.6-ts-vc11-x86.zip) |
+| 7.2     | 4.1.0(当前最新) | [7.2 Thread Safe (TS) x86](https://windows.php.net/downloads/pecl/releases/redis/4.1.0/php_redis-4.1.0-7.2-ts-vc15-x86.zip) |
+
+下载的zip包里有俩文件是我们需要的：`php_redis.dll`、`php_redis.pdb`（可选）。将它们复制到php的ext目录下。
+
+### 3. 配置php.ini
 
 在php安装目录执行`php --ini`，可查看当前加载的php.ini所在位置。在php.ini中添加：
 
@@ -81,6 +97,4 @@ $redis->set("tutorial-name", "Redis tutorial");
 echo "Stored string in redis:: " . $redis->get("tutorial-name");
 ?>
 ```
-
-
 
