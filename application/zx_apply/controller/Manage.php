@@ -335,9 +335,12 @@ class Manage extends Index {
 				"N" => "Auto import! --Xianda",
 				"O" => "铁岭",
 				"P" => "卜玉",
+				"R" => "其他",
+				"S" => "企业",
 				"T" => "辽宁",
 				"W" => "客户响应中心",
 				"X" => "buyu.tl@ln.chinamobile.com",
+				"AD" => "静态",
 				"AH" => "已启用",
 				"AI" => "铁岭柴河街局1号楼2层210综合机房",
 		];
@@ -354,6 +357,7 @@ class Manage extends Index {
 			$cellValues ["J" . $row] = $data ["cPhone"] + 0; // 客户电话
 			$cellValues ["U" . $row] = $data ["cAddress"]; // 客户地址
 			$cellValues ["V" . $row] = $data ["cEmail"]; // 客户邮箱
+			$cellValues ["AG" . $row] = $data ["instanceId"] + 0; // 政企专线计费代号
 			$row ++;
 		}
 		$pFilename = './sampleData/zg_import.xls';

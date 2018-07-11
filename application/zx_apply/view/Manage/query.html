@@ -664,6 +664,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 	/* 导出到其他系统模板 */
 	function put(key){
 		var args ={_method: "PUT",r: key,id: getSelectedIds()};
+		
 		var msg = "please-wait,if-goes-wrong,close-this-tab-and-try-agian!";
 		var form = $("<form method='post' action =?" + msg + " name='_export' target='_blank'></form>");
 		for (arg in args) {
@@ -675,6 +676,8 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 			form.append(input);
 		}
 		$(document.body).append(form);
+		
+		// 
 		form.submit();
 		setTimeout("document.forms._export.parentNode.removeChild(document.forms._export)",0);	//	在DOM中移除 刚生成的form
 		console.log("\t\tput(key):submit:",args);
@@ -783,13 +786,7 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 	}
 	/* 导出台账 （全量） */
 	function export_all(){
-		if(typeof(XLSX) == "undefined"){
-			$.getScript("__STATIC__/sheetjs/xlsx.full.min.js",function(){
-				wrFiles();
-			});
-		}else{
-			wrFiles();
-		}
+		jsGetXLSX(wrFiles);
 		function wrFiles(){
 			/* original data */
 			var type={"互联网":"net223","营业厅":"yyt","卫生网":"wsw","平安校园":"safe-campus"};
@@ -823,6 +820,18 @@ file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 				XLSX.writeFile(wb, filename);
 			});
 		}
+	}
+	/* 获取 XLSX 后继续执行*/
+	function jsGetXLSX(func, arg){
+		if(typeof(XLSX) == "object"){
+			func(arg);
+			return;
+		}
+		var url = "//cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js";
+		if(/10./.test(document.location.host)){
+			url = "__STATIC__/sheetjs/xlsx.full.min.js";
+		}
+		$.getScript(url,function(){func(arg);});
 	}
 	/************************/
 	/* 右键菜单操作 end */
