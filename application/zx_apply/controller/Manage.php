@@ -63,9 +63,9 @@ class Manage extends Index
 					$detail[$k] = $v;
 				}
 			}
+			unset($detail["extra"]);
 			$detail["ip"] = $info["ip"]; // 更正ip为 str 形式
 			$detail["ipB"] = $info["ipB"]; // 更正ipB
-			unset($detail["extra"]);
 			if ($req == "getDetail") {
                 // 返回单条数据及同客户名的信息摘要
 				$cName = mb_substr($info["cName"], 2, 10, "utf-8");
@@ -88,19 +88,25 @@ class Manage extends Index
 					"device" => $device
 				];
 			} else if ($req == "distribution") {
-				$this->checkInstanceID($info, $data);
-				$data = $this->checkAndSetIp($info, $data);
-				$data = $this->checkAndSetVlan($data);
-                // $data ["status"] = 1;
-				$result = $this->updateInfo($data);
-                // 防止提前修改 status 导致 信息未修改无法识别
-				if ($result) {
+				// 判断是否有变化
+				$ifChanged = false;
+				foreach ($detail as $k => $v) {
+					if ($v != $data[$k]) {
+						$ifChanged = true;
+						break;
+					}
+				}
+				if ($ifChanged) {
+					$this->checkInstanceID($info, $data);
+					$data = $this->checkAndSetIp($info, $data);
+					$data = $this->checkAndSetVlan($data);
+					$this->updateInfo($data);
 					if (isset($data["vlan"])) {
 						Infotables::where("id", $data["id"])->setInc("status");
 					}
 					return $this->result($this->refleshTodoList(), 1, "操作成功。<br>是否发送邮件通知给申请人？");
 				} else {
-					return $this->result(null, 2, "本次提交信息并未修改");
+					return $this->result(null, 2, "本次提交无修改");
 				}
 			}
 		}
@@ -653,9 +659,9 @@ class Manage extends Index
 	}
 
 	/**
-	 * todo预分配时检查获取的vlan是否已分配，并记录
+	 * todo预分配时检查获取的vlan是否已分配，并记录/更新
 	 *
-	 * @param unknown $data            
+	 * @param unknown $data
 	 * @return unknown|void
 	 */
 	protected function checkAndSetVlan($data)
@@ -668,6 +674,8 @@ class Manage extends Index
 		if ($vlan && $vlan["id"] != $data["id"]) { // 找到vlan且vlan的id与自己的id不同
 			return $this->error("vlan冲突，", null, $vlan["cName"]);
 		} else {
+			// 基于Id更新,若更新0条，则新增
+			// TODO
 			Vlantables::createVlan($data["aStation"], $data["vlan"], $data["cName"], $data["id"]);
 			return $data;
 		}
@@ -708,7 +716,7 @@ class Manage extends Index
 
 	public function tt()
 	{
-		$data = 10 & 255;
-		return dump($data);
+		$data = null;
+		return dump(isset($data));
 	}
 }

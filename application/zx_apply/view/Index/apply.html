@@ -23,9 +23,11 @@ name="head"}
 			if (value == 'ONU') {
 				myForm.setItemValue("ifOnu", true);
 				myForm.enableItem("oltName");
+				myForm.disableItem("aStation");
 			} else {
 				myForm.setItemValue("ifOnu", false);
 				myForm.disableItem("oltName");
+				myForm.enableItem("aStation");
 			}
 		}
 		if (name == 'ifOnu') {
@@ -39,6 +41,7 @@ name="head"}
 				if (myForm.getItemValue("neFactory") == 'ONU') { } else {
 					// 勾选了ifOnu，但网元厂家选的不是ONU。
 					myForm.setItemValue("neFactory", 'ONU');
+					myForm.enableItem("oltName");
 					dhtmlx.alert("已自动修改<span style='color:red;'>网元厂家</span>字段为ONU");
 				}
 			}
