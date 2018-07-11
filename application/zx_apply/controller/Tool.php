@@ -5,17 +5,20 @@ namespace app\zx_apply\controller;
 use think\Controller;
 
 
-class Tool extends Common {
-	public function _initialize() {
-		if (input ( "get.uu" )=="y") {
-			session ( "user", [ 
-					"name" => "{Test}" 
-			] );
+class Tool extends Common
+{
+	public function _initialize()
+	{
+		if (input("get.uu") == "y") {
+			session("user", [
+				"name" => "{Test}"
+			]);
 		}
-		parent::_initialize ();
+		parent::_initialize();
 	}
-	public function index() {
+	public function index()
+	{
 		// 暂未配置登录页面
-		return $this->redirect ( "main" );
+		return $this->redirect("main");
 	}
 }

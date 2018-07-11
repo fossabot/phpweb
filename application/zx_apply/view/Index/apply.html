@@ -36,7 +36,7 @@ name="head"}
 					dhtmlx.alert("网元厂家为ONU时此项必选");
 				}
 			} else {
-				if (myForm.getItemValue("neFactory") == 'ONU') {} else {
+				if (myForm.getItemValue("neFactory") == 'ONU') { } else {
 					// 勾选了ifOnu，但网元厂家选的不是ONU。
 					myForm.setItemValue("neFactory", 'ONU');
 					dhtmlx.alert("已自动修改<span style='color:red;'>网元厂家</span>字段为ONU");
@@ -117,5 +117,4 @@ name="head"}
 		}
 		return cal;
 	}
-</script>
-{/block}
+</script> {/block}

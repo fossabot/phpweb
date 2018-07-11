@@ -1,29 +1,29 @@
 <!DOCTYPE html>
 <html>
-<head>
-<meta charset="UTF-8">
-<title>_ht_</title>
-<script src="__STATIC__/jquery.min.js"></script>
-<link rel="STYLESHEET" type="text/css"
-	href="__STATIC__/bootstrap/css/bootstrap.min.css">
-<link rel="STYLESHEET" type="text/css"
-	href="__STATIC__/handsontable-pro/handsontable.full.min.css">
-<script src="__STATIC__/handsontable-pro/handsontable.full.min.js"></script>
-<style>
-.body {
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	overflow: hidden;
-}
 
-#notice {
-	padding: 10px;
-}
-</style>
+<head>
+	<meta charset="UTF-8">
+	<title>_ht_</title>
+	<script src="__STATIC__/jquery.min.js"></script>
+	<link rel="STYLESHEET" type="text/css" href="__STATIC__/bootstrap/css/bootstrap.min.css">
+	<link rel="STYLESHEET" type="text/css" href="__STATIC__/handsontable-pro/handsontable.full.min.css">
+	<script src="__STATIC__/handsontable-pro/handsontable.full.min.js"></script>
+	<style>
+		.body {
+			position: absolute;
+			top: 0;
+			bottom: 0;
+			left: 0;
+			right: 0;
+			overflow: hidden;
+		}
+
+		#notice {
+			padding: 10px;
+		}
+	</style>
 </head>
+
 <body>
 	<div id="notice">
 		<p class="lead text-info">
@@ -52,37 +52,37 @@
 	infoData = loadDataFromStorage(colHeaderData.split(","));
 	// 生成hot
 	hot = new Handsontable(container, {
-		data : infoData,
-		rowHeaders : true,
-		colWidths : colWidthsData.split(","),
+		data: infoData,
+		rowHeaders: true,
+		colWidths: colWidthsData.split(","),
 		//autoColumnSize : true,
 		//filters : true,
 		//search : true,
 		//minSpareRows : 1,
-		manualColumnResize : true,
-		colHeaders : colHeaderData.split(","),
-		columns : [ {
-			type : "date",
-			dateFormat : "YYYY-MM-DD",
-			correctFormat : true,
-			validator : "date"
+		manualColumnResize: true,
+		colHeaders: colHeaderData.split(","),
+		columns: [{
+			type: "date",
+			dateFormat: "YYYY-MM-DD",
+			correctFormat: true,
+			validator: "date"
 		}, {
 			// 实例标识
-			type : 'numeric'
+			type: 'numeric'
 		}, {
 			// 专线类型
-			editor : 'select',
-			selectOptions : zxTypeData.split(","),
+			editor: 'select',
+			selectOptions: zxTypeData.split(","),
 		}, {
 
 		}, {
 			// 网元厂家
-			editor : 'select',
-			selectOptions : neFactoryData.split(","),
+			editor: 'select',
+			selectOptions: neFactoryData.split(","),
 		}, {
-			strict : true,
-			type : 'autocomplete',
-			source : aStationData.split(","),
+			strict: true,
+			type: 'autocomplete',
+			source: aStationData.split(","),
 		}, {
 
 		}, {
@@ -91,11 +91,11 @@
 
 		}, {
 			//  vlan
-			type : 'numeric',
+			type: 'numeric',
 
 		}, {
 			// ip
-			validator : ipValidatorRegexp,
+			validator: ipValidatorRegexp,
 		}, {
 
 		}, {
@@ -114,86 +114,80 @@
 
 		}, {
 			//1
-			type : 'numeric',
+			type: 'numeric',
 		}, {
 			//2
-			type : 'numeric',
+			type: 'numeric',
 		}, {
 			//3
-			type : 'numeric',
+			type: 'numeric',
 		}, {
 			//4
-			type : 'numeric',
+			type: 'numeric',
 		}, {
-		//5
+			//5
 		}, {
 			//6
-			type : 'numeric',
+			type: 'numeric',
 		}, {
 			//7
-			type : 'numeric',
+			type: 'numeric',
 		}, {
 			//8
-			type : 'numeric',
+			type: 'numeric',
 		}, {
 			//9
-			type : 'numeric',
-		} ],
-		contextMenu : {
-			callback : function(key, options) {
+			type: 'numeric',
+		}],
+		contextMenu: {
+			callback: function (key, options) {
 				if (key === 'about') {
-					setTimeout(function() {
+					setTimeout(function () {
 						// timeout is used to make sure the menu collapsed before alert is shown
 						parent.dhtmlx.alert({
-							title : "特别鸣谢",
-							text : "本菜单由 Xianda 汉化。感谢Xianda"
+							title: "特别鸣谢",
+							text: "本菜单由 Xianda 汉化。感谢Xianda"
 						});
 					}, 100);
 				}
 			},
-			items : {
-				"about" : {
-					name : "*Power by Xianda*"
+			items: {
+				"about": {
+					name: "*Power by Xianda*"
 				},
-				"hsep1" : "---------",
-				"row_above" : {
-					name : "在上面插入一行"
+				"hsep1": "---------",
+				"row_above": {
+					name: "在上面插入一行"
 				},
-				"row_below" : {
-					name : "在下面插入一行"
+				"row_below": {
+					name: "在下面插入一行"
 				},
-				"hsep1" : "---------",
-				"col_left" : {
-					name : "在左侧插入一列"
+				"hsep1": "---------",
+				"col_left": {
+					name: "在左侧插入一列"
 				},
-				"col_right" : {
-					name : "在右侧插入一列"
+				"col_right": {
+					name: "在右侧插入一列"
 				},
-				"hsep2" : "---------",
-				"remove_row" : {
-					name : "移除此行"
+				"hsep2": "---------",
+				"remove_row": {
+					name: "移除此行"
 				},
-				"remove_col" : {
-					name : "移除此列"
+				"remove_col": {
+					name: "移除此列"
 				},
-				"hsep3" : "---------",
-				"undo" : {
-					name : "撤销"
+				"hsep3": "---------",
+				"undo": {
+					name: "撤销"
 				},
-				"redo" : {
-					name : "还原"
+				"redo": {
+					name: "还原"
 				},
-				/*"make_read_only" : {
-					name : "设为只读"
-				},
-				"alignment" : {
-					name : "对齐"
-				},*/
 			},
 		}
 	});
 	hot.validateCells();
-	$(function($) {
+	$(function ($) {
 
 	});
 	// 从sessionStorage获取数据
@@ -213,9 +207,9 @@
 						_data[colHeaders[j]] = itemAttr[j];
 					}*/
 					if (/柴河/.test(itemArr[5])) {
-						if(itemArr[0].substr(0,4)<2017){
+						if (itemArr[0].substr(0, 4) < 2017) {
 							itemArr[5] = "柴河局";
-						}else{
+						} else {
 							itemArr[5] = "柴河局" + "-" + itemArr[4];
 						}
 					}
@@ -239,37 +233,36 @@
 	}
 	//	确认录入提交
 	$("#confirm-commit")
-			.on(
-					"click",
-					function() {
-						var ht_data = hot.getPlugin("exportFile")
-								.exportAsString("csv");
-						// 导出的csv字符串会带有不可见的BOM，
-						// 在JavaScript中占一个单位，在php中占3个单位，
-						// 把它去掉，解决了每次传递csv格式数据第一行的第一列的数据总会有异常的bug
-						ht_data = ht_data.substr(1);
-						var _data = {
-							data : ht_data,
-							type : "import",
-						};
-						// 页面滚动到左上角位置
-						pageScroll();
-						$
-								.post(
-										"",
-										_data,
-										function(data) {
-											$("#xhr_response")
-													.html(data)
-													.before(
-															"<p>下面是存入结果：若为空则导入失败，请联系管理员。导入结束可点击右上方关闭本弹窗。</p>");
-										});
+		.on(
+			"click",
+			function () {
+				var ht_data = hot.getPlugin("exportFile")
+					.exportAsString("csv");
+				// 导出的csv字符串会带有不可见的BOM，
+				// 在JavaScript中占一个单位，在php中占3个单位，
+				// 把它去掉，解决了每次传递csv格式数据第一行的第一列的数据总会有异常的bug
+				ht_data = ht_data.substr(1);
+				var _data = {
+					data: ht_data,
+					type: "import",
+				};
+				// 页面滚动到左上角位置
+				pageScroll();
+				$.post(
+					"",
+					_data,
+					function (data) {
+						$("#xhr_response")
+							.html(data)
+							.before(
+								"<p>下面是存入结果：若为空则导入失败，请联系管理员。导入结束可点击右上方关闭本弹窗。</p>");
 					});
+			});
 	function pageScroll() {
 		window.scrollBy(-5, -10);
 		scrolldelay = setTimeout('pageScroll()', 5);
 		if (document.documentElement.scrollTop == 0
-				&& document.documentElement.scrollLeft == 0) {
+			&& document.documentElement.scrollLeft == 0) {
 			clearTimeout(scrolldelay);
 			window.scrollTo(0, 0);
 		}
@@ -281,4 +274,5 @@
 		
 	}*/
 </script>
+
 </html>

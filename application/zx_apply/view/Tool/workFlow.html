@@ -1,5 +1,5 @@
-{extend name="common@Public/base" /} {block name="leftmenu"} {include
-file="Common/leftmenu_zx_apply_tool" /} {/block}{block name="main"}
+{extend name="common@Public/base" /} {block name="leftmenu"} {include file="Common/leftmenu_zx_apply_tool" /} {/block}{block
+name="main"}
 <div class="htmltitle">
 	<h2>流程录入信息生成</h2>
 </div>
@@ -10,9 +10,10 @@ file="Common/leftmenu_zx_apply_tool" /} {/block}{block name="main"}
 		信息按一下顺序排列：复制后点击
 		<button class="btn btn-xs btn-primary" onclick="create_info(false)">生成</button>
 		<button class="btn btn-xs btn-primary" onclick="create_info(true)">rb生成</button>
-		。<a class="btn btn-sm btn-link" onclick="history.go(0)">重置页面</a>
+		。
+		<a class="btn btn-sm btn-link" onclick="history.go(0)">重置页面</a>
 	</div>
-<pre>
+	<pre>
 1.申请日期、专线类别、带宽、客户服务等级、业务保障等级、网元厂家、A端基站、传输Z端、9312名、VLAN、IP、产品标识、客户名称、客户联系人、客户电话、客户经理联系人、客户经理电话、客户地址
 2.申请时间,产品实例标识,专线类别,带宽,网元厂家,A端基站,客户名称,单位详细地址,客户需求说明(选填),VLAN,IP,联系人姓名(客户侧),联系电话(客户侧),联系人邮箱(客户侧)*,负责人姓名(移动侧)*,负责人电话(移动侧)*,负责人邮箱(移动侧)*,单位性质,备注
 </pre>
@@ -25,46 +26,45 @@ file="Common/leftmenu_zx_apply_tool" /} {/block}{block name="main"}
 	<textarea id="out_info" rows="7" style="width: 100%"></textarea>
 </div>
 <style>
-pre {
-	color: blue;
-	font-size: 11px;
-}
+	pre {
+		color: blue;
+		font-size: 11px;
+	}
 
-textarea {
-	color: maroon;
-}
-
+	textarea {
+		color: maroon;
+	}
 </style>
 <script>
 	window.console = window.console
-			|| (function() {
-				var c = {};
-				c.log = c.warn = c.debug = c.info = c.error = c.time = c.dir = c.profile = c.clear = c.exception = c.trace = c.assert = function() {
-				};
-				return c;
-			})();
+		|| (function () {
+			var c = {};
+			c.log = c.warn = c.debug = c.info = c.error = c.time = c.dir = c.profile = c.clear = c.exception = c.trace = c.assert = function () {
+			};
+			return c;
+		})();
 	var myLayout = new dhtmlXLayoutObject({
-		parent : "layoutObj",
-		pattern : "2E",
-		cells : [ {
-			id : "a",
-			text : "输入台账信息",
-			height : 275,
+		parent: "layoutObj",
+		pattern: "2E",
+		cells: [{
+			id: "a",
+			text: "输入台账信息",
+			height: 275,
 		}, {
-			id : "b",
-			text : "录如信息生成",
-			height : "245",
-		} ]
+			id: "b",
+			text: "录如信息生成",
+			height: "245",
+		}]
 	});
 	myLayout.cells("a").attachObject("taiZhang");
 	myLayout.cells("b").attachObject("_out");
 	function create_info(flag) {
 		var str_o = $("#taiZhang textarea").val();
 		if (!str_o) {
-			dhtmlx.alert({title: ".",text:"录入信息为空哦。"});
+			dhtmlx.alert({ title: ".", text: "录入信息为空哦。" });
 			return false;
 		}
-		str_o = str_o.replace("\t\t","\t");
+		str_o = str_o.replace("\t\t", "\t");
 		dhtmlx.message(str_o);
 		var arr_o = str_o.split('\t');
 		var ip = arr_o[10];
@@ -108,7 +108,7 @@ textarea {
 			arr_new[34] = "客户响应中心";
 			arr_new[35] = "buyu.tl@ln.chinamobile.com"//arr_o[16];
 			arr_new[36] = "铁岭";
-			arr_new[37] = "卜玉";	
+			arr_new[37] = "卜玉";
 		} else {	//	旧数据（ip为108段之前）生成
 			arr_new[0] = "";
 			arr_new[1] = ip;
@@ -152,6 +152,5 @@ textarea {
 		$("#out_info").val(arr_new.join('\t'));
 	}
 	var arr_new = [];
-	
-</script>
-{/block}
+
+</script> {/block}

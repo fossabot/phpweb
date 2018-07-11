@@ -1,9 +1,6 @@
 {extend name="common@Public/base" /} {block name="head"}
 <link rel="STYLESHEET" type="text/css" href="__STATIC__/handsontable-pro/handsontable.full.min.css">
-<script src="__STATIC__/handsontable-pro/handsontable.full.min.js"></script>
-<style id="headStyleDom">
-</style>
-{/block} {block name="leftmenu"} {include file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
+<script src="__STATIC__/handsontable-pro/handsontable.full.min.js"></script> {/block} {block name="leftmenu"} {include file="Common/leftmenu_zx_apply_manage" /} {/block} {block name="main"}
 <div class="htmltitle">
 	<span class="h2" style="margin-right: 50px">信息查询</span>
 	<span>请选择类别：</span>
@@ -59,7 +56,6 @@
 		id: "_msg",
 		text: "loading..."
 	});
-	var xx = Date.now();
 	var _loading = setTimeout(function () {
 		dhtmlx.message.hide("_msg");
 		dhtmlx.message({
@@ -92,13 +88,9 @@
 				return;
 			}
 			var a = value.split("/");
-			var c = a[0].toString().match(
-				/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
-			var b = a.length == 1 ? true : a.length > 2 ? false :
-				parseInt(a[1]) <= 32 && a[1].match(/^\d{0,2}$/);
-			callback(!!c &&
-				!!(c[1] <= 255 && c[2] <= 255 && c[3] <= 255 && c[4] <= 255) &&
-				!!b || false);
+			var c = a[0].toString().match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+			var b = a.length == 1 ? true : a.length > 2 ? false : parseInt(a[1]) <= 32 && a[1].match(/^\d{0,2}$/);
+			callback(!!c && !!(c[1] <= 255 && c[2] <= 255 && c[3] <= 255 && c[4] <= 255) && !!b || false);
 		}
 		Handsontable.validators.registerValidator('my.ipstr', ipstr);
 	})(Handsontable);
@@ -121,12 +113,12 @@
 	}, {
 		data: 'instanceId',
 		type: 'numeric'
-	/*}, {
-		data: 'zxType',
-		editor: 'select',
-		selectOptions: zxTypeData.split(","),
-	}, {
-		data: 'bandWidth',*/
+		/*}, {
+			data: 'zxType',
+			editor: 'select',
+			selectOptions: zxTypeData.split(","),
+		}, {
+			data: 'bandWidth',*/
 	}, {
 		data: 'neFactory',
 		editor: 'select',
@@ -141,10 +133,10 @@
 	}, {
 		data: 'cName',
 		allowEmpty: false
-	//}, {
-	//	data : 'cAddress',
-	//}, {
-	//	data : 'cNeeds',
+		/*}, {
+			data : 'cAddress',
+		}, {
+			data : 'cNeeds',*/
 	}, {
 		data: 'vlan',
 		type: 'numeric',
@@ -155,56 +147,56 @@
 		data: 'ip',
 		validator: "my.ipstr",
 		readOnly: true
-	/*}, {
-		data : 'ipB',
-		validator : "my.ipstr",
-		readOnly: true
-	}, {
-		data: 'cPerson',
-	}, {
-		data: 'cPhone',
-	}, {
-		data: 'cEmail',
-	}, {
-		data: 'mPerson',
-	}, {
-		data: 'mPhone',
-	}, {
-		data: 'mEmail',
-	}, {
-		data: 'marks',*/
+		/*}, {
+			data : 'ipB',
+			validator : "my.ipstr",
+			readOnly: true
+		}, {
+			data: 'cPerson',
+		}, {
+			data: 'cPhone',
+		}, {
+			data: 'cEmail',
+		}, {
+			data: 'mPerson',
+		}, {
+			data: 'mPhone',
+		}, {
+			data: 'mEmail',
+		}, {
+			data: 'marks',*/
 	}, {
 		data: 'ifOnu',
 		editor: 'select',
 		selectOptions: [0, 1],
-	/*}, {
-		data: 'oltName',
-	}, {
-		data: 'extra.unitProperty',
-		type: 'numeric',
-	}, {
-		data: 'extra.unitCategory',
-		type: 'numeric',
-	}, {
-		data: 'extra.industryCategory',
-		type: 'numeric',
-	}, {
-		data: 'extra.credential',
-		type: 'numeric',
-	}, {
-		data: 'extra.credentialnum',
-	}, {
-		data: 'extra.province',
-		type: 'numeric',
-	}, {
-		data: 'extra.city',
-		type: 'numeric',
-	}, {
-		data: 'extra.county',
-		type: 'numeric',
-	}, {
-		data: 'extra.appServType',
-		type: 'numeric',*/
+		/*}, {
+			data: 'oltName',
+		}, {
+			data: 'extra.unitProperty',
+			type: 'numeric',
+		}, {
+			data: 'extra.unitCategory',
+			type: 'numeric',
+		}, {
+			data: 'extra.industryCategory',
+			type: 'numeric',
+		}, {
+			data: 'extra.credential',
+			type: 'numeric',
+		}, {
+			data: 'extra.credentialnum',
+		}, {
+			data: 'extra.province',
+			type: 'numeric',
+		}, {
+			data: 'extra.city',
+			type: 'numeric',
+		}, {
+			data: 'extra.county',
+			type: 'numeric',
+		}, {
+			data: 'extra.appServType',
+			type: 'numeric',*/
 	}, {
 		data: 'aPerson',
 		readOnly: true
@@ -216,7 +208,7 @@
 		type: 'numeric',
 		readOnly: true
 	}];
-
+	/* 初始化台账显示 */
 	function initHandsontable(infoData) {
 		if (typeof (hot) != "undefined")
 			hot = null;
@@ -264,7 +256,6 @@
 						} else {
 							sessionStorage.removeItem("tableStatus");
 							hot.render();
-							//$("#headStyleDom").html("");
 						}
 					} else if (key === 'delete') {
 						postDelete();
@@ -402,8 +393,7 @@
 	}
 	/* 调整填充数据中不存在的字段 */
 	function adjustInfo(infoData) {
-		var extra = "unitProperty,unitCategory,industryCategory,credential,credentialnum,province,city,county,appServType".split(
-			",");
+		var extra = "unitProperty,unitCategory,industryCategory,credential,credentialnum,province,city,county,appServType".split(",");
 		for (var i in infoData) {
 			if (infoData[i]["extra"] == undefined) {
 				infoData[i]["extra"] = [];
@@ -595,8 +585,7 @@
 		for (var i in keys) {
 			if (/\./.test(i)) {
 				var arr = i.split(".");
-				str += "<div class='row'><div class='col-md-4'>" + keys[i] + "</div><div class='col-xs-8'> " + d[arr[0]][arr[1]] +
-					"</div></div>";
+				str += "<div class='row'><div class='col-md-4'>" + keys[i] + "</div><div class='col-xs-8'> " + d[arr[0]][arr[1]] + "</div></div>";
 				arr = null;
 			} else {
 				str += "<div class='row'><div class='col-xs-4'>" + keys[i] + "</div><div class='col-xs-8'>" + d[i] + "</div></div>";
@@ -694,7 +683,7 @@
 			r: key,
 			id: getSelectedIds()
 		};
-
+		/* 后端php生成excel */
 		var msg = "please-wait,if-goes-wrong,close-this-tab-and-try-agian!";
 		var form = $("<form method='post' action =?" + msg + " name='_export' target='_blank'></form>");
 		for (arg in args) {
@@ -708,6 +697,8 @@
 		$(document.body).append(form);
 		form.submit();
 		setTimeout("document.forms._export.parentNode.removeChild(document.forms._export)", 0); //	在DOM中移除 刚生成的form
+		/* 前端XLSX生成excel */
+		// TODO
 		console.log("\t\tput(key):submit:", args);
 		if (key !== 'export_zg') return; // 仅export_zg后执行
 		setTimeout(function (rows) {
@@ -756,7 +747,6 @@
 				}
 			}
 		});
-
 		function doDelete(ids, ranges) {
 			$.post("", {
 				r: "delete",
@@ -774,27 +764,6 @@
 			});
 		}
 	}
-	/* 设置状态显示（背景色）页面滚动后失效  暂时未用*/
-	/*function initStatus(){
-		var stylrStr = "";
-		for(var i in infoData){
-			//changeStatus(parseInt(i)+1,infoData[i].status);
-			stylrStr += ".ht_master tr:nth-child("+(parseInt(i)+1)+") > td:nth-child(6){background-color:"+backgroundColor[infoData[i].status]+"}";
-		}
-		$("#headStyleDom").text(stylrStr);
-	}
-	function initStatusSync(){
-		if(sessionStorage.getItem("tableStatus")==undefined){
-			return ;
-		}
-		var _statusVal,stylrStr = "";
-		var dataObj = $("#queryTable table.htCore tbody tr");
-		for(var i in dataObj){
-			_statusVal = $("#queryTable table.htCore tbody tr:eq("+i+") td:last").text();
-			stylrStr += "#queryTable table.htCore tbody tr:nth-child("+(parseInt(i)+1)+") > td{background-color:"+backgroundColor[_statusVal]+"}";
-		}
-		$("#headStyleDom").text(stylrStr);
-	}*/
 	/* 设置状态显示（背景色）页面滚动同步刷新显示  */
 	function initStatusSync() {
 		if (sessionStorage.getItem("tableStatus") == undefined) {
@@ -814,9 +783,7 @@
 	/* 更新台账状态 */
 	function updateStatus(row, status) {
 		var newData = {};
-		newData[row + "-" + infoData[row].id] = {
-			"status": status
-		};
+		newData[row + "-" + infoData[row].id] = { "status": status };
 		postUpdate(newData);
 		$("._detail_str").css('background-color', backgroundColor[status]);
 	}
@@ -868,7 +835,7 @@
 			});
 		}
 	}
-	/* 获取 XLSX 后继续执行*/
+	/* 获取 XLSX 后继续执行 */
 	function jsGetXLSX(func, arg) {
 		if (typeof (XLSX) == "object") {
 			func(arg);
@@ -899,5 +866,4 @@
 		8: "",
 		9: "#aaa"
 	};
-</script>
-{/block}
+</script> {/block}

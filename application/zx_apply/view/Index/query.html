@@ -1,7 +1,6 @@
 {extend name="common@Public/base" /} {block name="head"}
 <link rel="STYLESHEET" type="text/css" href="__STATIC__/handsontable-pro/handsontable.full.min.css">
-<script src="__STATIC__/handsontable-pro/handsontable.full.min.js"></script>
-{/block} {block name="leftmenu"} {include file="Common/leftmenu_zx_apply_index" /} {/block} {block name="main"}
+<script src="__STATIC__/handsontable-pro/handsontable.full.min.js"></script> {/block} {block name="leftmenu"} {include file="Common/leftmenu_zx_apply_index" /} {/block} {block name="main"}
 <div class="htmltitle">
 	<span class="h2" style="margin-right: 50px">信息查询</span>
 	<span>请选择类别：</span>
@@ -58,7 +57,6 @@
 		id: "_msg",
 		text: "loading..."
 	});
-	var xx = Date.now();
 	var _loading = setTimeout(function () {
 		dhtmlx.message.hide("_msg");
 		dhtmlx.message({
@@ -90,9 +88,7 @@
 	var colHeaderData = "{$colHeaderData}";
 	var container = document.getElementById('queryTable');
 	var infoData, hot, columnsData, contextMenuData;
-	infoData = {
-		$data
-	};
+	infoData = {$data};
 	columnsData = [{
 		data: 'create_time',
 		type: "date",
@@ -189,7 +185,7 @@
 		type: 'numeric',
 		readOnly: true
 	}];
-
+	/* 初始化台账显示 */
 	function initHandsontable(infoData) {
 		if (typeof (hot) != "undefined")
 			hot = null;
@@ -231,7 +227,6 @@
 						} else {
 							sessionStorage.removeItem("tableStatus");
 							hot.render();
-							//$("#headStyleDom").html("");
 						}
 					} else if (key === 'export_all') {
 						export_all();
@@ -324,8 +319,7 @@
 	}
 	/* 调整填充数据中不存在的字段 */
 	function adjustInfo(infoData) {
-		var extra = "unitProperty,unitCategory,industryCategory,credential,credentialnum,province,city,county,appServType".split(
-			",");
+		var extra = "unitProperty,unitCategory,industryCategory,credential,credentialnum,province,city,county,appServType".split(",");
 		for (var i in infoData) {
 			if (infoData[i]["extra"] == undefined) {
 				infoData[i]["extra"] = [];
@@ -499,10 +493,8 @@
 			});
 			return;
 		}
-		var str =
-			'<div style="font-size:12px;overflow:auto;width:986px;height:100%"><table class="table table-hover table-condensed"><tbody>';
-		str +=
-			'<tr><th>申请时间</th><th>实例标识</th><th>客户名</th><th>客户地址</th><th>vlan</th><th>ip</th><th>申请人</th><th>申请人邮箱</th></tr>';
+		var str = '<div style="font-size:12px;overflow:auto;width:986px;height:100%"><table class="table table-hover table-condensed"><tbody>';
+		str += '<tr><th>申请时间</th><th>实例标识</th><th>客户名</th><th>客户地址</th><th>vlan</th><th>ip</th><th>申请人</th><th>申请人邮箱</th></tr>';
 		for (var i in data) {
 			str += '<tr><td style="width:9%">' + data[i]['create_time'] + '</td>';
 			str += '<td style="width:10%">' + data[i]['instanceId'] + '</td>';
@@ -520,8 +512,7 @@
 			return;
 		}
 		dhxWins.createWindow("_brief", 40, 55, 1000, 600);
-		var text =
-			"基本信息查询结果&nbsp;&nbsp;&nbsp;&nbsp;<span style='color:blue'>按Ctrl+F定位搜索</span>&nbsp;&nbsp;&nbsp;&nbsp;<a onclick='checkWindows(\"_brief\")'>点此关闭</a>";
+		var text = "基本信息查询结果&nbsp;&nbsp;&nbsp;&nbsp;<span style='color:blue'>按Ctrl+F定位搜索</span>&nbsp;&nbsp;&nbsp;&nbsp;<a onclick='checkWindows(\"_brief\")'>点此关闭</a>";
 		dhxWins.window("_brief").setText(text);
 		dhxWins.window("_brief").attachHTMLString(str);
 	}
@@ -610,8 +601,7 @@
 				if (myForm.validate()) {
 					var myData = {};
 					myForm.forEachItem(function (name) {
-						if ($.inArray(myForm.getItemType(name), ["input", "combo", "select", "checkbox"]) >= 0 && myForm.isItemEnabled(
-								name)) {
+						if ($.inArray(myForm.getItemType(name), ["input", "combo", "select", "checkbox"]) >= 0 && myForm.isItemEnabled(name)) {
 							myData[name] = myForm.getItemValue(name);
 							if (typeof myData[name] === "string") {
 								myData[name] = myData[name].replace(/ /g, "");
@@ -648,7 +638,6 @@
 					});
 				}
 			} else if (id == "cancel") {
-				//form_init(JSON.parse(sessionStorage.getItem("formData")));
 				myForm.restoreBackup(sessionStorage.getItem("formDataBackups"));
 				dhtmlx.message("表单已重置");
 			} else if (id) {
@@ -744,5 +733,4 @@
 		8: "",
 		9: "#aaa"
 	};
-</script>
-{/block}
+</script> {/block}
