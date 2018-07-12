@@ -18,35 +18,7 @@ name="head"}
 	var myForm = new dhtmlXForm("form_container", formStructure);
 	myForm.enableLiveValidation(true);
 	initCombo();
-	myForm.attachEvent("onChange", function (name, value, status) {
-		if (name == 'neFactory') {
-			if (value == 'ONU') {
-				myForm.setItemValue("ifOnu", true);
-				myForm.enableItem("oltName");
-				myForm.disableItem("aStation");
-			} else {
-				myForm.setItemValue("ifOnu", false);
-				myForm.disableItem("oltName");
-				myForm.enableItem("aStation");
-			}
-		}
-		if (name == 'ifOnu') {
-			if (status == false) {
-				if (myForm.getItemValue("neFactory") == 'ONU') {
-					myForm.setItemValue("ifOnu", true);
-					myForm.enableItem("oltName");
-					dhtmlx.alert("网元厂家为ONU时此项必选");
-				}
-			} else {
-				if (myForm.getItemValue("neFactory") == 'ONU') { } else {
-					// 勾选了ifOnu，但网元厂家选的不是ONU。
-					myForm.setItemValue("neFactory", 'ONU');
-					myForm.enableItem("oltName");
-					dhtmlx.alert("已自动修改<span style='color:red;'>网元厂家</span>字段为ONU");
-				}
-			}
-		}
-	});
+	onChangeEnv();
 	myForm.attachEvent("onButtonClick", function (id) {
 		if (id == "commit") {
 			if (myForm.validate()) {
@@ -58,6 +30,7 @@ name="head"}
 				var myData = myForm.getFormData();
 				for (var i in myData) {
 					if (typeof (myData[i]) != "undefined") {
+						// 去空格
 						myData[i] = String(myData[i]).replace(/ /g, "");
 					}
 				}
@@ -105,19 +78,4 @@ name="head"}
 		}
 
 	});
-	/* 表单字段去空格 */
-	function removeSpace() {
-		var _tmp = "";
-		var _new = "";
-		var cal = 0;
-		for (var i in myForm.getFormData()) {
-			_tem = myForm.getFormData()[i] + "";
-			_new = _tem.replace(/ /g, "");
-			if (_tem != _new) {
-				cal++;
-			}
-			myForm.setItemValue(i, _new);
-		}
-		return cal;
-	}
 </script> {/block}

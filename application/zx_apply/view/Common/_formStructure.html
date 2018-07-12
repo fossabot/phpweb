@@ -56,6 +56,7 @@ var ipStructure = {type:"label",name:"ipStructure",label:"填写分配信息",la
 	{type:"input",label:"业务ip",name:"ipB",validate:"ipstr"}
 ]};
 var buttons = {type:"button",name:"auto_pre",value:"自动预分配"};
+/* 初始化combo */
 function initCombo(){
 	var combo;
 	for (var cfg_d in config["default"]){
@@ -79,10 +80,72 @@ function initCombo(){
 		combo.addOption(config["muticolumn"][cfg_m]);
 		combo.enableFilteringMode("between");
 	}
-	/* myForm.attachEvent("onButtonClick", function(id){
-		
-	}*/
 }
+/* 设置 onChange 事件 */
+function onChangeEnv(){
+	myForm.attachEvent("onChange", function (name, value, status) {
+		if (name == 'neFactory') {
+			if (value == 'ONU') {
+				myForm.setItemValue("ifOnu", true);
+				myForm.enableItem("oltName");
+				myForm.getCombo("aStation").setComboText("");
+				myForm.getCombo("aStation").setComboValue("");
+				myForm.setNote("neFactory", {
+					text: "ONU的业务无需选择A端基站"
+				});
+				myForm.disableItem("aStation");
+			} else {
+				myForm.setItemValue("ifOnu", false);
+				myForm.disableItem("oltName");
+				myForm.setNote("neFactory", {
+					text: null
+				});
+				myForm.enableItem("aStation");
+
+			}
+		}
+		if (name == 'ifOnu') {
+			if (status == false) {
+				if (myForm.getItemValue("neFactory") == 'ONU') {
+					myForm.setItemValue("ifOnu", true);
+					myForm.enableItem("oltName");
+					dhtmlx.alert("网元厂家为ONU时此项必选");
+				}
+			} else {
+				if (myForm.getItemValue("neFactory") == 'ONU') {} else {
+					// 勾选了ifOnu，但网元厂家选的不是ONU。
+					myForm.setItemValue("neFactory", 'ONU');
+					myForm.enableItem("oltName");
+					myForm.getCombo("aStation").setComboText("");
+					myForm.getCombo("aStation").setComboValue("");
+					myForm.setNote("neFactory", {
+						text: "ONU时无需选择A端基站"
+					});
+					myForm.disableItem("aStation");
+					dhtmlx.alert({
+						title: "ONU的业务<span style='color:red;'>无需选择</span>A端基站",
+						text: "已自动修改<span style='color:red;'>网元厂家</span>字段为ONU<br>并去除<span style='color:red;'>A端基站</span>字段"
+					});
+				}
+			}
+		}
+	});
+}
+/* 表单字段去空格 */
+function removeSpace() {
+		var _tmp = "";
+		var _new = "";
+		var cal = 0;
+		for (var i in myForm.getFormData()) {
+			_tem = myForm.getFormData()[i] + "";
+			_new = _tem.replace(/ /g, "");
+			if (_tem != _new) {
+				cal++;
+			}
+			myForm.setItemValue(i, _new);
+		}
+		return cal;
+	}
 /**
  * 验证是否符合ip字符串的格式:10.10.10.10/32
  */

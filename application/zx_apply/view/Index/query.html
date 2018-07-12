@@ -319,7 +319,8 @@
 	}
 	/* 调整填充数据中不存在的字段 */
 	function adjustInfo(infoData) {
-		var extra = "unitProperty,unitCategory,industryCategory,credential,credentialnum,province,city,county,appServType".split(",");
+		var extra = "unitProperty,unitCategory,industryCategory,credential,credentialnum,province,city,county,appServType".split(
+			",");
 		for (var i in infoData) {
 			if (infoData[i]["extra"] == undefined) {
 				infoData[i]["extra"] = [];
@@ -332,6 +333,7 @@
 		}
 		return infoData;
 	}
+
 	function initSearch() {
 		/* 当前页搜索按钮 */
 		$("#searchStr").on("focus", function () {
@@ -493,8 +495,10 @@
 			});
 			return;
 		}
-		var str = '<div style="font-size:12px;overflow:auto;width:986px;height:100%"><table class="table table-hover table-condensed"><tbody>';
-		str += '<tr><th>申请时间</th><th>实例标识</th><th>客户名</th><th>客户地址</th><th>vlan</th><th>ip</th><th>申请人</th><th>申请人邮箱</th></tr>';
+		var str =
+			'<div style="font-size:12px;overflow:auto;width:986px;height:100%"><table class="table table-hover table-condensed"><tbody>';
+		str +=
+			'<tr><th>申请时间</th><th>实例标识</th><th>客户名</th><th>客户地址</th><th>vlan</th><th>ip</th><th>申请人</th><th>申请人邮箱</th></tr>';
 		for (var i in data) {
 			str += '<tr><td style="width:9%">' + data[i]['create_time'] + '</td>';
 			str += '<td style="width:10%">' + data[i]['instanceId'] + '</td>';
@@ -512,7 +516,8 @@
 			return;
 		}
 		dhxWins.createWindow("_brief", 40, 55, 1000, 600);
-		var text = "基本信息查询结果&nbsp;&nbsp;&nbsp;&nbsp;<span style='color:blue'>按Ctrl+F定位搜索</span>&nbsp;&nbsp;&nbsp;&nbsp;<a onclick='checkWindows(\"_brief\")'>点此关闭</a>";
+		var text =
+			"基本信息查询结果&nbsp;&nbsp;&nbsp;&nbsp;<span style='color:blue'>按Ctrl+F定位搜索</span>&nbsp;&nbsp;&nbsp;&nbsp;<a onclick='checkWindows(\"_brief\")'>点此关闭</a>";
 		dhxWins.window("_brief").setText(text);
 		dhxWins.window("_brief").attachHTMLString(str);
 	}
@@ -594,12 +599,19 @@
 		});
 		myForm.oldId = formData["id"];
 		sessionStorage.setItem("formDataBackups", myForm.saveBackup());
+		onChangeEnv();
 		//formStructure = null;
 		window.evId == null || myForm.detachEvent("evId");
 		evId = myForm.attachEvent("onButtonClick", function (id) {
 			if (id == "commit") {
 				if (myForm.validate()) {
+					var num = removeSpace();
+					if (num > 0) {
+						dhtmlx.alert("已自动去除<b class='text-danger'>" + num + "</b>个字段中的空格，请核对后再次提交。<br>下次请注意不要录入空格，谢谢。");
+						return;
+					}
 					var myData = {};
+					// 重写表单提交功能
 					myForm.forEachItem(function (name) {
 						if ($.inArray(myForm.getItemType(name), ["input", "combo", "select", "checkbox"]) >= 0 && myForm.isItemEnabled(name)) {
 							myData[name] = myForm.getItemValue(name);
@@ -608,6 +620,7 @@
 							}
 						}
 					});
+					// 提交到修改申请操作
 					$.post("re_apply.html?old=" + myForm.oldId, myData, function (data) {
 						if (data.url) {
 							dhtmlx.alert({
