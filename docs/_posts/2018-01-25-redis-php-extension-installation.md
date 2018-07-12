@@ -4,7 +4,7 @@ title:          为php安装redis扩展-windows系统
 date:           2018-01-25 11:21:32--0800
 summary:       在windows中，不同的php版本对应不同的redis扩展版本，安装配置略繁琐，记录一下。
 categories:     notes
-update_date:    2018-07-11 17:27:55
+update_date:    2018-07-12 17:27:55
 ---
 
 ## 0. 安装redis

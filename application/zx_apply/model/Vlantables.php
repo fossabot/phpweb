@@ -12,7 +12,7 @@ class Vlantables extends Model
 	protected $deleteTime = 'delete_time';
 	protected $autoWriteTimestamp = false;
 	/**
-	 * 录入vlan
+	 * 录入/更新/删除vlan
 	 *
 	 * @param string $aStation        	
 	 * @param string $vlan        	
@@ -25,7 +25,6 @@ class Vlantables extends Model
 			return; // 仅内部调用，infoId不会为空。
 		}
 		$vlantables = new static();
-		// todo: 根据infoId，如果已存在则更新，否则新增。
 		$aStationConf = config("aStation");
 		if (array_key_exists($aStation, $aStationConf)) {
 			// 根据a端匹配到9312名，则保存vlan
@@ -35,16 +34,12 @@ class Vlantables extends Model
 				"description" => $description,
 				"infoId" => $infoId
 			];
-			$where = [
-				"infoId" => $data["infoId"]
-			];
-			$dbData = self::get($where);
+			// 根据infoId，如果已存在则更新，否则新增。
+			$dbData = $vlantables->where(["infoId" => $infoId])->find();
 			if ($dbData) {
-				$vlantables->isUpdate(true)->allowField(true)->save($data, [
-					"id" => $dbData->id
-				]);
+				$dbData->isUpdate(true)->save($data);
 			} else {
-				$vlantables->isUpdate(false)->allowField(true)->save($data);
+				$vlantables->isUpdate(false)->save($data);
 			}
 		}
 	}
