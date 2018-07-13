@@ -18,7 +18,7 @@ name="head"}
 	var myForm = new dhtmlXForm("form_container", formStructure);
 	myForm.enableLiveValidation(true);
 	initCombo();
-	onChangeEnv();
+	myForm.attachEvent("onChange", onChangeHandler);
 	myForm.attachEvent("onButtonClick", function (id) {
 		if (id == "commit") {
 			if (myForm.validate()) {

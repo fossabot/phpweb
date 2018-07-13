@@ -148,7 +148,6 @@ class Vlantables extends Model
 			"vlan" => $vlan
 		])->field("id,cName")->find();
 		if (!$data) {
-			// $vlantables = new static ();
 			$data = self::where("vlan", $vlan);
 			$deviceConf = config("aStation");
 			if (array_key_exists($aStation, $deviceConf)) {
@@ -157,11 +156,14 @@ class Vlantables extends Model
 				if ($data) { // 修改以区别于查询infotables的结果Vlantables::check()。line:126
 					$data = $data->toArray();
 					$data["id"] .= "_vlan";
+					$data["code"] = 0;
 				}
 			} else {
+				// 此时情况为：vlan存在，aStation不在预设范围内（为空）
 				$data = [
 					"id" => "",
-					"cName" => "A端基站有误！"
+					"code" => 2,
+					"cName" => "请填写正确的<span style='color: red;'>A端基站</span>！"
 				];
 			}
 		}

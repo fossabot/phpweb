@@ -78,15 +78,28 @@ class Manage extends Index
 				];
 				return json($result);
 			} else if ($req == "auto_pre") {
-				$device = config("aStation")[$data["aStation"]];
-				$genIp = Iptables::generateIP($data["zxType"]);
-				$genVlan = Vlantables::generateVlan($device, null, 1);
-				return [
-					"genIp" => $genIp,
-					"preVlan" => $genVlan["preVlan"],
-					"usedVlans" => $genVlan["usedVlans"],
-					"device" => $device
-				];
+				// 若已有ip则不再分配ip
+				if ($detail["ip"] == "") {
+					$genIp = Iptables::generateIP($data["zxType"]);
+				} else {
+					$genIp = $detail["ip"];
+				}
+				// 若无A端基站则不分配vlan
+				if ($data["aStation"] == "") {
+					return [
+						"genIp" => $genIp,
+						"device" => null
+					];
+				} else {
+					$device = config("aStation")[$data["aStation"]];
+					$genVlan = Vlantables::generateVlan($device, null, 1);
+					return [
+						"genIp" => $genIp,
+						"preVlan" => $genVlan["preVlan"],
+						"usedVlans" => $genVlan["usedVlans"],
+						"device" => $device
+					];
+				}
 			} else if ($req == "distribution") {
 				// 判断是否有变化
 				$ifChanged = false;
@@ -672,7 +685,7 @@ class Manage extends Index
 		}
 		$vlan = Vlantables::check($data["zxType"], $data["aStation"], $data["vlan"]);
 		if ($vlan && $vlan["id"] != $data["id"]) { // 找到vlan且vlan的id与自己的id不同
-			return $this->error("vlan冲突，", null, $vlan["cName"]);
+			return $this->result(null, $vlan["code"], $vlan["cName"]);
 		} else {
 			// 基于Id更新,若更新0条，则新增
 			Vlantables::createVlan($data["aStation"], $data["vlan"], $data["cName"], $data["id"]);
@@ -716,7 +729,6 @@ class Manage extends Index
 	public function tt()
 	{
 		$data = null;
-		return dump();
 		return dump($data);
 	}
 }

@@ -60,8 +60,7 @@
 			}
 		}
 	});
-	$("#list_container").css("height",
-		$(".main").height() - $(".htmltitle").height() - 30 - 10 + "px");
+	$("#list_container").css("height", $(".main").height() - $(".htmltitle").height() - 30 - 10 + "px");
 	//h2的margin、底部预留10
 	var myList = new dhtmlXList({
 		container: "list_container",
@@ -82,9 +81,17 @@
 		var index = myList.indexById(id);
 		var formData = dataList[index];
 		//form_init(formData);	//初始化
-		$.post("?req=getDetail", { "id": id }, function (data0) {
+		$.post("?req=getDetail", {
+			"id": id
+		}, function (data0) {
 			if (data0.url != undefined) {
-				dhtmlx.alert({ text: data0.msg, ok: "刷新一下吧", callback: function () { location.href = data0.url; } });
+				dhtmlx.alert({
+					text: data0.msg,
+					ok: "刷新一下吧",
+					callback: function () {
+						location.href = data0.url;
+					}
+				});
 			}
 			if (typeof _formAjax != "undefined") {
 				form_init(data0);
@@ -114,7 +121,13 @@
 		myForm.removeItem("readme");
 		myForm.enableLiveValidation(true);
 		initCombo();
-		myForm.loadStruct({ data: formData["detail"] });	//加载数据
+		//yForm.attachEvent("onChange", onChangeHandler);
+		myForm.loadStruct({
+			data: formData["detail"]
+		}); //加载数据
+		//onChangeHandler("neFactory", myForm.getItemValue("neFactory"));
+		//onChangeHandler("ifOnu", myForm.getItemValue("ifOnu"));
+		myForm.setRequired("aStation", false);
 		sessionStorage.setItem("formDataBackups", myForm.saveBackup());
 		//formStructure = null;
 		evId == null || myForm.detachEvent("evId");
@@ -129,15 +142,17 @@
 				}
 				//var data = {id: myForm.getFormData().id};
 				$.post("?req=auto_pre", myForm.getFormData(), function (d) {
-					myForm.setItemValue("vlan", d.preVlan);
 					myForm.setItemValue("ip", d.genIp);
-					if (typeof calculateUsedVlans == 'function') {
-						showUsedVlans(d);
-					} else {
-						$.get("../Common/_calculateUsedVlans.html", function (data) {
-							$("body").append(data);
+					if (d.device) {
+						myForm.setItemValue("vlan", d.preVlan);
+						if (typeof calculateUsedVlans == 'function') {
 							showUsedVlans(d);
-						});
+						} else {
+							$.get("../Common/_calculateUsedVlans.html", function (data) {
+								$("body").append(data);
+								showUsedVlans(d);
+							});
+						}
 					}
 				});
 			} else if (id == "commit") {
@@ -155,14 +170,19 @@
 					sessionStorage.setItem("emailData", JSON.stringify(emailData));
 					$.post("?req=distribution", myData, function (data) {
 						if (data.url) {
-							dhtmlx.alert({ text: "登陆超时！", callback: function () { location.href = data.url; } });
+							dhtmlx.alert({
+								text: "登陆超时！",
+								callback: function () {
+									location.href = data.url;
+								}
+							});
 						}
 						dhtmlx.message({
 							type: ["alert-warning", "confirm", "alert"][data.code],
 							title: "&nbsp;",
 							text: data.msg + (data.code ? "" : "已分配给:<br>" + data.data),
 							callback: function (result) {
-								if (data.code != 1) return;	// 已给提示
+								if (data.code != 1) return; // 已给提示
 								result && sendResultEmail();
 								myList.clearAll();
 								data.data && myList.parse(data.data, "json");
@@ -176,14 +196,22 @@
 						}, 600 * 1000);
 					});
 				} else {
-					dhtmlx.alert({ type: "alert-error", title: "数据验证有误", text: "请检查填写是否完整或格式类型是否正确。" });
+					dhtmlx.alert({
+						type: "alert-error",
+						title: "数据验证有误",
+						text: "请检查填写是否完整或格式类型是否正确。"
+					});
 				}
 			} else if (id == "cancel") {
 				//form_init(JSON.parse(sessionStorage.getItem("formData")));
 				myForm.restoreBackup(sessionStorage.getItem("formDataBackups"));
 				dhtmlx.message("表单已重置");
 			} else if (id) {
-				dhtmlx.alert({ type: "alert-warning", title: "warning", text: "按钮事件未定义：" + id });
+				dhtmlx.alert({
+					type: "alert-warning",
+					title: "warning",
+					text: "按钮事件未定义：" + id
+				});
 			}
 		});
 		showRelated(formData["string"], formData["related"]);
@@ -191,13 +219,18 @@
 	/* 显示台账中同客户名的摘要信息 */
 	function showRelated(string, data) {
 		if (data.length == 0) {
-			dhtmlx.message({ id: "_text", text: "不存在同客户名的相关台账信息(参考以预防重复申请)&nbsp;-&nbsp;-&nbsp;-&nbsp;-&nbsp;-&nbsp;<span class='text-primary'>(点击关闭此消息)</span>", expire: 10000 });
+			dhtmlx.message({
+				id: "_text",
+				text: "不存在同客户名的相关台账信息(参考以预防重复申请)&nbsp;-&nbsp;-&nbsp;-&nbsp;-&nbsp;-&nbsp;<span class='text-primary'>(点击关闭此消息)</span>",
+				expire: 10000
+			});
 			dhtmlx.message.hide("_str");
 			return;
 		}
 		var str = '';
 		for (var i in data) {
-			var delete_time_str = data[i]["delete_time"] == null ? "" : "<span class='bg-primary'>" + dhx.date2str(new Date(data[i]["delete_time"] * 1000), "%Y-%m-%d %H:%i:%s") + "已删</span>";
+			var delete_time_str = data[i]["delete_time"] == null ? "" : "<span class='bg-primary'>" + dhx.date2str(new Date(data[
+				i]["delete_time"] * 1000), "%Y-%m-%d %H:%i:%s") + "已删</span>";
 			str += [
 				data[i]["id"],
 				data[i]["instanceId"],
@@ -212,16 +245,26 @@
 				delete_time_str
 			].join(",") + "<br />";
 		}
-		var text = "客户名包含<code>" + string + "</code>的台账信息:(参考以预防重复申请)&nbsp;-&nbsp;-&nbsp;-&nbsp;-&nbsp;-&nbsp;<span class='text-primary'>(点此关闭此消息)</span>";
-		dhtmlx.message({ id: "_text", text: text, expire: -1 });
-		dhtmlx.message({ id: "_str", text: str, expire: -1 });
+		var text = "客户名包含<code>" + string +
+			"</code>的台账信息:(参考以预防重复申请)&nbsp;-&nbsp;-&nbsp;-&nbsp;-&nbsp;-&nbsp;<span class='text-primary'>(点此关闭此消息)</span>";
+		dhtmlx.message({
+			id: "_text",
+			text: text,
+			expire: -1
+		});
+		dhtmlx.message({
+			id: "_str",
+			text: str,
+			expire: -1
+		});
 	}
 	/* 显示已分配vlan */
 	function showUsedVlans(data) {
 		//dhtmlx.alert({width: "700px", title: d.device+" 已使用vlan(集客部分)", text: data});
 		checkWindows("_vlans");
 		var str = '<p class="text-primary" style="padding:15px;">' + calculateUsedVlans(data.usedVlans) + '</p>';
-		var text = "<code>" + myForm.getItemValue("aStation") + data.device + "</code>已使用vlan(集客部分)&nbsp;&nbsp;&nbsp;&nbsp;<a onclick='checkWindows(\"_vlans\")'>点此关闭</a>";
+		var text = "<code>" + myForm.getItemValue("aStation") + data.device +
+			"</code>已使用vlan(集客部分)&nbsp;&nbsp;&nbsp;&nbsp;<a onclick='checkWindows(\"_vlans\")'>点此关闭</a>";
 		dhxWins.createWindow("_vlans", 5, _htmlHeight - 170, 600, 150);
 		dhxWins.window("_vlans").setText(text);
 		dhxWins.window("_vlans").attachHTMLString(str);
@@ -233,10 +276,14 @@
 			if (d.code) {
 				dhtmlx.message("邮件发送成功<br>" + JSON.parse(sessionStorage.getItem("emailData")).address);
 			} else {
-				dhtmlx.alert({ title: "邮件发送失败", text: d.data });
+				dhtmlx.alert({
+					title: "邮件发送失败",
+					text: d.data
+				});
 			}
 		});
 	}
+
 	function checkWindows(id) {
 		dhxWins.isWindow(id) && dhxWins.window(id).close();
 	}

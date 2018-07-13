@@ -607,7 +607,7 @@
 			myForm.disableItem("aStation");
 		}
 		sessionStorage.setItem("formDataBackups", myForm.saveBackup());
-		onChangeEnv();
+		myForm.attachEvent("onChange", onChangeHandler);
 		//formStructure = null;
 		window.evId == null || myForm.detachEvent("evId");
 		evId = myForm.attachEvent("onButtonClick", function (id) {
