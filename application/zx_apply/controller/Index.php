@@ -38,6 +38,9 @@ class Index extends Common
 	public function index()
 	{
 		if (request()->isGet()) {
+			if (request()->url() != "/zx_apply/index/index.html") {
+				return $this->redirect("index");
+			}
 			return $this->fetch();
 		}
 		if (request()->isPost()) {
@@ -149,7 +152,7 @@ class Index extends Common
 		foreach ($data as $k => $v) {
 			if ($v != $oldData[$k]) {
 				$body .= $k . " => [" . $oldData[$k] . "] 改为 [" . $v . "]<br>";
-				$updates[$k] = $oldData[$k] . "=>" . $v;
+				$updates[$k] = "[" . $oldData[$k] . "]=>[" . $v . "]";
 			}
 		}
 		$body .= "</p><p>请登陆系统及时处理：</p><br> 内网： <a href='http://10.65.178.202/zx_apply/index/index.html#Manage/todo'>http://10.65.178.202/zx_apply/index/index.html#Manage/todo</a><br>外网： <a href='http://223.100.98.60:800/zx_apply/index/index.html#Manage/todo'>http://223.100.98.60:800/zx_apply/index/index.html#Manage/todo</a>";

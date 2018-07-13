@@ -668,15 +668,16 @@ class Manage extends Index
 	{
 		if ($data["vlan"] == "") {
 			$data["vlan"] = null;
+			return $data;
+		}
+		$vlan = Vlantables::check($data["zxType"], $data["aStation"], $data["vlan"]);
+		if ($vlan && $vlan["id"] != $data["id"]) { // 找到vlan且vlan的id与自己的id不同
+			return $this->error("vlan冲突，", null, $vlan["cName"]);
 		} else {
-			$vlan = Vlantables::check($data["zxType"], $data["aStation"], $data["vlan"]);
-			if ($vlan && $vlan["id"] != $data["id"]) { // 找到vlan且vlan的id与自己的id不同
-				return $this->error("vlan冲突，", null, $vlan["cName"]);
-			}
-		} 
-		// 基于infoId更新(删除即更新为null)或新增
-		Vlantables::createVlan($data["aStation"], $data["vlan"], $data["cName"], $data["id"]);
-		return $data;
+			// 基于Id更新,若更新0条，则新增
+			Vlantables::createVlan($data["aStation"], $data["vlan"], $data["cName"], $data["id"]);
+			return $data;
+		}
 	}
 
 	/**
@@ -715,6 +716,7 @@ class Manage extends Index
 	public function tt()
 	{
 		$data = null;
+		return dump();
 		return dump($data);
 	}
 }

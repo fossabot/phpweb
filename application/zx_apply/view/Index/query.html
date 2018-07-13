@@ -24,8 +24,8 @@
 			<input type="text" class="form-control" id="searchStr">
 		</div>
 		<button id="btn-search" type="submit" class="btn btn-default" data-toggle="tooltip" data-placement="top" title="当前页搜索不限制列名，可搜索任意字段">当前页搜索</button>
-		<button id="btn-searchAll" class="btn btn-default" data-toggle="tooltip" data-placement="top" title="全局搜索需根据列名搜索">全局搜索</button>
-		<button id="btn-searchBrief" class="btn btn-default" data-toggle="tooltip" data-placement="top" title="基于客户名模糊搜索">基本信息查询</button>
+		<button id="btn-searchAll" class="btn btn-default" data-toggle="tooltip" data-placement="top" title="全局搜索需基于列名搜索">全局搜索</button>
+		<button id="btn-searchBrief" class="btn btn-primary" data-toggle="tooltip" data-placement="top" title="基于列名模糊搜索历史信息">历史信息查询</button>
 		<div id="tips" class="form-group" style="display: none; margin-left: 20px;">
 			<span id="tips-text" class="text-primary"></span>
 			<button id="tips-btn" class="btn btn-xs btn-primary">定位到下一个</button>
@@ -215,7 +215,7 @@
 							// timeout is used to make sure the menu collapsed before alert is shown
 							parent.dhtmlx.alert({
 								title: "特别鸣谢",
-								text: "本菜单由 Xianda 自定义。感谢Xianda"
+								text: "本菜单由 X.Da 自定义。感谢 <a href='https://github.com/thianda' target='_blank'>X.Da</a>"
 							});
 						}, 100);
 					} else if (key === 'reApply') {
@@ -386,7 +386,7 @@
 				});
 			}
 		});
-		/* 基本信息搜索按钮 */
+		/* 历史基本信息搜索按钮 */
 		$("#btn-searchBrief").on("click", function () {
 			var str = $("#searchStr").val();
 			var zxType = $(".htmltitle button.active").prop("name");
@@ -569,7 +569,7 @@
 		}
 	}
 	/**
-	 * 初始化 表单
+	 * 初始化 修改申请的表单
 	 */
 	function form_init(formData) {
 		if (!dhxWins.isWindow("_reApply")) {
@@ -598,6 +598,14 @@
 			data: formData
 		});
 		myForm.oldId = formData["id"];
+		if (myForm.getItemValue("neFactory") == "ONU") {
+			myForm.getCombo("aStation").setComboText("");
+			myForm.getCombo("aStation").setComboValue("");
+			myForm.setNote("neFactory", {
+				text: "ONU的业务无需选择A端基站"
+			});
+			myForm.disableItem("aStation");
+		}
 		sessionStorage.setItem("formDataBackups", myForm.saveBackup());
 		onChangeEnv();
 		//formStructure = null;
