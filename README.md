@@ -1,6 +1,7 @@
 ## X.Da小项目:bow:
 
-[![Build Status](https://travis-ci.org/thianda/phpweb.svg?branch=master)](https://travis-ci.org/thianda/phpweb)
+[![Build Status](https://travis-ci.org/thianda/phpweb.svg?branch=master)](https://travis-ci.org/thianda/phpweb)[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fthianda%2Fphpweb.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fthianda%2Fphpweb?ref=badge_shield)
+
 
 基于ThinkPHP 5.0.x开发
 
@@ -60,3 +61,7 @@ composer 的安装及使用请查看： [composer 中文网](http://www.phpcompo
   ```sh
   ./x.da-build-sh.sh
   ```
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fthianda%2Fphpweb.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fthianda%2Fphpweb?ref=badge_large)
